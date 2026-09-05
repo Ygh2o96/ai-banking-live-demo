@@ -1,0 +1,135 @@
+:root {
+  --ink: #eef0e9;
+  --muted: #a9b2aa;
+  --forest: #17261f;
+  --forest-2: #20372d;
+  --paper: #efe7d6;
+  --line: rgba(224, 211, 182, .22);
+  --copper: #c38a55;
+  --green: #63ba8c;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { color: var(--ink); background: #0e1713; }
+button { font: inherit; }
+
+.orchestrator-shell {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 74px minmax(0, 1fr) 28px;
+  background: #0e1713;
+}
+
+.orchestrator-topbar {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(265px, .75fr) minmax(560px, 1.7fr) minmax(210px, .55fr);
+  align-items: stretch;
+  border-bottom: 1px solid var(--line);
+  background: var(--forest);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .24);
+  z-index: 5;
+}
+
+.orchestrator-brand,
+.orchestrator-actions { display: flex; align-items: center; }
+.orchestrator-brand { gap: 12px; padding: 0 18px; min-width: 0; }
+.orchestrator-brand strong { display: block; overflow: hidden; font-size: 12px; letter-spacing: .11em; white-space: nowrap; text-overflow: ellipsis; }
+.orchestrator-brand small { display: block; overflow: hidden; margin-top: 5px; color: var(--muted); font: 650 9px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .07em; white-space: nowrap; text-overflow: ellipsis; }
+.brand-mark { width: 26px; height: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; align-items: end; flex: 0 0 auto; }
+.brand-mark i { display: block; background: var(--copper); }
+.brand-mark i:nth-child(1) { height: 44%; }
+.brand-mark i:nth-child(2) { height: 74%; background: #d6aa73; }
+.brand-mark i:nth-child(3) { height: 100%; background: var(--green); }
+
+.orchestrator-tabs { min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.orchestrator-tab {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  color: #b7c2ba;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.orchestrator-tab:last-child { border-right: 1px solid var(--line); }
+.orchestrator-tab b { color: var(--copper); font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.orchestrator-tab span { min-width: 0; overflow: hidden; font-weight: 760; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.orchestrator-tab small { display: block; overflow: hidden; margin-top: 4px; color: #849189; font: 650 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-overflow: ellipsis; }
+.orchestrator-tab:hover { color: #fff; background: rgba(255, 255, 255, .035); }
+.orchestrator-tab:focus-visible { outline: 2px solid #d6aa73; outline-offset: -3px; }
+.orchestrator-tab.is-active { color: #fff; background: var(--forest-2); box-shadow: inset 0 -4px 0 var(--copper); }
+.orchestrator-tab.is-active small { color: #b8cabe; }
+
+.orchestrator-actions { justify-content: flex-end; gap: 10px; padding: 0 14px; }
+.orchestrator-status { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--muted); font: 650 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.orchestrator-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(99, 186, 140, .13); flex: 0 0 auto; }
+.orchestrator-status span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reset-button { width: 36px; height: 36px; border: 1px solid var(--line); color: #f2e8d5; background: rgba(255, 255, 255, .035); cursor: pointer; font-size: 20px; }
+.reset-button:hover { border-color: var(--copper); background: rgba(195, 138, 85, .12); }
+
+.orchestrator-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--paper); }
+.lane-panel { position: absolute; inset: 0; min-width: 0; min-height: 0; background: var(--paper); }
+.lane-panel[hidden] { display: none; }
+.lane-panel iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--paper); }
+.lane-panel[data-lane="regulatory"] { background: #08130f; }
+.lane-panel[data-lane="qa"] { background: #f1ede4; }
+
+.orchestrator-foot {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 14px;
+  border-top: 1px solid var(--line);
+  color: #88958c;
+  background: #101b16;
+  font: 650 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .055em;
+  white-space: nowrap;
+}
+.orchestrator-foot span:last-child { overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 1080px) {
+  .orchestrator-shell { grid-template-rows: 68px minmax(0, 1fr) 26px; }
+  .orchestrator-topbar { grid-template-columns: 190px minmax(470px, 1fr) 128px; }
+  .orchestrator-brand { padding: 0 12px; }
+  .orchestrator-brand strong { font-size: 10px; }
+  .orchestrator-brand small { display: none; }
+  .orchestrator-tab { padding: 0 10px; grid-template-columns: 25px minmax(0, 1fr); }
+  .orchestrator-tab span { font-size: 12px; }
+  .orchestrator-actions { padding: 0 10px; }
+  .orchestrator-status span { display: none; }
+}
+
+@media (max-width: 760px) {
+  .orchestrator-shell { grid-template-rows: 62px minmax(0, 1fr) 24px; }
+  .orchestrator-topbar { grid-template-columns: 58px minmax(0, 1fr) 48px; }
+  .orchestrator-brand { justify-content: center; padding: 0; }
+  .orchestrator-brand > div { display: none; }
+  .brand-mark { width: 23px; height: 24px; }
+  .orchestrator-tab { display: flex; justify-content: center; padding: 0 6px; text-align: center; }
+  .orchestrator-tab b { display: none; }
+  .orchestrator-tab span { display: none; }
+  .orchestrator-tab::after { content: attr(data-short); font-size: 11px; font-weight: 760; white-space: nowrap; }
+  .orchestrator-tab { min-height: 48px; touch-action: manipulation; }
+  .orchestrator-actions { padding: 0 6px; }
+  .orchestrator-status { display: none; }
+  .reset-button { width: 34px; height: 34px; }
+  .orchestrator-foot { padding: 0 8px; font-size: 8px; }
+  .orchestrator-foot span:first-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orchestrator-tab { transition: none; }
+}
