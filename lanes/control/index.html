@@ -6,13 +6,13 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f1ede4">
   <title>04 闭环 · 从自动化到可复验</title>
-  <link rel="stylesheet" href="styles.css?v=r11-0905">
+  <link rel="stylesheet" href="styles.css?v=r12-0905">
 </head>
 <body>
   <main class="control-page">
     <header class="control-hero">
       <figure class="control-portrait" aria-label="钱学森在控制系统工作台前进行人机协作的创意合成图">
-        <img src="assets/qian-control-vibe-coding.webp?v=r11-0905" alt="钱学森在老式工程工作台前使用计算机，照片边缘融入控制回路与达芬奇式工程线稿的创意合成图">
+        <img src="assets/qian-control-vibe-coding.webp?v=r12-0905" alt="钱学森在老式工程工作台前使用带有 AI、华泰和 Codex 标记的计算机，照片边缘融入控制回路与达芬奇式工程线稿的创意合成图">
         <figcaption>创意合成 · 并非历史照片</figcaption>
       </figure>
       <div class="control-kicker"><span>04</span> CONTROL LOOP</div>
@@ -44,6 +44,7 @@
         </div>
 
         <div id="loop-stage" class="loop-stage" aria-live="polite">
+          <img class="control-loop-art" src="assets/control-loop-blueprint.webp?v=r12-0905" alt="目标、观察、比较偏差与上游纠偏组成的控制系统能量闭环创意图">
           <svg class="loop-track" viewBox="0 0 760 430" role="img" aria-label="目标、观察、比较偏差、纠偏后回到目标的闭环">
             <defs>
               <marker id="loop-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -56,16 +57,16 @@
 
           <div id="loop-packet" class="loop-packet" aria-hidden="true"><i></i></div>
 
-          <article class="loop-node node-target is-active" data-loop-node="0" style="--x: 28%; --y: 14%;">
+          <article class="loop-node node-target is-active" data-loop-node="0" style="--x: 22%; --y: 20%;">
             <span>01</span><strong>定目标</strong><p>先说清什么叫做完</p><small>口径 · 边界 · 责任人</small>
           </article>
-          <article class="loop-node node-observe" data-loop-node="1" style="--x: 78%; --y: 39%;">
+          <article class="loop-node node-observe" data-loop-node="1" style="--x: 78%; --y: 22%;">
             <span>02</span><strong>看实际</strong><p>从来源和结果看事实</p><small>原文 · 公式 · 检查记录</small>
           </article>
-          <article class="loop-node node-compare" data-loop-node="2" style="--x: 55%; --y: 76%;">
+          <article class="loop-node node-compare" data-loop-node="2" style="--x: 78%; --y: 73%;">
             <span>03</span><strong>找偏差</strong><p>实际和目标哪里没对上</p><small>漏项 · 错配 · 例外</small>
           </article>
-          <article class="loop-node node-correct" data-loop-node="3" style="--x: 15%; --y: 61%;">
+          <article class="loop-node node-correct" data-loop-node="3" style="--x: 21%; --y: 74%;">
             <span>04</span><strong>修上游</strong><p>不在结果页打一块补丁</p><small>改来源 / 公式 / 规则，再跑</small>
           </article>
 
@@ -82,46 +83,47 @@
         </div>
       </section>
 
-      <section class="work-section" aria-labelledby="work-title">
+      <section class="work-section opportunity-section" aria-labelledby="work-title">
         <div class="section-heading work-heading">
-          <div><span>B / THREE WORK TYPES</span><h2 id="work-title">三类工作，最值得先做</h2></div>
+          <div><span>B / AI OPPORTUNITY LENS</span><h2 id="work-title">从业务需求，识别 AI 提效潜力</h2></div>
+          <p>别只盯着“重复劳动”。越往下，越接近判断增强。</p>
         </div>
 
-        <div class="work-list">
-          <article class="work-item" data-work="retrieval">
-            <div class="work-number">01</div>
-            <div class="work-copy">
-              <div class="work-label"><span>查资料</span><small>HERO 03 · 先例检索</small></div>
-              <h3>资料多、入口散，还要回到原文</h3>
-              <p>先把候选找全，再收窄到案例、页码和适用边界。</p>
-              <dl><div><dt>机器先做</dt><dd>检索、归组、回链</dd></div><div><dt>人来判断</dt><dd>是不是同一问题，案例能不能用</dd></div></dl>
-            </div>
+        <div class="opportunity-ladder">
+          <article class="opportunity-tier tier-foundation" data-tier="01">
+            <header><span>01 · 基础</span><b>AUTOMATE</b></header>
+            <h3>量大、重复、可以核证</h3>
+            <p>规则已经写得清楚，主要价值是少做机械动作、少漏项。</p>
+            <ul><li>批量抽取与格式检查</li><li>数据核证与勾稽</li><li>Checklist 重跑</li></ul>
+            <dl><div><dt>机器先做</dt><dd>执行、比对、留痕</dd></div><div><dt>人来判断</dt><dd>样本、阈值和例外</dd></div></dl>
           </article>
 
-          <article class="work-item" data-work="model">
-            <div class="work-number">02</div>
-            <div class="work-copy">
-              <div class="work-label"><span>跑模型</span><small>HERO 01 · 财务模型</small></div>
-              <h3>公式链长，一个假设会牵动很多表</h3>
-              <p>沿公式重算，比较实际与预期；对不上就展开 lineage。</p>
-              <dl><div><dt>机器先做</dt><dd>联动、枚举、勾稽</dd></div><div><dt>人来判断</dt><dd>假设能不能改，目标是否合理</dd></div></dl>
-            </div>
+          <article class="opportunity-tier tier-structure" data-tier="02">
+            <header><span>02 · 中级</span><b>LOW-HANGING FRUIT</b></header>
+            <h3>公开、可抓、能够结构化整合</h3>
+            <p>信息本来散落在网页、PDF 和表格里；先接成一套可比较的数据底盘。</p>
+            <ul><li>监管进度与市场数据库</li><li>先例库与可比公司</li><li>估值模型数据底盘</li></ul>
+            <dl><div><dt>机器先做</dt><dd>抓取、归组、版本对比</dd></div><div><dt>人来判断</dt><dd>口径、可比性和适用边界</dd></div></dl>
           </article>
 
-          <article class="work-item" data-work="review">
-            <div class="work-number">03</div>
-            <div class="work-copy">
-              <div class="work-label"><span>持续复核</span><small>HERO 02 · 监管雷达</small></div>
-              <h3>每天都要跑，规则和来源还会变化</h3>
-              <p>主线持续更新，抽查回上游修；每周再看该不该改规则。</p>
-              <dl><div><dt>机器先做</dt><dd>监测、抽查、重跑</dd></div><div><dt>人来判断</dt><dd>问题是否成立，何时换版本</dd></div></dl>
-            </div>
+          <article class="opportunity-tier tier-advanced" data-tier="03">
+            <header><span>03 · 高级</span><b>AUGMENT JUDGMENT</b></header>
+            <h3>跨文件找模式，在结果出现前看见风险与价值</h3>
+            <p>依赖链横跨文件、数据表和结论；需要 pattern recognition，也需要项目经验与模型“手感”。</p>
+            <ul><li>多文件交叉与矛盾定位</li><li>风险预警与红旗挖掘</li><li>估值情景、模型调参与敏感性</li><li>价值线索与“打开视角”的案例</li></ul>
+            <dl><div><dt>机器先做</dt><dd>连依赖、扫模式、排异常</dd></div><div><dt>人来判断</dt><dd>是否重要、为什么、下一步怎么做</dd></div></dl>
           </article>
         </div>
 
-        <aside class="fit-note" role="note">
-          <span>一个简单判断</span>
-          <p><b>重复出现、规则可写、结果可查、错误能反馈</b>——这样的工作，通常值得先接成闭环。</p>
+        <div class="demo-map" aria-label="本次三个演示与机会层级的对应关系">
+          <article><span>HERO 03</span><b>查资料</b><p>从公开材料整合，走向跨文件 pattern。</p></article>
+          <article><span>HERO 01</span><b>跑模型</b><p>从公式联动，走向估值与情景判断。</p></article>
+          <article><span>HERO 02</span><b>持续复核</b><p>从定期检查，走向风险预警与规则反馈。</p></article>
+        </div>
+
+        <aside class="fit-note opportunity-note" role="note">
+          <span>一个更好的问题</span>
+          <p>不只问“这一步能不能自动化”，还要问：<b>哪些原来查不完、比不动、看不见的信号，现在可以变成可判断的证据？</b></p>
         </aside>
       </section>
     </section>
@@ -131,6 +133,6 @@
       <a href="../../?scene=hero5" target="_top">进入现场问答 <span aria-hidden="true">→</span></a>
     </footer>
   </main>
-  <script src="app.js?v=r11-0905"></script>
+  <script src="app.js?v=r12-0905"></script>
 </body>
 </html>
