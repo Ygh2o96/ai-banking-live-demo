@@ -69,11 +69,50 @@
     engine: "rag-engine",
     results: "results",
   });
+  const RAG_STAGE_DETAILS = Object.freeze({
+    chunk: {
+      kicker: "01 / 整理原文",
+      title: "先把招股书拆成可回查的证据段",
+      lead: "不是随意切文字。标题、正文、表格、脚注、页码和前后文要一起保留。",
+      boundary: "每个回答最后都必须能回到原 PDF 页，找不回去就不算证据。",
+      steps: ["识别章节和页码", "保留表格与脚注", "补齐前后文", "写入可回查索引"],
+    },
+    search: {
+      kicker: "02 / 广泛查找",
+      title: "四路同时起跑，先别过早漏掉候选",
+      lead: "精确措辞、相近表达、主体别名和章节条件分开找，各自返回候选。",
+      boundary: "这一步只负责找广，不把“看起来像”直接当成可用先例。",
+      steps: ["精确词命中", "语义相近召回", "公司与角色别名", "年份、章节与文件类型过滤"],
+    },
+    fusion: {
+      kicker: "03 / 合并结果",
+      title: "先合并重复，再让四路候选可比",
+      lead: "不同检索方式的分数不能直接横比，所以先看各路排名，再按文件归组。",
+      boundary: "去重不等于只留一种案例；事实型、分析型和披露型先例要分开保留。",
+      steps: ["同段去重", "相邻段合并", "按文件归组", "按各路排名综合比较"],
+    },
+    read: {
+      kicker: "04 / 深读核验",
+      title: "把候选放回整章，看它到底是不是同一个问题",
+      lead: "逐项检查主体、交易、角色、分析、结论和页码，并记录哪些只是字面相似。",
+      boundary: "最终适用性由 Banker 判断；模型可以排序和提醒疑点，不代替专业裁决。",
+      steps: ["回读完整章节", "补看表格与脚注", "检查事实和角色", "记录可用边界与反例"],
+    },
+    evidence: {
+      kicker: "05 / 回到证据",
+      title: "不只给一个“最相似”，而是分类选出最值得看的案例",
+      lead: "事实最近、分析最完整、披露最可借鉴，再加一个关键边界反例。",
+      boundary: "每张结果卡必须带文件、页码和适用边界；不足五个就返回实际数量，不凑数。",
+      steps: ["事实最近", "法律或会计分析最完整", "披露表达最可借鉴", "关键边界反例"],
+    },
+  });
   let rouletteTimer = null;
   let rouletteFrame = null;
   let rouletteState = null;
+  let rouletteDialAnimation = null;
   let selectionTimer = null;
   let rouletteAngle = 0;
+  let stageDrawerTrigger = null;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function escapeHtml(value) {
@@ -148,11 +187,11 @@
       '<header class="pr-view-head"><div><span>招股书 RAG · 完整流程</span><h3>先尽量找全，再逐项读准</h3><p>发现证据缺口，就继续检索；输出前再回到原始招股书页面。</p></div><div class="pr-engine-head-actions"><strong>查找 → 深读 → 原文核验</strong><button id="pr-engine-motion-toggle" class="pr-motion-toggle" type="button" aria-pressed="false">暂停动效</button></div></header>',
       '<section class="pr-query-plan"><div><span>先把问题说清楚</span><strong>定义必须出现、可以扩展和明确排除的内容</strong></div><p><b>必须出现</b> 真实交易 + 对象角色 + 议题事实</p><p><b>可以扩展</b> 中英同义词 + 法规术语 + 相邻章节</p><p class="pr-exclusion"><b>明确排除</b> 一般风险 + 角色错配 + 无交易事实</p></section>',
       '<div class="pr-engine-flow" aria-label="原文整理、广泛查找、结果合并、深读核验和最佳先例选择的五阶段证据信号流">',
-      '<section class="pr-engine-zone pr-chunk-zone"><header><span>01 · 整理原文</span><strong>按章节与自然段切分</strong></header><div class="pr-document-glyph" aria-hidden="true"><i></i><i></i><i></i></div><p>标题、段落、表格、脚注和页码一起保存；每段都能回到所在章节和前后文。</p><code>每段约 350–550 词 · 保留前后文与页码</code></section>',
-      '<section class="pr-engine-zone pr-fast-zone"><header><span>02 · 广泛查找</span><strong>四个方向并行找候选</strong></header><div class="pr-four-lanes"><article><b>A</b><span>精确措辞</span><small>关键词与固定短语</small></article><article><b>B</b><span>相近表达</span><small>说法不同、意思相同</small></article><article><b>C</b><span>主体别名</span><small>公司、客户代号、清单名</small></article><article><b>D</b><span>章节筛选</span><small>年份、章节、角色过滤</small></article></div><em>先尽量找全，再逐项收窄</em></section>',
-      '<section class="pr-engine-zone pr-fusion-zone"><header><span>03 · 合并结果</span><strong>让四路候选可比</strong></header><div class="pr-rrf-mark"><b>Σ</b><code>按各路排名加权</code></div><ol><li>同段去重</li><li>相邻段合并</li><li>按文件归组</li><li>保留不同类型案例</li></ol><p>不同检索方式的分数口径不同，先看各路排名，再综合比较。</p></section>',
-      '<section class="pr-engine-zone pr-slow-zone"><header><span>04 · 深读核验</span><strong>逐项判断是否真的可比</strong></header><ol><li><b>回读完整章节</b><span>查看前后段、表格与脚注</span></li><li><b>逐项比较相关性</b><span>把问题与完整候选放在一起判断</span></li><li><b>检查是否完整</b><span>主体、交易、分析、结论、页码</span></li><li><b>判断是否适用</b><span>角色、法规依据与事实边界</span></li></ol><code>候选 30 篇 → 深读 8 篇</code></section>',
-      '<section class="pr-engine-zone pr-evidence-zone"><header><span>05 · BEST MATCH</span><strong>分类型选最佳先例</strong></header><div><article><small>CLOSEST FACTUAL</small><b>事实最接近</b></article><article><small>LEGAL ANALYSIS</small><b>分析最完整</b></article><article><small>DISCLOSURE</small><b>披露最可借鉴</b></article><article class="pr-near-miss"><small>NEAR MISS</small><b>关键边界对照</b></article></div></section>',
+      '<section class="pr-engine-zone pr-chunk-zone"><header><span>01 · 整理原文</span><strong>按章节与自然段切分</strong><button type="button" class="pr-stage-open" data-pr-stage-drawer="chunk">拆开看</button></header><div class="pr-document-glyph" aria-hidden="true"><i></i><i></i><i></i></div><p>标题、段落、表格、脚注和页码一起保存；每段都能回到所在章节和前后文。</p><code>每段约 350–550 词 · 保留前后文与页码</code></section>',
+      '<section class="pr-engine-zone pr-fast-zone"><button type="button" class="pr-zone-drawer-handle" data-pr-stage-drawer="search" aria-label="打开广泛查找动画讲解">→</button><header><span>02 · 广泛查找</span><strong>四个方向并行找候选</strong></header><div class="pr-four-lanes"><article><b>A</b><span>精确措辞</span><small>关键词与固定短语</small></article><article><b>B</b><span>相近表达</span><small>说法不同、意思相同</small></article><article><b>C</b><span>主体别名</span><small>公司、客户代号、清单名</small></article><article><b>D</b><span>章节筛选</span><small>年份、章节、角色过滤</small></article></div><em>先尽量找全，再逐项收窄</em></section>',
+      '<section class="pr-engine-zone pr-fusion-zone"><button type="button" class="pr-zone-drawer-handle" data-pr-stage-drawer="fusion" aria-label="打开合并结果动画讲解">→</button><header><span>03 · 合并结果</span><strong>让四路候选可比</strong></header><div class="pr-rrf-mark"><b>Σ</b><code>按各路排名加权</code></div><ol><li>同段去重</li><li>相邻段合并</li><li>按文件归组</li><li>保留不同类型案例</li></ol><p>不同检索方式的分数口径不同，先看各路排名，再综合比较。</p></section>',
+      '<section class="pr-engine-zone pr-slow-zone"><button type="button" class="pr-zone-drawer-handle" data-pr-stage-drawer="read" aria-label="打开深读核验动画讲解">→</button><header><span>04 · 深读核验</span><strong>逐项判断是否真的可比</strong></header><ol><li><b>回读完整章节</b><span>查看前后段、表格与脚注</span></li><li><b>逐项比较相关性</b><span>把问题与完整候选放在一起判断</span></li><li><b>检查是否完整</b><span>主体、交易、分析、结论、页码</span></li><li><b>判断是否适用</b><span>角色、法规依据与事实边界</span></li></ol><code>候选 30 篇 → 深读 8 篇</code></section>',
+      '<section class="pr-engine-zone pr-evidence-zone"><button type="button" class="pr-zone-drawer-handle" data-pr-stage-drawer="evidence" aria-label="打开最佳先例动画讲解">→</button><header><span>05 · BEST MATCH</span><strong>分类型选最佳先例</strong></header><div><article><small>CLOSEST FACTUAL</small><b>事实最接近</b></article><article><small>LEGAL ANALYSIS</small><b>分析最完整</b></article><article><small>DISCLOSURE</small><b>披露最可借鉴</b></article><article class="pr-near-miss"><small>NEAR MISS</small><b>关键边界对照</b></article></div></section>',
       '</div>',
       '<div class="pr-proof-loop"><section><header><span>证据缺口循环</span><strong>发现证据缺口，就继续检索</strong></header><ol><li><b>01</b>规划检索词</li><li><b>02</b>并行找候选</li><li><b>03</b>合并与去重</li><li><b>04</b>深读并排序</li><li><b>05</b>在文档内追问</li><li><b>06</b>回到原 PDF 页</li></ol></section><section><header><span>每周复盘</span><strong>看清案例在哪一步被漏掉</strong></header><div><p><b>第一轮没找到</b><span>检查切分、词典和候选范围</span></p><p><b>合并时掉队</b><span>检查多路结果是否合理合并</span></p><p><b>深读后排低</b><span>检查排序依据和门槛</span></p><p><b>继续追问仍没找到</b><span>检查追问路径，以及什么时候已经查够</span></p></div><footer>是否找全 · 前十是否有用 · 页码是否准确 · 是否误报 · 响应是否及时</footer></section></div>',
       '</section>',
@@ -171,6 +210,15 @@
     rail.insertAdjacentHTML("beforeend", [
       '<div class="pr-rail-panel" data-pr-rail="live"><div class="scene-index">HERO 03 / LIVE PRECEDENT SEARCH</div><h1>你来定问题，我们用招股书原文回答。</h1><p class="scene-purpose">选择一个议题，现场生成检索任务；最终答案必须回到具体案例、披露页和适用边界。</p><div class="rail-rule"></div><div class="pr-rail-steps"><p><b>01</b><span>选择议题</span><small>观众点题或轮盘随机</small></p><p><b>02</b><span>复制任务书</span><small>5 个扎实案例 · 40 分钟</small></p><p><b>03</b><span>回到证据</span><small>招股书 · 页码 · 上下文</small></p></div></div>',
       '<div class="pr-rail-panel" data-pr-rail="engine" hidden><div class="scene-index">HERO 03 / 招股书 RAG</div><h1>先尽量找全，再逐项读准，最后回到原始证据页。</h1><p class="scene-purpose">四个方向并行查找；合并重复结果；深读候选并补齐证据，最后交由 Banker 判断。</p><div class="rail-rule"></div><div class="pr-rail-steps"><p><b>01</b><span>广泛查找</span><small>措辞 · 语义 · 别名 · 章节</small></p><p><b>02</b><span>合并去重</span><small>按排名综合比较</small></p><p><b>03</b><span>深读核验</span><small>相关性 · 完整度 · 适用性</small></p><p><b>04</b><span>回到证据</span><small>招股书原文页</small></p><p><b>05</b><span>每周复盘</span><small>追查案例在哪一步被漏掉</small></p></div></div>',
+    ].join(""));
+
+    hero.insertAdjacentHTML("beforeend", [
+      '<div id="pr-stage-scrim" class="pr-stage-scrim" hidden></div>',
+      '<aside id="pr-stage-drawer" class="pr-stage-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="pr-stage-title">',
+      '<header><div><span id="pr-stage-kicker">RAG ENGINE / 拆开看</span><h2 id="pr-stage-title">检索步骤讲解</h2></div><button id="pr-stage-close" type="button" aria-label="关闭检索步骤讲解">×</button></header>',
+      '<div id="pr-stage-body" class="pr-stage-body"></div>',
+      '<footer><button id="pr-stage-replay" type="button">重新播放</button><button id="pr-stage-pause" type="button" aria-pressed="false">暂停讲解</button></footer>',
+      '</aside>',
     ].join(""));
 
     workspaceHeader.insertAdjacentHTML("afterend", [
@@ -193,13 +241,16 @@
   function stopRoulette() {
     if (rouletteTimer !== null) window.clearTimeout(rouletteTimer);
     if (rouletteFrame !== null) window.cancelAnimationFrame(rouletteFrame);
+    if (rouletteDialAnimation) rouletteDialAnimation.cancel();
     rouletteTimer = null;
     rouletteFrame = null;
+    rouletteDialAnimation = null;
     rouletteState = null;
     const dial = document.querySelector("#pr-roulette-window .pr-roulette-dial");
     if (dial) {
       dial.style.removeProperty("transition");
       dial.style.removeProperty("transform");
+      dial.style.removeProperty("filter");
     }
   }
 
@@ -241,13 +292,59 @@
     document.getElementById("pr-copy-prompt").disabled = false;
   }
 
-  function paintRoulette(hero, root, issue, step, totalSteps, durationMs, locking) {
-    rouletteAngle += locking ? 120 : 480;
-    root.style.setProperty("--pr-angle", rouletteAngle + "deg");
+  function startDialCruise(state) {
+    const dial = state.root.querySelector(".pr-roulette-dial");
+    state.spinCycleMs = 680;
+    state.spinBaseAngle = rouletteAngle;
+    rouletteDialAnimation = dial.animate([
+      { transform: `rotate(${state.spinBaseAngle}deg)` },
+      { transform: `rotate(${state.spinBaseAngle + 360}deg)` },
+    ], {
+      duration: state.spinCycleMs,
+      iterations: Infinity,
+      easing: "linear",
+    });
+    rouletteDialAnimation.playbackRate = 1.45;
+    state.dialAnimation = rouletteDialAnimation;
+  }
+
+  function beginDialLock(state, winnerIndex, durationMs) {
+    const dial = state.root.querySelector(".pr-roulette-dial");
+    const cruiseTime = Number(state.dialAnimation?.currentTime) || 0;
+    const currentAngle = state.spinBaseAngle + (cruiseTime / state.spinCycleMs) * 360;
+    const targetModulo = (360 - winnerIndex * 60) % 360;
+    const currentModulo = ((currentAngle % 360) + 360) % 360;
+    const alignment = (targetModulo - currentModulo + 360) % 360;
+    const lockAngle = currentAngle + 720 + alignment;
+    const lockDurationMs = Math.max(1350, Math.round(durationMs * 1.35));
+
+    state.dialAnimation?.cancel();
+    state.root.classList.add("is-locking");
+    state.root.style.setProperty("--pr-angle", lockAngle + "deg");
+    rouletteAngle = lockAngle;
+    rouletteDialAnimation = dial.animate([
+      { transform: `rotate(${currentAngle}deg)`, filter: "blur(.75px)" },
+      { offset: .72, transform: `rotate(${lockAngle - 20}deg)`, filter: "blur(.18px)" },
+      { transform: `rotate(${lockAngle}deg)`, filter: "blur(0)" },
+    ], {
+      duration: lockDurationMs,
+      easing: "cubic-bezier(.12,.78,.12,1)",
+      fill: "forwards",
+    });
+    state.dialAnimation = rouletteDialAnimation;
+    return lockDurationMs;
+  }
+
+  function paintRoulette(state, issue, step, totalSteps, durationMs, locking) {
+    const { hero, root } = state;
     root.style.setProperty("--pr-duration", durationMs + "ms");
     root.style.setProperty("--pr-progress", String((step + 1) / totalSteps));
     root.classList.remove("is-ticking", "is-locked");
     root.classList.add("is-spinning");
+    if (!locking && state.dialAnimation) {
+      const progress = totalSteps <= 1 ? 1 : step / (totalSteps - 1);
+      state.dialAnimation.playbackRate = Math.max(.72, 1.45 - progress * .72);
+    }
     void root.offsetWidth;
     root.classList.add("is-ticking");
     root.querySelector("[data-pr-roulette-kicker]").textContent = locking ? "LOCKING" : "SPIN " + String(step + 1).padStart(2, "0") + " / " + String(totalSteps).padStart(2, "0");
@@ -259,7 +356,7 @@
   function lockRoulette(hero, root, issue) {
     clearPreview(hero);
     hero.classList.remove("pr-roulette-paused");
-    root.classList.remove("is-spinning", "is-ticking", "is-paused");
+    root.classList.remove("is-spinning", "is-ticking", "is-paused", "is-locking");
     root.classList.add("is-locked");
     root.style.setProperty("--pr-progress", "1");
     root.setAttribute("aria-busy", "false");
@@ -277,7 +374,7 @@
     const runButton = document.getElementById("pr-roulette-run");
     const pauseButton = document.getElementById("pr-roulette-pause");
     if (!root || !runButton || !pauseButton) return;
-    root.classList.remove("is-spinning", "is-ticking", "is-locked", "is-paused");
+    root.classList.remove("is-spinning", "is-ticking", "is-locked", "is-paused", "is-locking");
     root.style.setProperty("--pr-progress", "0");
     root.setAttribute("aria-busy", "false");
     root.setAttribute("aria-live", "polite");
@@ -314,9 +411,7 @@
       rouletteTimer = null;
       rouletteFrame = null;
       state.remainingMs = Math.max(0, state.dueAt - performance.now());
-      const frozenTransform = window.getComputedStyle(dial).transform;
-      dial.style.transition = "none";
-      dial.style.transform = frozenTransform;
+      state.dialAnimation?.pause();
       root.classList.add("is-paused");
       hero.classList.add("pr-roulette-paused");
       root.setAttribute("aria-busy", "false");
@@ -339,12 +434,7 @@
     pauseButton.textContent = "暂停轮盘";
     pauseButton.setAttribute("aria-pressed", "false");
     document.getElementById("pr-prompt-status").textContent = "随机轮盘继续转动 · 等待落点";
-    void dial.offsetWidth;
-    dial.style.removeProperty("transition");
-    rouletteFrame = window.requestAnimationFrame(() => {
-      rouletteFrame = null;
-      if (rouletteState === state && !state.paused) dial.style.removeProperty("transform");
-    });
+    state.dialAnimation?.play();
     if (state.pending) scheduleRoulette(state, state.pending, resumeDelayMs);
   }
 
@@ -407,20 +497,25 @@
       pending: null,
       remainingMs: 0,
       dueAt: 0,
+      dialAnimation: null,
+      spinCycleMs: 680,
+      spinBaseAngle: rouletteAngle,
     };
     rouletteState = state;
     pauseButton.disabled = false;
     pauseButton.textContent = "暂停轮盘";
     pauseButton.setAttribute("aria-pressed", "false");
+    startDialCruise(state);
     const advance = () => {
       if (rouletteState !== state) return;
       const issue = state.candidates[(state.startIndex + state.step) % state.candidates.length];
       const progress = state.totalSteps <= 1 ? 1 : state.step / (state.totalSteps - 1);
       const durationMs = Math.round(state.minimumDelayMs + (state.maximumDelayMs - state.minimumDelayMs) * progress * progress);
       const locking = state.step === state.totalSteps - 1;
-      paintRoulette(state.hero, state.root, issue, state.step, state.totalSteps, durationMs, locking);
+      paintRoulette(state, issue, state.step, state.totalSteps, durationMs, locking);
       if (locking) {
-        scheduleRoulette(state, () => finishRoulette(state), durationMs);
+        const lockDurationMs = beginDialLock(state, winnerIndex, durationMs);
+        scheduleRoulette(state, () => finishRoulette(state), lockDurationMs);
         return;
       }
       state.step += 1;
@@ -475,6 +570,7 @@
 
   function setView(hero, view, updateHistory = true) {
     const safeView = Object.hasOwn(VIEW_STATE, view) ? view : "live";
+    if (safeView !== "engine") closeStageDrawer(hero);
     if (safeView !== "live") {
       resetRoulette(hero);
     }
@@ -523,6 +619,66 @@
     document.getElementById("pr-prompt-status").textContent = "已复制 · 可以开始检索";
   }
 
+  function stageVisualMarkup(stage, detail) {
+    const tokens = detail.steps.map((step, index) => `<article style="--pr-stage-index:${index}"><b>${String(index + 1).padStart(2, "0")}</b><span>${escapeHtml(step)}</span><i></i></article>`).join("");
+    return `<div class="pr-stage-visual" data-pr-stage-visual="${escapeHtml(stage)}" aria-label="${escapeHtml(detail.title)} 动画示意">
+      <div class="pr-stage-grid" aria-hidden="true"></div>
+      <div class="pr-stage-token-track">${tokens}<em aria-hidden="true"></em></div>
+      <div class="pr-stage-proof"><span>OUTPUT</span><strong>${stage === "evidence" ? "案例 · 页码 · 适用边界" : stage === "read" ? "可用 / 排除 / 待判断" : stage === "fusion" ? "去重 · 归组 · 综合排序" : stage === "search" ? "四路候选池" : "可回查证据段"}</strong></div>
+    </div>`;
+  }
+
+  function openStageDrawer(hero, stage, trigger) {
+    const detail = RAG_STAGE_DETAILS[stage];
+    if (!detail) return;
+    stageDrawerTrigger = trigger || null;
+    const drawer = document.getElementById("pr-stage-drawer");
+    const scrim = document.getElementById("pr-stage-scrim");
+    document.getElementById("pr-stage-kicker").textContent = detail.kicker;
+    document.getElementById("pr-stage-title").textContent = detail.title;
+    document.getElementById("pr-stage-body").innerHTML = `<section class="pr-stage-copy"><p>${escapeHtml(detail.lead)}</p><strong>不能越过的边界</strong><span>${escapeHtml(detail.boundary)}</span></section>${stageVisualMarkup(stage, detail)}`;
+    document.getElementById("pr-stage-pause").textContent = "暂停讲解";
+    document.getElementById("pr-stage-pause").setAttribute("aria-pressed", "false");
+    scrim.hidden = false;
+    drawer.classList.remove("is-paused", "is-running");
+    drawer.setAttribute("aria-hidden", "false");
+    hero.classList.add("pr-stage-drawer-open");
+    window.requestAnimationFrame(() => {
+      scrim.classList.add("is-open");
+      drawer.classList.add("is-open", "is-running");
+      document.getElementById("pr-stage-close").focus();
+    });
+  }
+
+  function closeStageDrawer(hero) {
+    const drawer = document.getElementById("pr-stage-drawer");
+    const scrim = document.getElementById("pr-stage-scrim");
+    if (!drawer?.classList.contains("is-open")) return;
+    drawer.classList.remove("is-open", "is-running", "is-paused");
+    drawer.setAttribute("aria-hidden", "true");
+    scrim.classList.remove("is-open");
+    hero.classList.remove("pr-stage-drawer-open");
+    window.setTimeout(() => { if (!drawer.classList.contains("is-open")) scrim.hidden = true; }, 420);
+    stageDrawerTrigger?.focus();
+    stageDrawerTrigger = null;
+  }
+
+  function replayStageDrawer() {
+    const drawer = document.getElementById("pr-stage-drawer");
+    drawer.classList.remove("is-paused", "is-running");
+    document.getElementById("pr-stage-pause").textContent = "暂停讲解";
+    document.getElementById("pr-stage-pause").setAttribute("aria-pressed", "false");
+    void drawer.offsetWidth;
+    drawer.classList.add("is-running");
+  }
+
+  function toggleStageDrawerPause() {
+    const drawer = document.getElementById("pr-stage-drawer");
+    const paused = drawer.classList.toggle("is-paused");
+    document.getElementById("pr-stage-pause").textContent = paused ? "继续讲解" : "暂停讲解";
+    document.getElementById("pr-stage-pause").setAttribute("aria-pressed", String(paused));
+  }
+
   function bind(hero) {
     hero.querySelectorAll("[data-pr-view], [data-pr-open-view]").forEach((button) => {
       button.addEventListener("click", () => setView(hero, button.dataset.prView || button.dataset.prOpenView));
@@ -537,6 +693,16 @@
     document.getElementById("pr-roulette-pause").addEventListener("click", pauseRoulette);
     document.getElementById("pr-engine-motion-toggle").addEventListener("click", () => toggleEngineMotion(hero));
     document.getElementById("pr-copy-prompt").addEventListener("click", copyPrompt);
+    hero.querySelectorAll("[data-pr-stage-drawer]").forEach((button) => {
+      button.addEventListener("click", () => openStageDrawer(hero, button.dataset.prStageDrawer, button));
+    });
+    document.getElementById("pr-stage-close").addEventListener("click", () => closeStageDrawer(hero));
+    document.getElementById("pr-stage-scrim").addEventListener("click", () => closeStageDrawer(hero));
+    document.getElementById("pr-stage-replay").addEventListener("click", replayStageDrawer);
+    document.getElementById("pr-stage-pause").addEventListener("click", toggleStageDrawerPause);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && document.getElementById("pr-stage-drawer").classList.contains("is-open")) closeStageDrawer(hero);
+    });
     document.querySelector('[data-scene-target="hero3"]').addEventListener("click", () => setView(hero, "live", false));
     document.getElementById("global-reset").addEventListener("click", () => {
       if (!hero.classList.contains("is-active")) return;

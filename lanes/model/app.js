@@ -11,6 +11,12 @@ let radarTimer = null;
 let radarMode = null;
 let radarIndex = 0;
 let radarPaused = false;
+let h1TeachFrame = null;
+let h1TeachStart = 0;
+let h1TeachElapsed = 0;
+let h1TeachPaused = false;
+let h1TeachMode = null;
+let h1TeachTrigger = null;
 
 const H1_GENESIS_STATES = ["company-roulette", "genesis", "seed-skeleton", "seed-binding", "seed-living", "seed-models"];
 const LIQUIDITY_FIGURE_NOTE = "允许并明确标注文中所需融资金额，优先最小化融资需求；维持月度最低安全现金底线。";
@@ -417,7 +423,7 @@ function renderWiggleTrace() {
     const nodeLabel = nodeLabels[node.id] || node.label;
     return `<div class="trace-register-row" data-register-node="${escapeHtml(node.id)}"><span>${escapeHtml(nodeLabel)}</span><strong>${escapeHtml(value.source)}</strong></div>`;
   }).join("");
-  $("#h1-wiggle-view").innerHTML = `<div class="wiggle-layout"><section class="wiggle-graph ruled-panel"><div class="evidence-heading wiggle-heading"><div><span>影响传导追踪</span><strong>单项假设变动；非受影响下游项目保持不变</strong><small>联动有效性测试，非最终可行方案；后续进入求解空间。</small></div><div class="trace-legend"><span class="legend-move">必须联动</span><span class="legend-still">保持不变</span><span class="legend-control">勾稽检查</span></div></div><svg id="wiggle-graph" viewBox="0 0 1160 500" role="img" aria-label="DIO wiggle 影响传导图"><defs><marker id="arrow-must_move" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker><marker id="arrow-must_not_move" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker><marker id="arrow-control_check" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker></defs>${edges}${nodes}</svg></section><aside class="trace-register ruled-panel"><div class="evidence-heading"><div><span>数据底稿数值</span><strong>精准生成数值</strong></div></div><div class="trace-register-body">${exactRows}</div><div class="trace-reconcile"><span>传导与检查</span><strong>${integer(trace.nodes.length)} 个检查节点 · ${integer(trace.edges.length)} 条传导关系</strong><small>完整版本已经留痕，可逐项回查</small></div><button id="wiggle-change-log" class="secondary-action">查看完整变动日志</button></aside></div>`;
+  $("#h1-wiggle-view").innerHTML = `<div class="wiggle-layout"><section class="wiggle-graph ruled-panel"><div class="evidence-heading wiggle-heading"><div><span>影响传导追踪</span><strong>单项假设变动；非受影响下游项目保持不变</strong><small>联动有效性测试，非最终可行方案；后续进入求解空间。</small></div><div class="trace-legend"><span class="legend-move">必须联动</span><span class="legend-still">保持不变</span><span class="legend-control">勾稽检查</span></div></div><svg id="wiggle-graph" viewBox="0 0 1160 500" role="img" aria-label="DIO wiggle 影响传导图"><defs><marker id="arrow-must_move" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker><marker id="arrow-must_not_move" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker><marker id="arrow-control_check" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker></defs>${edges}${nodes}</svg></section><aside class="trace-register ruled-panel"><div class="evidence-heading"><div><span>数据底稿数值</span><strong>精准生成数值</strong></div></div><div class="trace-register-body">${exactRows}</div><div class="trace-reconcile"><span>传导与检查</span><strong>${integer(trace.nodes.length)} 个检查节点 · ${integer(trace.edges.length)} 条传导关系</strong><small>完整版本已经留痕，可逐项回查</small></div><button id="wiggle-change-log" class="secondary-action">查看完整变动日志</button></aside></div><button class="h1-teach-handle" type="button" data-h1-teach="wiggle" aria-label="打开 Wiggle test 动画讲解"><small>ANIMATED EXPLAINER</small><span>拉开看 Wiggle test</span><b>‹</b></button>`;
   $("#wiggle-change-log").addEventListener("click", () => showWiggleChangeLog(demoData.hero1.simple));
 }
 
@@ -451,7 +457,7 @@ function renderLatticeVisualization() {
   const plans = lattice.top_ranked_plans.map((plan) => `<div class="ranked-plan" data-plan-rank="${plan.rank}"><b>#${plan.rank}</b><span><em>外部融资 Funding</em><strong>${money(plan.external_funding, 2)}</strong></span><span><em>假设改动 Movement</em><strong>${number(plan.normalized_driver_movement, 6)}</strong></span><span><em>最低现金 Min cash</em><strong>${money(plan.minimum_monthly_cash, 2)}</strong></span><span><em>2028E 净利 2028E NP</em><strong>${money(plan.net_profit_2028, 2)}</strong></span></div>`).join("");
   const proof = lattice.infeasible_domain;
   const conflicts = proof.conflicting_set.map((item) => `<span>• ${escapeHtml(conflictLabel(item))}</span>`).join("");
-  $("#h1-lattice-view").innerHTML = `<div class="lattice-layout"><header class="lattice-summary ruled-panel"><div><span>有限候选组合空间</span><strong id="lattice-product">${integer(lattice.dimension_product)}</strong><small id="lattice-equation">${lattice.dimensions.map((row) => row.cardinality).join(" × ")} = ${integer(lattice.dimension_product)}</small></div><div><span>实际完整计算</span><strong id="lattice-evaluated">${integer(lattice.evaluated_candidates)}</strong><small>全量无抽样</small></div><div><span>满足所有约束</span><strong id="lattice-feasible">${integer(lattice.feasible_candidates)}</strong><small>通过全部刚性检查</small></div><div><span>剔除不合规方案</span><strong id="lattice-rejected">${integer(lattice.rejected_candidates)}</strong><small id="lattice-reconciliation">${integer(lattice.feasible_candidates)} + ${integer(lattice.rejected_candidates)} = ${integer(lattice.evaluated_candidates)}</small></div><p>仅对界面展示的有限候选空间进行全量枚举；不对冻结范围以外的连续空间或全局最优作任何主张。</p></header><section class="lattice-dimensions ruled-panel"><div class="evidence-heading"><div><span>01 / 搜索维度</span><strong>实际候选取值范围与组合基数</strong></div></div><div class="dimension-list">${dimensions}</div></section><section class="lattice-filter ruled-panel"><div class="evidence-heading"><div><span>02 / 刚性约束与资金需求</span><strong>逐级淘汰瀑布图与资金负担</strong></div></div><div class="filter-list">${filters}</div><figure class="liquidity-figure" data-liquidity-evaluated="${liquidity.evaluated_candidates}" data-liquidity-feasible="${liquidity.feasible_candidates}" data-liquidity-rejected="${liquidity.rejected_candidates}" data-zero-funding="${liquidity.feasible_zero_external_funding}" data-positive-funding="${liquidity.feasible_positive_external_funding}"><figcaption><span>全部候选方案分布</span><strong>允许融资并明确标识，优先最小化融资需求</strong></figcaption><div class="liquidity-partition" aria-label="${integer(liquidity.rejected_candidates)} 个剔除，${integer(liquidity.feasible_zero_external_funding)} 个可行且无需融资，${integer(liquidity.feasible_positive_external_funding)} 个可行但需要融资">${partition}</div><div class="partition-labels">${partitionLabels}</div><div class="funding-bin-list">${fundingBins}</div><p>${escapeHtml(LIQUIDITY_FIGURE_NOTE)}</p></figure><div class="filter-foot"><span>以已授权范围构建有限候选空间，并对全部检查重新验证</span><strong>${integer(lattice.domain_construction.post_filter_rejection_count)} 方案在初筛后剔除</strong></div></section><section class="lattice-ranking ruled-panel"><div class="evidence-heading"><div><span>03 / 排序准则与优选方案</span><strong>多目标优化层级与优选方案</strong></div></div><ol class="objective-list">${objectives}</ol><div class="ranked-plans">${plans}</div></section><section class="infeasible-strip" data-infeasible-evaluated="${proof.evaluated_candidates}" data-infeasible-passing="${proof.passing_candidates}"><div><span>04 / 确定性无解证明</span><strong>${integer(proof.dimension_product)} 个组合 · ${integer(proof.evaluated_candidates)} 个已计算 · ${integer(proof.passing_candidates)} 个通过</strong><small>未作任何放宽，须由 Banker 选择 · 复验证据已留存</small></div><div><span>极值 / 2027E 利润</span><strong>${money(proof.witness_bounds.maximum_2027E_net_profit, 6)}</strong><small>最大观测值</small></div><div><span>极值 / 外部融资</span><strong>${money(proof.witness_bounds.minimum_external_funding, 6)}</strong><small>最低融资需求</small></div><div><span>冲突约束集</span><small class="conflict-list">${conflicts}</small></div></section></div>`;
+  $("#h1-lattice-view").innerHTML = `<div class="lattice-layout"><header class="lattice-summary ruled-panel"><div><span>有限候选组合空间</span><strong id="lattice-product">${integer(lattice.dimension_product)}</strong><small id="lattice-equation">${lattice.dimensions.map((row) => row.cardinality).join(" × ")} = ${integer(lattice.dimension_product)}</small></div><div><span>实际完整计算</span><strong id="lattice-evaluated">${integer(lattice.evaluated_candidates)}</strong><small>全量无抽样</small></div><div><span>满足所有约束</span><strong id="lattice-feasible">${integer(lattice.feasible_candidates)}</strong><small>通过全部刚性检查</small></div><div><span>剔除不合规方案</span><strong id="lattice-rejected">${integer(lattice.rejected_candidates)}</strong><small id="lattice-reconciliation">${integer(lattice.feasible_candidates)} + ${integer(lattice.rejected_candidates)} = ${integer(lattice.evaluated_candidates)}</small></div><p>仅对界面展示的有限候选空间进行全量枚举；不对冻结范围以外的连续空间或全局最优作任何主张。</p></header><section class="lattice-dimensions ruled-panel"><div class="evidence-heading"><div><span>01 / 搜索维度</span><strong>实际候选取值范围与组合基数</strong></div></div><div class="dimension-list">${dimensions}</div></section><section class="lattice-filter ruled-panel"><div class="evidence-heading"><div><span>02 / 刚性约束与资金需求</span><strong>逐级淘汰瀑布图与资金负担</strong></div></div><div class="filter-list">${filters}</div><figure class="liquidity-figure" data-liquidity-evaluated="${liquidity.evaluated_candidates}" data-liquidity-feasible="${liquidity.feasible_candidates}" data-liquidity-rejected="${liquidity.rejected_candidates}" data-zero-funding="${liquidity.feasible_zero_external_funding}" data-positive-funding="${liquidity.feasible_positive_external_funding}"><figcaption><span>全部候选方案分布</span><strong>允许融资并明确标识，优先最小化融资需求</strong></figcaption><div class="liquidity-partition" aria-label="${integer(liquidity.rejected_candidates)} 个剔除，${integer(liquidity.feasible_zero_external_funding)} 个可行且无需融资，${integer(liquidity.feasible_positive_external_funding)} 个可行但需要融资">${partition}</div><div class="partition-labels">${partitionLabels}</div><div class="funding-bin-list">${fundingBins}</div><p>${escapeHtml(LIQUIDITY_FIGURE_NOTE)}</p></figure><div class="filter-foot"><span>以已授权范围构建有限候选空间，并对全部检查重新验证</span><strong>${integer(lattice.domain_construction.post_filter_rejection_count)} 方案在初筛后剔除</strong></div></section><section class="lattice-ranking ruled-panel"><div class="evidence-heading"><div><span>03 / 排序准则与优选方案</span><strong>多目标优化层级与优选方案</strong></div></div><ol class="objective-list">${objectives}</ol><div class="ranked-plans">${plans}</div></section><section class="infeasible-strip" data-infeasible-evaluated="${proof.evaluated_candidates}" data-infeasible-passing="${proof.passing_candidates}"><div><span>04 / 确定性无解证明</span><strong>${integer(proof.dimension_product)} 个组合 · ${integer(proof.evaluated_candidates)} 个已计算 · ${integer(proof.passing_candidates)} 个通过</strong><small>未作任何放宽，须由 Banker 选择 · 复验证据已留存</small></div><div><span>极值 / 2027E 利润</span><strong>${money(proof.witness_bounds.maximum_2027E_net_profit, 6)}</strong><small>最大观测值</small></div><div><span>极值 / 外部融资</span><strong>${money(proof.witness_bounds.minimum_external_funding, 6)}</strong><small>最低融资需求</small></div><div><span>冲突约束集</span><small class="conflict-list">${conflicts}</small></div></section></div><button class="h1-teach-handle" type="button" data-h1-teach="lattice" aria-label="打开 Solver lattice 动画讲解"><small>ANIMATED EXPLAINER</small><span>拉开看 Solver lattice</span><b>‹</b></button>`;
 }
 
 function renderDriverList(model, baseline) {
@@ -652,6 +658,202 @@ function resetHero1() {
 function showWiggleChangeLog(payload) {
   const deltas = payload.deltas;
   openDialog("变动日志 / H1-DIO-001", "调整单一假设，四个下游科目联动变化", `<div class="detail-block"><h3>已授权变动 Authorized change</h3><p>存货周转天数 (DIO) 从 ${number(payload.baseline, 0)} 天变动至 ${number(payload.new_value, 0)} 天。营业收入保持不变 (Revenue remains unchanged)。</p></div><div class="detail-block"><h3>公式上下游关系 Formula lineage</h3><div class="detail-code">${escapeHtml(payload.formula)}</div></div><div class="detail-block"><h3>重新联动计算差异 Recalculated deltas</h3><div class="detail-code">首月存货 (First-month inventory): ${money(deltas.first_month_inventory, 2)}\n最低月度现金 (Minimum cash): ${money(deltas.minimum_monthly_cash, 2)}\n外部融资金额 (External funding): ${money(deltas.external_funding, 2)}\n营业收入 (Revenue): ${money(deltas.revenue, 2)}</div></div><div class="detail-block"><h3>勾稽检查结果 Control result</h3><p>资产负债表 (BS)、现金滚存及营运资金 (working-capital) 公式勾稽差异均保持在 1e−6 以内。</p></div>`);
+}
+
+function h1TeachWiggleMarkup() {
+  const payload = demoData.hero1.simple;
+  const deltas = payload.deltas;
+  return `<section class="h1-teach-intro"><span>WIGGLE TEST / 只动一个假设</span><h3>不是看结果好不好，是看模型会不会按公式正确联动。</h3><p>把 DIO 从 ${number(payload.baseline, 0)} 天调到 ${number(payload.new_value, 0)} 天：该动的存货、现金和融资需求必须动；不该动的收入必须保持不变。</p></section>
+    <div class="h1-wiggle-teach" aria-label="DIO 单变量扰动与三表联动动画">
+      <div class="h1-wiggle-track">
+        <article style="--teach-step:0"><small>01 / 授权变动</small><b>DIO</b><strong>${number(payload.baseline, 0)} → ${number(payload.new_value, 0)} 天</strong></article>
+        <i aria-hidden="true"></i>
+        <article style="--teach-step:1"><small>02 / 公式重算</small><b>INVENTORY</b><strong>${money(deltas.first_month_inventory, 2)}</strong></article>
+        <i aria-hidden="true"></i>
+        <article style="--teach-step:2"><small>03 / 现金传导</small><b>MIN CASH</b><strong>${money(deltas.minimum_monthly_cash, 2)}</strong></article>
+        <i aria-hidden="true"></i>
+        <article style="--teach-step:3"><small>04 / 资金缺口</small><b>FUNDING</b><strong>${money(deltas.external_funding, 2)}</strong></article>
+        <span class="h1-wiggle-signal" aria-hidden="true"></span>
+      </div>
+      <div class="h1-wiggle-stable"><span>不该动</span><b>2027E 营业收入</b><strong>${money(deltas.revenue, 2)} · 保持不变</strong><i>LOCKED</i></div>
+    </div>
+    <ol class="h1-teach-steps"><li><b>1</b><span>只改一个已授权变量</span></li><li><b>2</b><span>沿公式链重新计算</span></li><li><b>3</b><span>该动与不该动的科目分开检查</span></li><li><b>4</b><span>BS、CFS 和现金滚存再勾稽</span></li></ol>`;
+}
+
+function h1TeachLatticeMarkup() {
+  const lattice = demoData.hero1.lattice;
+  return `<section class="h1-teach-intro"><span>SOLVER LATTICE / 有限候选空间</span><h3>先把授权范围里的组合全部铺开，再一关一关淘汰。</h3><p>动画中的粒子是缩小示意；结果数字仍以全部 ${integer(lattice.evaluated_candidates)} 个实际计算组合为准。</p></section>
+    <div class="h1-lattice-teach">
+      <div class="h1-lattice-stage"><canvas id="h1-lattice-canvas" role="img" aria-label="候选组合从空间展开、约束淘汰、资金分组到最优解浮现的示意动画"></canvas><div class="h1-lattice-scan" aria-hidden="true"></div><output id="h1-lattice-caption">正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合</output></div>
+      <div class="h1-lattice-ledger"><div><span>全量计算</span><strong>${integer(lattice.evaluated_candidates)}</strong></div><div><span>通过约束</span><strong>${integer(lattice.feasible_candidates)}</strong></div><div><span>本轮剔除</span><strong>${integer(lattice.rejected_candidates)}</strong></div><div><span>零外部融资</span><strong>${integer(lattice.liquidity_funding.feasible_zero_external_funding)}</strong></div></div>
+    </div>
+    <ol id="h1-lattice-phases" class="h1-teach-steps h1-lattice-phases"><li><b>1</b><span>展开候选空间</span></li><li><b>2</b><span>刚性约束逐层淘汰</span></li><li><b>3</b><span>按融资负担分组</span></li><li><b>4</b><span>按目标层级选出前三</span></li></ol>`;
+}
+
+function drawH1LatticeFrame(progress) {
+  const canvas = $("#h1-lattice-canvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(320, rect.width);
+  const height = Math.max(260, rect.height);
+  const density = Math.min(2, window.devicePixelRatio || 1);
+  if (canvas.width !== Math.round(width * density) || canvas.height !== Math.round(height * density)) {
+    canvas.width = Math.round(width * density);
+    canvas.height = Math.round(height * density);
+  }
+  const context = canvas.getContext("2d");
+  context.setTransform(density, 0, 0, density, 0, 0);
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#172a25";
+  context.fillRect(0, 0, width, height);
+
+  const ease = (value) => 1 - Math.pow(1 - Math.max(0, Math.min(1, value)), 3);
+  const enter = ease(progress / .22);
+  const filter = ease((progress - .22) / .28);
+  const group = ease((progress - .5) / .28);
+  const rank = ease((progress - .78) / .22);
+  const lattice = demoData.hero1.lattice;
+  const rejectedShare = lattice.rejected_candidates / lattice.evaluated_candidates;
+  const count = 216;
+  const columns = 18;
+
+  context.strokeStyle = "rgba(199,219,205,.10)";
+  context.lineWidth = 1;
+  for (let x = 0; x < width; x += 32) {
+    context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke();
+  }
+  for (let y = 0; y < height; y += 32) {
+    context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
+  }
+
+  for (let index = 0; index < count; index += 1) {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const rejected = index / count < rejectedShare;
+    const startX = width * .5 + Math.sin(index * 2.17) * width * .12;
+    const startY = height * .5 + Math.cos(index * 1.73) * height * .12;
+    const gridX = 28 + column * ((width - 56) / (columns - 1));
+    const gridY = 34 + row * ((height - 68) / 11);
+    const filterX = rejected ? width * .18 + (column % 5) * 9 : width * .58 + (column % 10) * 12;
+    const filterY = rejected ? height * .67 + (row % 4) * 11 : height * .23 + (row % 8) * 17;
+    const bin = index % 4;
+    const groupX = rejected ? width * .12 + (column % 5) * 8 : width * (.42 + bin * .14) + (column % 3) * 8;
+    const groupY = rejected ? height * .76 + (row % 3) * 9 : height * .25 + (row % 7) * 18;
+    let x = startX + (gridX - startX) * enter;
+    let y = startY + (gridY - startY) * enter;
+    x += (filterX - gridX) * filter;
+    y += (filterY - gridY) * filter;
+    x += (groupX - filterX) * group;
+    y += (groupY - filterY) * group;
+    const topRank = !rejected && index >= count - 3;
+    if (topRank) {
+      const rankIndex = count - 1 - index;
+      const targetX = width * .59 + rankIndex * 44;
+      const targetY = height * .48 - rankIndex * 19;
+      x += (targetX - groupX) * rank;
+      y += (targetY - groupY) * rank;
+    }
+    const alpha = rejected ? 1 - group * .58 : .82 + rank * .18;
+    context.globalAlpha = alpha;
+    context.fillStyle = topRank && rank > .05 ? "#e1b76d" : rejected ? "#a96043" : "#71aa8c";
+    context.beginPath();
+    context.arc(x, y, topRank ? 3.6 + rank * 2 : 2.15, 0, Math.PI * 2);
+    context.fill();
+    if (topRank && rank > .05) {
+      context.strokeStyle = `rgba(225,183,109,${.25 + rank * .55})`;
+      context.lineWidth = 1;
+      context.beginPath(); context.arc(x, y, 8 + Math.sin(progress * Math.PI * 18) * 2, 0, Math.PI * 2); context.stroke();
+    }
+  }
+  context.globalAlpha = 1;
+
+  const phaseIndex = progress < .22 ? 0 : progress < .5 ? 1 : progress < .78 ? 2 : 3;
+  $$("#h1-lattice-phases li").forEach((item, index) => item.classList.toggle("is-active", index === phaseIndex));
+  const captions = [
+    `正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合`,
+    `刚性约束剔除 ${integer(lattice.rejected_candidates)} 个不合规方案`,
+    `剩余 ${integer(lattice.feasible_candidates)} 个方案，按外部融资需求分组`,
+    "按融资、改动幅度、现金和净利润层层排序",
+  ];
+  $("#h1-lattice-caption").textContent = captions[phaseIndex];
+}
+
+function runH1TeachMotion(reset = false) {
+  if (h1TeachFrame !== null) cancelAnimationFrame(h1TeachFrame);
+  if (reset) h1TeachElapsed = 0;
+  h1TeachPaused = false;
+  h1TeachStart = performance.now();
+  const drawer = $("#h1-teach-drawer");
+  drawer.classList.remove("is-paused", "is-running");
+  void drawer.offsetWidth;
+  drawer.classList.add("is-running");
+  $("#h1-teach-pause").textContent = "暂停讲解";
+  $("#h1-teach-pause").setAttribute("aria-pressed", "false");
+  if (h1TeachMode !== "lattice") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    drawH1LatticeFrame(.96);
+    return;
+  }
+  const draw = (now) => {
+    if (h1TeachPaused || h1TeachMode !== "lattice") return;
+    const elapsed = h1TeachElapsed + now - h1TeachStart;
+    drawH1LatticeFrame((elapsed % 12000) / 12000);
+    h1TeachFrame = requestAnimationFrame(draw);
+  };
+  h1TeachFrame = requestAnimationFrame(draw);
+}
+
+function openH1TeachDrawer(mode, trigger) {
+  if (!new Set(["wiggle", "lattice"]).has(mode)) return;
+  h1TeachMode = mode;
+  h1TeachTrigger = trigger || null;
+  $("#h1-teach-kicker").textContent = mode === "wiggle" ? "FORECAST LAB / WIGGLE TEST" : "FORECAST LAB / SOLVER LATTICE";
+  $("#h1-teach-title").textContent = mode === "wiggle" ? "只动一个假设，看三表怎么联动" : `${integer(demoData.hero1.lattice.evaluated_candidates)} 个组合，怎么找到前三`;
+  $("#h1-teach-body").innerHTML = mode === "wiggle" ? h1TeachWiggleMarkup() : h1TeachLatticeMarkup();
+  const scrim = $("#h1-teach-scrim");
+  const drawer = $("#h1-teach-drawer");
+  scrim.hidden = false;
+  drawer.setAttribute("aria-hidden", "false");
+  document.body.classList.add("h1-teach-open");
+  requestAnimationFrame(() => {
+    scrim.classList.add("is-open");
+    drawer.classList.add("is-open");
+    runH1TeachMotion(true);
+    $("#h1-teach-close").focus();
+  });
+}
+
+function closeH1TeachDrawer() {
+  const scrim = $("#h1-teach-scrim");
+  const drawer = $("#h1-teach-drawer");
+  if (!drawer.classList.contains("is-open")) return;
+  if (h1TeachFrame !== null) cancelAnimationFrame(h1TeachFrame);
+  h1TeachFrame = null;
+  h1TeachMode = null;
+  scrim.classList.remove("is-open");
+  drawer.classList.remove("is-open", "is-running", "is-paused");
+  drawer.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("h1-teach-open");
+  window.setTimeout(() => { if (!drawer.classList.contains("is-open")) scrim.hidden = true; }, 420);
+  h1TeachTrigger?.focus();
+  h1TeachTrigger = null;
+}
+
+function toggleH1TeachPause() {
+  if (!h1TeachMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const drawer = $("#h1-teach-drawer");
+  h1TeachPaused = !h1TeachPaused;
+  drawer.classList.toggle("is-paused", h1TeachPaused);
+  $("#h1-teach-pause").textContent = h1TeachPaused ? "继续讲解" : "暂停讲解";
+  $("#h1-teach-pause").setAttribute("aria-pressed", String(h1TeachPaused));
+  if (h1TeachMode !== "lattice") return;
+  if (h1TeachPaused) {
+    h1TeachElapsed += performance.now() - h1TeachStart;
+    if (h1TeachFrame !== null) cancelAnimationFrame(h1TeachFrame);
+    h1TeachFrame = null;
+  } else {
+    runH1TeachMotion(false);
+  }
 }
 
 async function runSimpleAdjustment() {
@@ -952,6 +1154,14 @@ function applyDeepLinkState() {
 
 function bindEvents() {
   $$(".hero-tab").forEach((button) => button.addEventListener("click", () => selectScene(button.dataset.sceneTarget)));
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-h1-teach]");
+    if (trigger) openH1TeachDrawer(trigger.dataset.h1Teach, trigger);
+  });
+  $("#h1-teach-close").addEventListener("click", closeH1TeachDrawer);
+  $("#h1-teach-scrim").addEventListener("click", closeH1TeachDrawer);
+  $("#h1-teach-replay").addEventListener("click", () => runH1TeachMotion(true));
+  $("#h1-teach-pause").addEventListener("click", toggleH1TeachPause);
   $$(".statement-tab").forEach((button) => button.addEventListener("click", () => {
     currentStatement = button.dataset.statement;
     $$(".statement-tab").forEach((node) => node.classList.toggle("is-active", node === button));
@@ -979,6 +1189,10 @@ function bindEvents() {
   $("#dialog-close").addEventListener("click", () => $("#detail-dialog").close());
   $("#global-reset").addEventListener("click", () => ({ hero1: resetHero1, hero2: resetRadar, hero3: resetPrecedent })[activeScene]());
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && $("#h1-teach-drawer").classList.contains("is-open")) {
+      closeH1TeachDrawer();
+      return;
+    }
     if (activeScene !== "hero2" || $("#detail-dialog").open) return;
     if (event.code === "Space") { event.preventDefault(); toggleRadarPause(); }
     if (event.key.toLowerCase() === "f") runRadar("failure");

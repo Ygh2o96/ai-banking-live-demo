@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#202820">
   <title>项目组 · 现场演示</title>
-  <link rel="stylesheet" href="styles.css?v=r7-0905b">
+  <link rel="stylesheet" href="styles.css?v=r7-0905e">
 </head>
 <body>
   <div class="shell">
@@ -208,12 +208,24 @@
     <div class="dialog-head"><div><span id="dialog-kicker">核验依据</span><h2 id="dialog-title">详情</h2></div><button id="dialog-close" class="icon-button" aria-label="关闭">×</button></div>
     <div id="dialog-body"></div>
   </dialog>
+  <div id="h1-teach-scrim" class="h1-teach-scrim" hidden></div>
+  <aside id="h1-teach-drawer" class="h1-teach-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="h1-teach-title">
+    <header>
+      <div><span id="h1-teach-kicker">FORECAST LAB / 拆开看</span><h2 id="h1-teach-title">模型动画讲解</h2></div>
+      <button id="h1-teach-close" type="button" aria-label="关闭动画讲解">×</button>
+    </header>
+    <div id="h1-teach-body" class="h1-teach-body"></div>
+    <footer>
+      <button id="h1-teach-replay" type="button">重新播放</button>
+      <button id="h1-teach-pause" type="button" aria-pressed="false">暂停讲解</button>
+    </footer>
+  </aside>
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="data/bootstrap.js?v=r7-0905"></script>
   <script src="data/seed_lab_v5_audience.js?v=r7-0905"></script>
   <script src="data/pfm_cell_seed_v2_audience.js?v=r7-0905"></script>
   <script src="data/live_company_roulette.js?v=r7-0905"></script>
   <script src="genesis.js?v=r7-0905" defer></script>
-  <script src="app.js?v=r7-0905" defer></script>
+  <script src="app.js?v=r7-0905e" defer></script>
 </body>
 </html>
