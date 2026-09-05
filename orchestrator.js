@@ -22,6 +22,11 @@
     },
     hero4: {
       panel: "panel-hero4",
+      label: "控制论方法页已就绪",
+      boundary: "当前：控制与反馈 · 查资料 / 跑模型 / 持续复核，都要形成可观察、可纠偏的闭环",
+    },
+    hero5: {
+      panel: "panel-hero5",
       label: "Q&A 页面已就绪",
       boundary: "当前：Question & Answer · 现场提问；扫码带走完整演示",
     },

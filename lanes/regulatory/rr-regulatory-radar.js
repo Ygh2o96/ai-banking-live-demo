@@ -25,8 +25,8 @@
   let rrScenario = "daily";
   let rrRunToken = 0;
   let rrPaused = false;
-  let rrSpeedFactor = 7.2;
-  let rrCinematicTempo = false;
+  let rrPlaybackRate = .09;
+  let rrMotionEnabled = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let rrGateResolver = null;
   let rrEvents = [];
   let rrProgress = 0;
@@ -40,6 +40,9 @@
   const RR_ZOOM_MIN = .6;
   const RR_ZOOM_MAX = 1.4;
   const RR_ZOOM_STEP = .1;
+  const RR_SPEED_MIN = .03;
+  const RR_SPEED_MAX = 1;
+  const RR_SPEED_DEFAULT = .09;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -122,9 +125,20 @@
     $$(".rr-node").forEach((node) => {
       node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized", "is-just-completed", "is-visited", "is-muted");
       node.removeAttribute("aria-busy");
+      node.style.removeProperty("--rr-node-progress");
+      node.style.removeProperty("--rr-completion-y");
+      node.style.removeProperty("--rr-completion-scale");
+      node.style.removeProperty("--rr-completion-brightness");
     });
-    $$(".rr-charge").forEach((edge) => edge.classList.remove("is-charging", "is-complete", "is-failed", "is-muted"));
-    $$(".rr-traveler").forEach((edge) => edge.classList.remove("is-traversing", "is-alerting"));
+    $$(".rr-charge").forEach((edge) => {
+      edge.classList.remove("is-charging", "is-complete", "is-failed", "is-muted");
+      edge.style.removeProperty("--rr-edge-restrained-opacity");
+    });
+    $$(".rr-traveler").forEach((edge) => {
+      edge.classList.remove("is-traversing", "is-alerting");
+      edge.style.removeProperty("--rr-edge-progress");
+      edge.style.removeProperty("stroke-dashoffset");
+    });
     document.body.classList.toggle("rr-paused", rrPaused);
   }
 
@@ -220,7 +234,7 @@
   }
 
   function scrollToNode(nodeId) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!rrMotionEnabled) return;
     const node = nodeMap.get(nodeId);
     if (!node) return;
     const map = $("#rr-map");
@@ -255,57 +269,97 @@
     });
   }
 
-  function sleepRaw(milliseconds) {
-    return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+  function reducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
-  async function rrWait(milliseconds, token) {
-    let remaining = milliseconds * rrSpeedFactor;
-    while (remaining > 0 && token === rrRunToken) {
-      const slice = Math.min(70, remaining);
-      await sleepRaw(slice);
-      if (!rrPaused) remaining -= slice;
+  function runPlaybackProgress(workMilliseconds, token, onProgress = () => {}) {
+    if (token !== rrRunToken) return Promise.resolve(false);
+    if (workMilliseconds <= 0) {
+      onProgress(1);
+      return Promise.resolve(token === rrRunToken);
     }
-  }
-
-  async function rrMotionWait(milliseconds, token) {
-    let remaining = milliseconds;
-    while (remaining > 0 && token === rrRunToken) {
-      const slice = Math.min(50, remaining);
-      await sleepRaw(slice);
-      if (!rrPaused) remaining -= slice;
-    }
-  }
-
-  function edgeTravelDuration(edgeId) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 60;
-    const traveler = $(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`);
-    const length = traveler?.getTotalLength?.() || 0;
-    const mobile = window.matchMedia("(max-width: 760px)").matches;
-    const floor = mobile ? 3600 : 5500;
-    const ceiling = mobile ? 9000 : 13000;
-    const pixelsPerSecond = mobile ? 105 : 65;
-    const visibleLength = length * rrZoom;
-    const distanceDuration = visibleLength ? (visibleLength / pixelsPerSecond) * 1000 : floor;
-    const pacedDuration = Math.max(floor, distanceDuration) * (rrCinematicTempo ? 1.3 : 1);
-    return Math.round(Math.min(ceiling, pacedDuration));
-  }
-
-  function setEdgeTravelDuration(edgeId, duration) {
-    $$(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`).forEach((traveler) => {
-      traveler.style.setProperty("--rr-edge-travel-duration", `${duration}ms`);
+    return new Promise((resolve) => {
+      let progress = 0;
+      let previous = performance.now();
+      onProgress(0);
+      const frame = (now) => {
+        if (token !== rrRunToken) {
+          resolve(false);
+          return;
+        }
+        const elapsed = Math.min(80, Math.max(0, now - previous));
+        previous = now;
+        if (!rrPaused) {
+          progress = Math.min(1, progress + (elapsed * rrPlaybackRate) / workMilliseconds);
+          onProgress(progress);
+        }
+        if (progress >= 1) {
+          resolve(true);
+          return;
+        }
+        window.requestAnimationFrame(frame);
+      };
+      window.requestAnimationFrame(frame);
     });
   }
 
-  function nodeProcessingDuration() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 60;
+  function rrWait(workMilliseconds, token) {
+    return runPlaybackProgress(workMilliseconds, token);
+  }
+
+  function edgeTravelWork(edgeId) {
+    const traveler = $(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`);
+    const length = traveler?.getTotalLength?.() || 0;
     const mobile = window.matchMedia("(max-width: 760px)").matches;
-    if (mobile) return rrCinematicTempo ? 3400 : 2400;
-    return rrCinematicTempo ? 4600 : 3200;
+    // At the 0.09× default these work units reproduce the deliberate demo
+    // envelope: desktop 5.5–13s and mobile 3.6–9s per visible edge.
+    const floor = mobile ? 324 : 495;
+    const ceiling = mobile ? 810 : 1170;
+    const pixelsPerSecondAtOneX = mobile ? 945 : 720;
+    const visibleLength = length * rrZoom;
+    const distanceWork = visibleLength ? (visibleLength / pixelsPerSecondAtOneX) * 1000 : floor;
+    return Math.round(Math.min(ceiling, Math.max(floor, distanceWork)));
+  }
+
+  function setEdgeProgress(edgeId, progress) {
+    const bounded = Math.max(0, Math.min(1, progress));
+    $$(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`).forEach((traveler) => {
+      traveler.style.setProperty("--rr-edge-progress", bounded.toFixed(4));
+      traveler.style.strokeDashoffset = String(1 - bounded);
+    });
+    $$(`.rr-charge[data-rr-edge="${CSS.escape(edgeId)}"]`).forEach((charge) => {
+      charge.style.setProperty("--rr-edge-restrained-opacity", (.18 + .72 * bounded).toFixed(3));
+    });
+  }
+
+  function nodeProcessingWork() {
+    return window.matchMedia("(max-width: 760px)").matches ? 216 : 288;
+  }
+
+  async function runNodeCompletion(node, token) {
+    if (!node) return token === rrRunToken;
+    node.classList.add("is-just-completed");
+    if (!rrMotionEnabled) {
+      const completed = await runPlaybackProgress(65, token);
+      node.classList.remove("is-just-completed");
+      return completed;
+    }
+    const completed = await runPlaybackProgress(65, token, (progress) => {
+      const pulse = progress < .42 ? progress / .42 : (1 - progress) / .58;
+      node.style.setProperty("--rr-completion-y", `${(-2 * pulse).toFixed(3)}px`);
+      node.style.setProperty("--rr-completion-scale", (1 + .018 * pulse).toFixed(4));
+      node.style.setProperty("--rr-completion-brightness", (1 + .24 * pulse).toFixed(3));
+    });
+    node.classList.remove("is-just-completed");
+    node.style.removeProperty("--rr-completion-y");
+    node.style.removeProperty("--rr-completion-scale");
+    node.style.removeProperty("--rr-completion-brightness");
+    return completed;
   }
 
   function scrollToPhase(phase) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!rrMotionEnabled) return;
     const firstNodeId = phase.gate ? data.gates[phase.gate].node : phase.items?.[0]?.[0];
     scrollToNode(firstNodeId);
   }
@@ -313,11 +367,11 @@
   async function traverseEdges(edgeIds, token, alert = false) {
     for (const edgeId of edgeIds || []) {
       if (token !== rrRunToken) return false;
-      const duration = edgeTravelDuration(edgeId);
-      setEdgeTravelDuration(edgeId, duration);
+      const work = edgeTravelWork(edgeId);
+      setEdgeProgress(edgeId, 0);
       setEdges([edgeId], alert ? "gate-failed" : "charging");
-      await rrMotionWait(duration, token);
-      if (token !== rrRunToken) return false;
+      const completed = await runPlaybackProgress(work, token, (progress) => setEdgeProgress(edgeId, progress));
+      if (!completed || token !== rrRunToken) return false;
       setEdges([edgeId], alert ? "failed" : "complete");
     }
     return true;
@@ -326,20 +380,20 @@
   async function processNode(nodeId, finalState, token) {
     if (token !== rrRunToken) return false;
     const node = $(`.rr-node[data-rr-node="${CSS.escape(nodeId)}"]`);
-    const duration = nodeProcessingDuration();
-    node?.style.setProperty("--rr-node-processing-duration", `${duration}ms`);
+    node?.style.setProperty("--rr-node-progress", "0");
     setNodeState(nodeId, "charging");
-    await rrMotionWait(duration, token);
-    if (token !== rrRunToken) return false;
+    const processed = await runPlaybackProgress(nodeProcessingWork(), token, (progress) => {
+      node?.style.setProperty("--rr-node-progress", progress.toFixed(4));
+    });
+    if (!processed || token !== rrRunToken) return false;
     setNodeState(nodeId, finalState);
-    if (finalState !== "waiting") node?.classList.add("is-just-completed");
-    return true;
+    if (finalState === "waiting") return true;
+    return runNodeCompletion(node, token);
   }
 
   async function runItem(item, index, token) {
     const [nodeId, state, edges, detail] = item;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    await rrWait(reduced ? 0 : index ? 40 : 0, token);
+    await rrWait(index ? 40 : 0, token);
     if (token !== rrRunToken) return;
     scrollToNode(nodeId);
     if (!await traverseEdges(edges, token)) return;
@@ -417,7 +471,7 @@
       setStatus("本页会话已授权 · 本轮自动核对", "running");
       $("#rr-phase").textContent = `已人工授权 · 自动核对 ${gate.title}`;
       appendEvent(nodeId, "authorized", `本页会话首轮已人工通过；本轮开始自动核对：${gate.title}。`);
-      await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 900, token);
+      await rrWait(81, token);
       appendEvent(nodeId, "reviewed", `自动核对完成：${gate.title}；无需再次点击。`);
       setStatus("自动核对完成 · 下一节点正在处理", "running");
       return true;
@@ -427,7 +481,7 @@
     document.body.classList.add("rr-paused", "rr-gate-paused");
     renderGate(phase.gate);
     $("#rr-decision-panel").scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: rrMotionEnabled ? "smooth" : "auto",
       block: "end",
     });
     setStatus("等你判断 · 流程已停住", lockGate ? "hold" : "waiting");
@@ -452,7 +506,7 @@
     renderGateTransition(phase.gate);
     setStatus("人工复核通过 · 正在进入下一步", "running");
     $("#rr-phase").textContent = "人工复核通过 · 正在进入下一步";
-    await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 1250, token);
+    await rrWait(112.5, token);
     setStatus("复核完成 · 下一节点正在处理", "running");
     return true;
   }
@@ -484,7 +538,7 @@
         </div>
       </div>`;
     if (isDailyLoop) {
-      await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 120 : 1600, token);
+      await rrWait(144, token);
       if (token === rrRunToken && !rrHumanHold && rrScenario === "daily") {
         startScenario("daily", { continuation: true });
       }
@@ -511,7 +565,7 @@
           await runItem(item, index, token);
           if (token !== rrRunToken) return;
         }
-        await rrWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180, token);
+        await rrWait(180, token);
       }
     }
     if (token === rrRunToken) await finishRun(true, token);
@@ -548,9 +602,9 @@
     $("#rr-run-id").textContent = `RUN RR-D${String(rrCycleNumber).padStart(2, "0")}-${String(rrRunSerial).padStart(3, "0")}`;
     $$(".rr-scenario").forEach((button) => button.classList.toggle("is-selected", button.dataset.rrScenario === scenarioId));
     setStatus("准备启动", "running");
-    window.setTimeout(() => {
-      if (token === rrRunToken) executeScenario(token);
-    }, 900);
+    rrWait(81, token).then((ready) => {
+      if (ready && token === rrRunToken) executeScenario(token);
+    });
   }
 
   function togglePause() {
@@ -564,12 +618,48 @@
     else setStatus("流程运行中", "running");
   }
 
-  function toggleSpeed() {
-    rrCinematicTempo = !rrCinematicTempo;
-    rrSpeedFactor = rrCinematicTempo ? 10.5 : 7.2;
-    document.documentElement.classList.toggle("rr-tempo-cinematic", rrCinematicTempo);
-    $("#rr-speed").setAttribute("aria-pressed", String(rrCinematicTempo));
-    $("#rr-speed b").textContent = rrCinematicTempo ? "极慢巡航 · 0.09×" : "超慢演示 · 0.14×";
+  function formatPlaybackRate(value) {
+    return `${value.toFixed(2)}×`;
+  }
+
+  function setMotionEnabled(enabled) {
+    rrMotionEnabled = Boolean(enabled);
+    document.body.classList.toggle("rr-motion-restrained", !rrMotionEnabled);
+    $("#rr-motion-optin").checked = rrMotionEnabled;
+    if (reducedMotion() && !rrMotionEnabled) {
+      $("#rr-motion-note").textContent = "遵循系统“减少动态”；流程时长不变，以填充和明暗显示进度。";
+    } else if (reducedMotion()) {
+      $("#rr-motion-note").textContent = "本页已启用演示动效；拖动时当前步骤立即变速。";
+    } else if (!rrMotionEnabled) {
+      $("#rr-motion-note").textContent = "本页已收起空间动效；流程时长不变。";
+    } else {
+      $("#rr-motion-note").textContent = "拖动时，当前连线和节点会立即变速。";
+    }
+  }
+
+  function setPlaybackRate(value, options = {}) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return;
+    if (options.motionIntent) setMotionEnabled(true);
+    rrPlaybackRate = Math.max(RR_SPEED_MIN, Math.min(RR_SPEED_MAX, numeric));
+    const label = formatPlaybackRate(rrPlaybackRate);
+    $("#rr-speed-range").value = rrPlaybackRate.toFixed(2);
+    $("#rr-speed-range").setAttribute("aria-valuetext", `${rrPlaybackRate.toFixed(2)} 倍速`);
+    $("#rr-speed-summary").textContent = label;
+    $("#rr-speed-output").textContent = label;
+    document.documentElement.style.setProperty("--rr-playback-rate", rrPlaybackRate.toFixed(2));
+    $$('[data-rr-speed-value]').forEach((button) => {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.rrSpeedValue) === rrPlaybackRate));
+    });
+  }
+
+  function toggleSpeedPanel(force) {
+    const button = $("#rr-speed");
+    const panel = $("#rr-speed-panel");
+    const open = typeof force === "boolean" ? force : button.getAttribute("aria-expanded") !== "true";
+    button.setAttribute("aria-expanded", String(open));
+    panel.hidden = !open;
+    if (open) $("#rr-speed-range").focus();
   }
 
   function showInspector(nodeId) {
@@ -596,10 +686,16 @@
 
   renderNetwork();
   setZoom(1);
+  setMotionEnabled(rrMotionEnabled);
+  setPlaybackRate(RR_SPEED_DEFAULT);
   $$(".rr-scenario").forEach((button) => button.addEventListener("click", () => startScenario(button.dataset.rrScenario)));
   $("#rr-pause").addEventListener("click", togglePause);
   $("#rr-restart").addEventListener("click", () => startScenario(rrScenario));
-  $("#rr-speed").addEventListener("click", toggleSpeed);
+  $("#rr-speed").addEventListener("click", () => toggleSpeedPanel());
+  $("#rr-speed-range").addEventListener("input", (event) => setPlaybackRate(event.currentTarget.value, { motionIntent: true }));
+  $$('[data-rr-speed-value]').forEach((button) => button.addEventListener("click", () => setPlaybackRate(button.dataset.rrSpeedValue, { motionIntent: true })));
+  $("#rr-speed-reset").addEventListener("click", () => setPlaybackRate(RR_SPEED_DEFAULT, { motionIntent: true }));
+  $("#rr-motion-optin").addEventListener("change", (event) => setMotionEnabled(event.currentTarget.checked));
   $("#rr-zoom-out").addEventListener("click", () => setZoom(rrZoom - RR_ZOOM_STEP));
   $("#rr-zoom-in").addEventListener("click", () => setZoom(rrZoom + RR_ZOOM_STEP));
   $("#rr-zoom-reset").addEventListener("click", () => setZoom(1));
@@ -626,10 +722,18 @@
     }
   });
   window.addEventListener("keydown", (event) => {
-    if (event.code === "Space" && !event.target.closest("button, a")) {
+    if (event.key === "Escape" && $("#rr-speed").getAttribute("aria-expanded") === "true") {
+      toggleSpeedPanel(false);
+      $("#rr-speed").focus();
+      return;
+    }
+    if (event.code === "Space" && !event.target.closest("button, a, input, select, textarea")) {
       event.preventDefault();
       togglePause();
     }
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".rr-speed-control")) toggleSpeedPanel(false);
   });
 
   const initialScenario = scenarioFromUrl();

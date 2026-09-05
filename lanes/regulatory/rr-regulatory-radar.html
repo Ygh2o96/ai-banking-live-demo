@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>监管雷达 · HKEX × CSRC</title>
-  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r10-0905">
+  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r11-0905">
 </head>
 <body class="rr-body">
   <a class="rr-skip" href="#rr-map">跳到流程图</a>
@@ -65,7 +65,23 @@
           <button id="rr-pause" class="rr-button rr-button-secondary" aria-pressed="false">暂停</button>
           <button id="rr-restart" class="rr-button rr-button-secondary">重新开始</button>
         </div>
-        <button id="rr-speed" class="rr-speed" aria-pressed="false"><span>动画节奏</span><b>超慢演示 · 0.14×</b></button>
+        <div class="rr-speed-control">
+          <button id="rr-speed" class="rr-speed" type="button" aria-expanded="false" aria-controls="rr-speed-panel">
+            <span>播放速度</span><b id="rr-speed-summary">0.09×</b>
+          </button>
+          <div id="rr-speed-panel" class="rr-speed-panel" hidden>
+            <label for="rr-speed-range"><span>连续调速</span><output id="rr-speed-output" for="rr-speed-range" aria-live="polite">0.09×</output></label>
+            <input id="rr-speed-range" type="range" min="0.03" max="1" step="0.01" value="0.09" aria-label="播放速度" aria-valuetext="0.09 倍速" aria-describedby="rr-motion-note">
+            <div class="rr-speed-presets" role="group" aria-label="常用播放速度">
+              <button type="button" data-rr-speed-value="0.05">0.05×</button>
+              <button type="button" data-rr-speed-value="0.09">0.09×</button>
+              <button type="button" data-rr-speed-value="0.25">0.25×</button>
+              <button type="button" id="rr-speed-reset">重置</button>
+            </div>
+            <label class="rr-motion-toggle" for="rr-motion-optin"><input id="rr-motion-optin" type="checkbox"><span>本页启用演示动效</span></label>
+            <p id="rr-motion-note">拖动时，当前连线和节点会立即变速。</p>
+          </div>
+        </div>
 
         <section class="rr-responsibility">
           <span>人要把什么关</span>
@@ -163,7 +179,7 @@
     </div>
   </main>
   <div id="rr-announcer" class="rr-sr-only" aria-live="polite"></div>
-  <script src="data/rr-regulatory-radar-data.js?v=r10-0905"></script>
-  <script src="rr-regulatory-radar.js?v=r10-0905"></script>
+  <script src="data/rr-regulatory-radar-data.js?v=r11-0905"></script>
+  <script src="rr-regulatory-radar.js?v=r11-0905"></script>
 </body>
 </html>

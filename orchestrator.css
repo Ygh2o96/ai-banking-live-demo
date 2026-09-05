@@ -45,7 +45,7 @@ button { font: inherit; }
 .brand-mark i:nth-child(2) { height: 74%; background: #d6aa73; }
 .brand-mark i:nth-child(3) { height: 100%; background: var(--green); }
 
-.orchestrator-tabs { min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.orchestrator-tabs { min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .orchestrator-tab {
   min-width: 0;
   display: grid;
@@ -82,6 +82,7 @@ button { font: inherit; }
 .lane-panel[hidden] { display: none; }
 .lane-panel iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--paper); }
 .lane-panel[data-lane="regulatory"] { background: #08130f; }
+.lane-panel[data-lane="control"] { background: #0b1512; }
 .lane-panel[data-lane="qa"] { background: #f1ede4; }
 
 .orchestrator-foot {
@@ -121,7 +122,7 @@ button { font: inherit; }
   .orchestrator-tab { display: flex; justify-content: center; padding: 0 6px; text-align: center; }
   .orchestrator-tab b { display: none; }
   .orchestrator-tab span { display: none; }
-  .orchestrator-tab::after { content: attr(data-short); font-size: 11px; font-weight: 760; white-space: nowrap; }
+  .orchestrator-tab::after { content: attr(data-short); font-size: 9px; font-weight: 760; white-space: nowrap; }
   .orchestrator-tab { min-height: 48px; touch-action: manipulation; }
   .orchestrator-actions { padding: 0 6px; }
   .orchestrator-status { display: none; }

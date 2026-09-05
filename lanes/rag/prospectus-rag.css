@@ -527,8 +527,11 @@
 #hero3 .pr-roulette-controls {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(92px, .55fr);
+  grid-template-columns: minmax(0, 1.45fr) minmax(92px, .55fr) minmax(104px, .7fr);
 }
+
+#hero3 .pr-roulette-controls .pr-roulette-motion[hidden] { display: none; }
+#hero3 .pr-roulette-controls:has(.pr-roulette-motion[hidden]) { grid-template-columns: minmax(0, 1.45fr) minmax(92px, .55fr); }
 
 #hero3 .pr-roulette-controls button {
   min-height: 43px;
@@ -545,6 +548,13 @@
 #hero3 .pr-roulette-controls .secondary-action[aria-pressed="true"] {
   color: #f8f0dc;
   background: #76513c;
+}
+
+#hero3 .pr-roulette-controls .pr-roulette-motion {
+  border-left-color: #aa8f68;
+  color: #6d472f;
+  background: #f0e3c9;
+  font-size: 9px;
 }
 
 #hero3 .pr-roulette-signal {
@@ -1472,6 +1482,7 @@
   #hero3 [data-pr-issue] small { line-height: 1.2; }
   #hero3 .pr-roulette-window { min-height: 158px; grid-template-columns: 74px minmax(0, 1fr); }
   #hero3 .pr-roulette-controls { grid-template-columns: minmax(0, 1fr) 104px; }
+  #hero3 .pr-roulette-controls .pr-roulette-motion:not([hidden]) { grid-column: 1 / -1; }
   #hero3 .pr-roulette-controls button { min-height: 48px; }
   #hero3 .pr-prompt-studio { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 220px auto; }
   #hero3 .pr-prompt-studio > header { grid-column: 1; }
@@ -1507,6 +1518,24 @@
   #hero3.pr-results-sequence .matrix-zone {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hero3.pr-force-roulette-motion .pr-roulette-window::before {
+    animation: pr-roulette-scan 8.5s ease-in-out infinite !important;
+  }
+  #hero3.pr-force-roulette-motion .pr-roulette-window.is-spinning .pr-roulette-dial > span {
+    animation: pr-hub-pulse 980ms ease-in-out infinite alternate !important;
+  }
+  #hero3.pr-force-roulette-motion .pr-roulette-window.is-spinning .pr-roulette-signal > i {
+    animation: pr-signal-travel 1.35s linear infinite !important;
+  }
+  #hero3.pr-force-roulette-motion .pr-roulette-window.is-ticking .pr-roulette-copy {
+    animation: pr-copy-tick 420ms cubic-bezier(.16, 1, .3, 1) !important;
+  }
+  #hero3.pr-force-roulette-motion [data-pr-issue].is-settling {
+    animation: pr-issue-wave 520ms cubic-bezier(.16, 1, .3, 1) both !important;
   }
 }
 

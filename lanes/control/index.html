@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f1ede4">
+  <title>04 闭环 · 从自动化到可复验</title>
+  <link rel="stylesheet" href="styles.css?v=r11-0905">
+</head>
+<body>
+  <main class="control-page">
+    <header class="control-hero">
+      <figure class="control-portrait" aria-label="钱学森在控制系统工作台前进行人机协作的创意合成图">
+        <img src="assets/qian-control-vibe-coding.webp?v=r11-0905" alt="钱学森在老式工程工作台前使用计算机，照片边缘融入控制回路与达芬奇式工程线稿的创意合成图">
+        <figcaption>创意合成 · 并非历史照片</figcaption>
+      </figure>
+      <div class="control-kicker"><span>04</span> CONTROL LOOP</div>
+      <div class="control-title">
+        <p>钱学森与控制论 · 这里不讲理论史，只讲工作怎么闭环</p>
+        <h1>不是把判断交给机器，<br>而是让工作<span>有反馈、能回头。</span></h1>
+      </div>
+      <div class="control-intro">
+        <strong>把一次性自动化，变成能复验的工作线</strong>
+        <p>先定目标，再看实际；发现偏差就修上游，修完重新跑。人负责口径、例外和最终放行。</p>
+      </div>
+      <ul class="control-keywords" aria-label="钱学森式系统思维的关键词">
+        <li><span>01</span>系统工程</li>
+        <li><span>02</span>反馈</li>
+        <li><span>03</span>约束</li>
+        <li><span>04</span>复验</li>
+        <li><span>05</span>闭环</li>
+      </ul>
+    </header>
+
+    <section class="control-body" aria-label="控制闭环与三类适合 AI 化的工作">
+      <section class="loop-section" aria-labelledby="loop-title">
+        <div class="section-heading">
+          <div><span>A / CLOSED LOOP</span><h2 id="loop-title">一条真正会回头的流程</h2></div>
+          <div class="motion-controls" role="group" aria-label="闭环动画控制">
+            <button id="loop-speed" type="button" aria-pressed="true">慢速讲解</button>
+            <button id="loop-pause" type="button" aria-pressed="false">暂停</button>
+          </div>
+        </div>
+
+        <div id="loop-stage" class="loop-stage" aria-live="polite">
+          <svg class="loop-track" viewBox="0 0 760 430" role="img" aria-label="目标、观察、比较偏差、纠偏后回到目标的闭环">
+            <defs>
+              <marker id="loop-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L8,3 z"></path>
+              </marker>
+            </defs>
+            <path class="loop-track-base" d="M232 94 C438 28 650 84 656 215 C662 342 454 410 238 338 C55 277 58 151 232 94" marker-end="url(#loop-arrow)"></path>
+            <path id="loop-progress" class="loop-track-progress" d="M232 94 C438 28 650 84 656 215 C662 342 454 410 238 338 C55 277 58 151 232 94"></path>
+          </svg>
+
+          <div id="loop-packet" class="loop-packet" aria-hidden="true"><i></i></div>
+
+          <article class="loop-node node-target is-active" data-loop-node="0" style="--x: 28%; --y: 14%;">
+            <span>01</span><strong>定目标</strong><p>先说清什么叫做完</p><small>口径 · 边界 · 责任人</small>
+          </article>
+          <article class="loop-node node-observe" data-loop-node="1" style="--x: 78%; --y: 39%;">
+            <span>02</span><strong>看实际</strong><p>从来源和结果看事实</p><small>原文 · 公式 · 检查记录</small>
+          </article>
+          <article class="loop-node node-compare" data-loop-node="2" style="--x: 55%; --y: 76%;">
+            <span>03</span><strong>找偏差</strong><p>实际和目标哪里没对上</p><small>漏项 · 错配 · 例外</small>
+          </article>
+          <article class="loop-node node-correct" data-loop-node="3" style="--x: 15%; --y: 61%;">
+            <span>04</span><strong>修上游</strong><p>不在结果页打一块补丁</p><small>改来源 / 公式 / 规则，再跑</small>
+          </article>
+
+          <div class="loop-centre">
+            <span id="loop-status">目标已定</span>
+            <strong>一次跑通不算完</strong>
+            <p>能发现偏差、回到上游、重新验证，才是闭环。</p>
+          </div>
+        </div>
+
+        <div class="loop-boundary">
+          <span>机器适合</span><b>重复执行 · 保存证据 · 发现偏差 · 重跑验证</b>
+          <span>人必须做</span><b>定口径 · 看例外 · 分责任 · 最终放行</b>
+        </div>
+      </section>
+
+      <section class="work-section" aria-labelledby="work-title">
+        <div class="section-heading work-heading">
+          <div><span>B / THREE WORK TYPES</span><h2 id="work-title">三类工作，最值得先做</h2></div>
+        </div>
+
+        <div class="work-list">
+          <article class="work-item" data-work="retrieval">
+            <div class="work-number">01</div>
+            <div class="work-copy">
+              <div class="work-label"><span>查资料</span><small>HERO 03 · 先例检索</small></div>
+              <h3>资料多、入口散，还要回到原文</h3>
+              <p>先把候选找全，再收窄到案例、页码和适用边界。</p>
+              <dl><div><dt>机器先做</dt><dd>检索、归组、回链</dd></div><div><dt>人来判断</dt><dd>是不是同一问题，案例能不能用</dd></div></dl>
+            </div>
+          </article>
+
+          <article class="work-item" data-work="model">
+            <div class="work-number">02</div>
+            <div class="work-copy">
+              <div class="work-label"><span>跑模型</span><small>HERO 01 · 财务模型</small></div>
+              <h3>公式链长，一个假设会牵动很多表</h3>
+              <p>沿公式重算，比较实际与预期；对不上就展开 lineage。</p>
+              <dl><div><dt>机器先做</dt><dd>联动、枚举、勾稽</dd></div><div><dt>人来判断</dt><dd>假设能不能改，目标是否合理</dd></div></dl>
+            </div>
+          </article>
+
+          <article class="work-item" data-work="review">
+            <div class="work-number">03</div>
+            <div class="work-copy">
+              <div class="work-label"><span>持续复核</span><small>HERO 02 · 监管雷达</small></div>
+              <h3>每天都要跑，规则和来源还会变化</h3>
+              <p>主线持续更新，抽查回上游修；每周再看该不该改规则。</p>
+              <dl><div><dt>机器先做</dt><dd>监测、抽查、重跑</dd></div><div><dt>人来判断</dt><dd>问题是否成立，何时换版本</dd></div></dl>
+            </div>
+          </article>
+        </div>
+
+        <aside class="fit-note" role="note">
+          <span>一个简单判断</span>
+          <p><b>重复出现、规则可写、结果可查、错误能反馈</b>——这样的工作，通常值得先接成闭环。</p>
+        </aside>
+      </section>
+    </section>
+
+    <footer class="control-footer">
+      <div><span>NEXT · 05</span><strong>聊完方法，剩下的时间交给现场问题。</strong></div>
+      <a href="../../?scene=hero5" target="_top">进入现场问答 <span aria-hidden="true">→</span></a>
+    </footer>
+  </main>
+  <script src="app.js?v=r11-0905"></script>
+</body>
+</html>

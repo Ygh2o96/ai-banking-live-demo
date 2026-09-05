@@ -12,7 +12,7 @@
   function normalizeScene(value, state) {
     if (value === "hero1" && state === "seed-skeleton") return "hero3";
     if (value === "hero3" && state === "company-roulette") return "hero1";
-    return ["hero1", "hero2", "hero3", "hero4"].includes(value) ? value : "hero1";
+    return ["hero1", "hero2", "hero3", "hero4", "hero5"].includes(value) ? value : "hero1";
   }
 
   function normalizeState(scene, state) {

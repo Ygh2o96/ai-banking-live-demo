@@ -112,8 +112,13 @@
   let rouletteDialAnimation = null;
   let selectionTimer = null;
   let rouletteAngle = 0;
+  let rouletteMotionOptIn = false;
   let stageDrawerTrigger = null;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function rouletteMotionEnabled() {
+    return !reducedMotionQuery.matches || rouletteMotionOptIn;
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -174,7 +179,7 @@
       '<section class="pr-issue-panel"><header><span>AUDIENCE PICK</span><strong>今天想检索哪一类先例？</strong></header><div id="pr-issue-grid" class="pr-issue-grid"></div></section>',
       '<section class="pr-roulette-card"><header><span>ISSUE ROULETTE</span><strong>不知道选哪个？让轮盘决定</strong></header>',
       '<div id="pr-roulette-window" class="pr-roulette-window" aria-live="polite" aria-busy="false" style="--pr-angle:0deg;--pr-duration:520ms;--pr-progress:0"><div class="pr-roulette-dial" aria-hidden="true"><i style="--pr-chamber:0"></i><i style="--pr-chamber:1"></i><i style="--pr-chamber:2"></i><i style="--pr-chamber:3"></i><i style="--pr-chamber:4"></i><i style="--pr-chamber:5"></i><span></span><em></em></div><div class="pr-roulette-copy"><small data-pr-roulette-kicker>READY</small><b data-pr-roulette-title>等待启动</b><span data-pr-roulette-label>六个常见招股书议题</span></div><div class="pr-roulette-signal" aria-hidden="true"><span></span><i></i></div></div>',
-      '<div class="pr-roulette-controls"><button id="pr-roulette-run" class="primary-action" type="button">随机抽取一个议题</button><button id="pr-roulette-pause" class="secondary-action" type="button" aria-pressed="false" disabled>暂停轮盘</button></div></section>',
+      '<div class="pr-roulette-controls"><button id="pr-roulette-run" class="primary-action" type="button">随机抽取一个议题</button><button id="pr-roulette-pause" class="secondary-action" type="button" aria-pressed="false" disabled>暂停轮盘</button><button id="pr-roulette-motion" class="secondary-action pr-roulette-motion" type="button" aria-pressed="false" hidden>播放完整动效</button></div></section>',
       '</div>',
       '<section class="pr-prompt-studio"><header><div><span>LIVE RESEARCH BRIEF</span><strong id="pr-selected-issue">尚未选题</strong></div><em id="pr-prompt-status" aria-live="polite">等待选择</em></header><textarea id="pr-live-prompt" readonly aria-label="现场先例检索任务书" placeholder="选择议题后，生成一份可直接执行的完整检索任务书。"></textarea><div class="pr-prompt-actions"><button id="pr-copy-prompt" class="primary-action" type="button" disabled>复制检索任务书</button><button class="secondary-action" type="button" data-pr-open-view="engine">看 RAG 引擎如何工作</button></div></section>',
       '</section>',
@@ -263,7 +268,7 @@
     selectionTimer = null;
     const buttons = [...hero.querySelectorAll("[data-pr-issue]")];
     buttons.forEach((button) => button.classList.remove("is-settling"));
-    if (reducedMotionQuery.matches) return;
+    if (!rouletteMotionEnabled()) return;
     const selectedIndex = buttons.findIndex((button) => button.dataset.prIssue === issueId);
     if (selectedIndex < 0) return;
     buttons.forEach((button, index) => {
@@ -294,7 +299,8 @@
 
   function startDialCruise(state) {
     const dial = state.root.querySelector(".pr-roulette-dial");
-    state.spinCycleMs = 680;
+    state.dialAnimation?.cancel();
+    state.spinCycleMs = 1250;
     state.spinBaseAngle = rouletteAngle;
     rouletteDialAnimation = dial.animate([
       { transform: `rotate(${state.spinBaseAngle}deg)` },
@@ -304,8 +310,18 @@
       iterations: Infinity,
       easing: "linear",
     });
-    rouletteDialAnimation.playbackRate = 1.45;
+    rouletteDialAnimation.playbackRate = .95;
     state.dialAnimation = rouletteDialAnimation;
+  }
+
+  function stopDialMotion(state) {
+    if (!state?.dialAnimation) return;
+    const dial = state.root.querySelector(".pr-roulette-dial");
+    const computedTransform = window.getComputedStyle(dial).transform;
+    if (computedTransform && computedTransform !== "none") dial.style.transform = computedTransform;
+    state.dialAnimation.cancel();
+    state.dialAnimation = null;
+    rouletteDialAnimation = null;
   }
 
   function beginDialLock(state, winnerIndex, durationMs) {
@@ -322,6 +338,12 @@
     state.root.classList.add("is-locking");
     state.root.style.setProperty("--pr-angle", lockAngle + "deg");
     rouletteAngle = lockAngle;
+    if (!rouletteMotionEnabled()) {
+      dial.style.removeProperty("transform");
+      state.dialAnimation = null;
+      rouletteDialAnimation = null;
+      return lockDurationMs;
+    }
     rouletteDialAnimation = dial.animate([
       { transform: `rotate(${currentAngle}deg)`, filter: "blur(.75px)" },
       { offset: .72, transform: `rotate(${lockAngle - 20}deg)`, filter: "blur(.18px)" },
@@ -341,9 +363,9 @@
     root.style.setProperty("--pr-progress", String((step + 1) / totalSteps));
     root.classList.remove("is-ticking", "is-locked");
     root.classList.add("is-spinning");
-    if (!locking && state.dialAnimation) {
+    if (!locking && state.dialAnimation && rouletteMotionEnabled()) {
       const progress = totalSteps <= 1 ? 1 : step / (totalSteps - 1);
-      state.dialAnimation.playbackRate = Math.max(.72, 1.45 - progress * .72);
+      state.dialAnimation.playbackRate = Math.max(.48, .95 - progress * .47);
     }
     void root.offsetWidth;
     root.classList.add("is-ticking");
@@ -434,7 +456,8 @@
     pauseButton.textContent = "暂停轮盘";
     pauseButton.setAttribute("aria-pressed", "false");
     document.getElementById("pr-prompt-status").textContent = "随机轮盘继续转动 · 等待落点";
-    state.dialAnimation?.play();
+    if (rouletteMotionEnabled() && !state.dialAnimation) startDialCruise(state);
+    else state.dialAnimation?.play();
     if (state.pending) scheduleRoulette(state, state.pending, resumeDelayMs);
   }
 
@@ -463,24 +486,17 @@
     const runButton = document.getElementById("pr-roulette-run");
     const pauseButton = document.getElementById("pr-roulette-pause");
     runButton.disabled = true;
-    runButton.textContent = reducedMotionQuery.matches ? "正在锁定结果" : "轮盘转动中 · 正在锁定";
+    runButton.textContent = rouletteMotionEnabled() ? "轮盘转动中 · 正在锁定" : "按正常节奏逐步锁定";
     root.setAttribute("aria-busy", "true");
-    root.setAttribute("aria-live", reducedMotionQuery.matches ? "polite" : "off");
-    document.getElementById("pr-prompt-status").textContent = "随机轮盘转动中 · 等待落点";
-
-    if (reducedMotionQuery.matches) {
-      lockRoulette(hero, root, winner);
-      runButton.disabled = false;
-      runButton.textContent = "再随机抽取一次";
-      pauseButton.disabled = true;
-      setIssue(hero, winner.id, "随机抽取");
-      return;
-    }
+    root.setAttribute("aria-live", rouletteMotionEnabled() ? "off" : "polite");
+    document.getElementById("pr-prompt-status").textContent = rouletteMotionEnabled()
+      ? "随机轮盘转动中 · 等待落点"
+      : "已减少旋转，但会按正常节奏逐步锁定";
 
     const offsetToWinner = (winnerIndex - startIndex + candidates.length) % candidates.length;
     const totalSteps = candidates.length * 2 + offsetToWinner + 1;
-    const minimumDelayMs = 520;
-    const maximumDelayMs = 1120;
+    const minimumDelayMs = 640;
+    const maximumDelayMs = 1350;
     const state = {
       hero,
       root,
@@ -498,14 +514,14 @@
       remainingMs: 0,
       dueAt: 0,
       dialAnimation: null,
-      spinCycleMs: 680,
+      spinCycleMs: 1250,
       spinBaseAngle: rouletteAngle,
     };
     rouletteState = state;
     pauseButton.disabled = false;
     pauseButton.textContent = "暂停轮盘";
     pauseButton.setAttribute("aria-pressed", "false");
-    startDialCruise(state);
+    if (rouletteMotionEnabled()) startDialCruise(state);
     const advance = () => {
       if (rouletteState !== state) return;
       const issue = state.candidates[(state.startIndex + state.step) % state.candidates.length];
@@ -549,6 +565,28 @@
     button.setAttribute("aria-pressed", String(paused));
   }
 
+  function syncRouletteMotionControl(hero) {
+    const button = document.getElementById("pr-roulette-motion");
+    if (!button) return;
+    const systemReduced = reducedMotionQuery.matches;
+    button.hidden = !systemReduced;
+    hero.classList.toggle("pr-force-roulette-motion", systemReduced && rouletteMotionOptIn);
+    button.setAttribute("aria-pressed", String(systemReduced && rouletteMotionOptIn));
+    button.textContent = rouletteMotionOptIn ? "使用精简动效" : "播放完整动效";
+    button.title = systemReduced
+      ? "这台设备开启了减少动态效果；点击后仅在本页播放完整转盘动效"
+      : "";
+  }
+
+  function toggleRouletteMotion(hero) {
+    rouletteMotionOptIn = !rouletteMotionOptIn;
+    syncRouletteMotionControl(hero);
+    const state = rouletteState;
+    if (!state || state.paused || state.root.classList.contains("is-locking")) return;
+    if (rouletteMotionEnabled()) startDialCruise(state);
+    else stopDialMotion(state);
+  }
+
   function toggleEngineMotion(hero) {
     if (reducedMotionQuery.matches) return;
     hero.classList.toggle("pr-motion-paused");
@@ -556,7 +594,11 @@
   }
 
   function handleReducedMotionChange(hero) {
-    if (reducedMotionQuery.matches && rouletteState) finishRoulette(rouletteState);
+    syncRouletteMotionControl(hero);
+    if (rouletteState && !rouletteState.paused && !rouletteState.root.classList.contains("is-locking")) {
+      if (rouletteMotionEnabled() && !rouletteState.dialAnimation) startDialCruise(rouletteState);
+      if (!rouletteMotionEnabled()) stopDialMotion(rouletteState);
+    }
     syncEngineMotionControl(hero);
     restartViewMotion(hero, hero.dataset.prView || "live");
   }
@@ -691,6 +733,7 @@
     });
     document.getElementById("pr-roulette-run").addEventListener("click", () => runRoulette(hero));
     document.getElementById("pr-roulette-pause").addEventListener("click", pauseRoulette);
+    document.getElementById("pr-roulette-motion").addEventListener("click", () => toggleRouletteMotion(hero));
     document.getElementById("pr-engine-motion-toggle").addEventListener("click", () => toggleEngineMotion(hero));
     document.getElementById("pr-copy-prompt").addEventListener("click", copyPrompt);
     hero.querySelectorAll("[data-pr-stage-drawer]").forEach((button) => {
@@ -715,6 +758,7 @@
     } else {
       reducedMotionQuery.addListener(() => handleReducedMotionChange(hero));
     }
+    syncRouletteMotionControl(hero);
   }
 
   function boot(attempt = 0) {

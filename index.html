@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#17261f">
-  <title>项目组 · 现场演示与问答</title>
-  <link rel="stylesheet" href="orchestrator.css?v=r7-0905">
+  <title>项目组 · 现场演示、方法与问答</title>
+  <link rel="stylesheet" href="orchestrator.css?v=r11-0905">
 </head>
 <body>
   <div class="orchestrator-shell">
@@ -15,12 +15,12 @@
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <div>
           <strong>DEAL TEAM · LIVE DEMO</strong>
-          <small>三项现场演示，一场现场问答</small>
+          <small>三项现场演示，一个方法页，一场现场问答</small>
         </div>
       </div>
 
       <nav class="orchestrator-tabs" role="tablist" aria-label="现场演示与问答">
-        <button id="tab-hero1" class="orchestrator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="panel-hero1" data-scene="hero1" data-short="01 建模">
+        <button id="tab-hero1" class="orchestrator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="panel-hero1" data-scene="hero1" data-short="01 模型">
           <b>01</b><span>现场建模<small>Live Model Build</small></span>
         </button>
         <button id="tab-hero2" class="orchestrator-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-hero2" data-scene="hero2" data-short="02 监管" tabindex="-1">
@@ -29,8 +29,11 @@
         <button id="tab-hero3" class="orchestrator-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-hero3" data-scene="hero3" data-short="03 先例" tabindex="-1">
           <b>03</b><span>先例检索 + RAG<small>Precedent Retrieval</small></span>
         </button>
-        <button id="tab-hero4" class="orchestrator-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-hero4" data-scene="hero4" data-short="04 Q&amp;A" tabindex="-1">
-          <b>04</b><span>现场问答<small>Question &amp; Answer</small></span>
+        <button id="tab-hero4" class="orchestrator-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-hero4" data-scene="hero4" data-short="04 方法" tabindex="-1">
+          <b>04</b><span>控制论与方法<small>Control &amp; Feedback</small></span>
+        </button>
+        <button id="tab-hero5" class="orchestrator-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-hero5" data-scene="hero5" data-short="05 问答" tabindex="-1">
+          <b>05</b><span>现场问答<small>Question &amp; Answer</small></span>
         </button>
       </nav>
 
@@ -44,25 +47,28 @@
 
     <main class="orchestrator-stage">
       <section id="panel-hero1" class="lane-panel is-active" role="tabpanel" aria-labelledby="tab-hero1" data-lane="model">
-        <iframe title="现场公司轮盘与三表财务模型" data-lane-frame="hero1" data-src="lanes/model/index.html?scene=hero1&amp;state=company-roulette&amp;rev=r10-0905" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe title="现场公司轮盘与三表财务模型" data-lane-frame="hero1" data-src="lanes/model/index.html?scene=hero1&amp;state=company-roulette&amp;rev=r11-0905" allow="clipboard-read; clipboard-write"></iframe>
       </section>
       <section id="panel-hero2" class="lane-panel" role="tabpanel" aria-labelledby="tab-hero2" data-lane="regulatory" hidden>
-        <iframe title="HKEX 与中国证监会监管雷达" data-lane-frame="hero2" data-src="lanes/regulatory/rr-regulatory-radar.html?rev=r10-0905"></iframe>
+        <iframe title="HKEX 与中国证监会监管雷达" data-lane-frame="hero2" data-src="lanes/regulatory/rr-regulatory-radar.html?rev=r11-0905"></iframe>
       </section>
       <section id="panel-hero3" class="lane-panel" role="tabpanel" aria-labelledby="tab-hero3" data-lane="rag" hidden>
-        <iframe title="先例检索与招股书 RAG 两速检索" data-lane-frame="hero3" data-src="lanes/rag/index.html?scene=hero3&amp;state=rag-live&amp;rev=r7-0905e" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe title="先例检索与招股书 RAG 两速检索" data-lane-frame="hero3" data-src="lanes/rag/index.html?scene=hero3&amp;state=rag-live&amp;rev=r11-0905" allow="clipboard-read; clipboard-write"></iframe>
       </section>
-      <section id="panel-hero4" class="lane-panel" role="tabpanel" aria-labelledby="tab-hero4" data-lane="qa" hidden>
-        <iframe title="现场问答与演示资料" data-lane-frame="hero4" data-src="lanes/qa/index.html?rev=r7-0905c"></iframe>
+      <section id="panel-hero4" class="lane-panel" role="tabpanel" aria-labelledby="tab-hero4" data-lane="control" hidden>
+        <iframe title="钱学森控制论与三类可 AI 化工作" data-lane-frame="hero4" data-src="lanes/control/index.html?rev=r11-0905"></iframe>
+      </section>
+      <section id="panel-hero5" class="lane-panel" role="tabpanel" aria-labelledby="tab-hero5" data-lane="qa" hidden>
+        <iframe title="现场问答与演示资料" data-lane-frame="hero5" data-src="lanes/qa/index.html?rev=r11-0905"></iframe>
       </section>
     </main>
 
     <footer class="orchestrator-foot">
-      <span>现场演示 · 建模 / 监管 / 先例 · 问答交流</span>
+      <span>现场演示 · 建模 / 监管 / 先例 · 控制与反馈 · 问答交流</span>
       <span id="orchestrator-boundary">当前：现场建模 · 观众点公司或轮盘抽取 → 40 分钟三表模型</span>
     </footer>
   </div>
-  <script src="orchestrator-route.js?v=r7-0905"></script>
-  <script src="orchestrator.js?v=r7-0905c"></script>
+  <script src="orchestrator-route.js?v=r11-0905"></script>
+  <script src="orchestrator.js?v=r11-0905"></script>
 </body>
 </html>
