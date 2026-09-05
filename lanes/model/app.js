@@ -21,6 +21,7 @@ let h1TeachMotionOverride = false;
 
 const H1_GENESIS_STATES = ["company-roulette", "genesis", "seed-skeleton", "seed-binding", "seed-living", "seed-models"];
 const LIQUIDITY_FIGURE_NOTE = "允许并明确标注文中所需融资金额，优先最小化融资需求；维持月度最低安全现金底线。";
+const LATTICE_PRODUCT_EQUATION = "5 × 4 × 5 × 6 × 3 × 3 × 4";
 
 const LATTICE_DIMENSION_LABELS = Object.freeze({
   organic_growth_profiles: "内生增长率组合",
@@ -664,35 +665,78 @@ function showWiggleChangeLog(payload) {
 function h1TeachWiggleMarkup() {
   const payload = demoData.hero1.simple;
   const deltas = payload.deltas;
-  return `<section class="h1-teach-intro"><span>WIGGLE TEST / 只动一个假设</span><h3>不是看结果好不好，是看模型会不会按公式正确联动。</h3><p>把 DIO 从 ${number(payload.baseline, 0)} 天调到 ${number(payload.new_value, 0)} 天：该动的存货、现金和融资需求必须动；不该动的收入必须保持不变。</p></section>
-    <div class="h1-wiggle-teach" aria-label="DIO 单变量扰动与三表联动动画">
-      <div class="h1-wiggle-hud"><span><i></i> LIVE FORMULA TRACE</span><b id="h1-wiggle-phase">01 / 04</b><output id="h1-wiggle-caption">授权变量 DIO 已改变，准备沿公式链重算</output></div>
-      <div class="h1-wiggle-track">
-        <div class="h1-wiggle-rail" aria-hidden="true"></div>
-        <article data-trace-step="0"><small>01 / 授权变动</small><b>DIO</b><strong>${number(payload.baseline, 0)} → ${number(payload.new_value, 0)} 天</strong><em>INPUT</em></article>
-        <i aria-hidden="true"></i>
-        <article data-trace-step="1"><small>02 / 公式重算</small><b>INVENTORY</b><strong>${money(deltas.first_month_inventory, 2)}</strong><em>BS</em></article>
-        <i aria-hidden="true"></i>
-        <article data-trace-step="2"><small>03 / 现金传导</small><b>MIN CASH</b><strong>${money(deltas.minimum_monthly_cash, 2)}</strong><em>CFS</em></article>
-        <i aria-hidden="true"></i>
-        <article data-trace-step="3"><small>04 / 资金缺口</small><b>FUNDING</b><strong>${money(deltas.external_funding, 2)}</strong><em>OUTPUT</em></article>
-        <span class="h1-wiggle-signal is-trail-b" aria-hidden="true"></span>
-        <span class="h1-wiggle-signal is-trail-a" aria-hidden="true"></span>
-        <span class="h1-wiggle-signal is-lead" aria-hidden="true"></span>
+  const sheetCells = (kind) => Array.from({ length: 48 }, (_, index) => {
+    const cell = {
+      bs: {
+        10: ["AR", "·", "context"],
+        18: ["INV", money(deltas.first_month_inventory, 2), "move"],
+        34: ["CASH", money(deltas.minimum_monthly_cash, 2), "move"],
+        42: ["BS=0", money(payload.checks.max_abs_bs_check, 2), "check"],
+      },
+      cfs: {
+        9: ["ΔWC", "FORMULA", "move"],
+        25: ["CFO", "RECALC", "move"],
+        33: ["FUND", money(deltas.external_funding, 2), "move"],
+        43: ["ROLL", money(payload.checks.max_abs_cash_rollforward_check, 2), "check"],
+      },
+      pnl: {
+        11: ["REV", money(deltas.revenue, 2), "hold"],
+        20: ["COGS", "LOCKED", "hold"],
+        37: ["NP", "TRACE", "context"],
+        45: ["WC=0", money(payload.checks.max_abs_wc_formula_check, 2), "check"],
+      },
+    }[kind][index];
+    if (!cell) return `<span aria-hidden="true"><i></i></span>`;
+    return `<span class="is-${cell[2]}" data-wiggle-cell="${kind}-${cell[0].toLowerCase()}"><small>${cell[0]}</small><b>${cell[1]}</b></span>`;
+  }).join("");
+  return `<section class="h1-teach-intro"><span>WIGGLE TEST / 只动一个假设</span><h3>不是看结果好不好，是看模型有没有按公式正确联动。</h3><p>把 DIO 从 ${number(payload.baseline, 0)} 天调到 ${number(payload.new_value, 0)} 天：该动的存货、现金和融资需求必须动；不该动的收入必须保持不变。</p></section>
+    <div class="h1-wiggle-teach" aria-label="DIO 单变量扰动、三表单元格联动与异常 lineage 教学动画">
+      <div class="h1-wiggle-hud"><span><i></i> LIVE CELL TRACE</span><b id="h1-wiggle-phase">01 / 04</b><output id="h1-wiggle-caption">输入源正在变化；其余单元格先保持冻结</output></div>
+      <div class="h1-wiggle-workbench" id="h1-wiggle-workbench">
+        <svg class="h1-wiggle-map" id="h1-wiggle-map" aria-hidden="true"><path id="h1-wiggle-main-path" pathLength="1"></path><path id="h1-wiggle-hold-path" pathLength="1"></path><circle data-wiggle-signal="trail-b" r="3"></circle><circle data-wiggle-signal="trail-a" r="4"></circle><circle data-wiggle-signal="lead" r="6"></circle><circle data-wiggle-signal="fault" r="5"></circle></svg>
+        <aside class="h1-wiggle-driver" data-wiggle-node="driver"><small>AUTHORIZED INPUT</small><b>DIO</b><strong><span id="h1-wiggle-driver-value">${number(payload.baseline, 0)}</span><i> DAYS</i></strong><div><u id="h1-wiggle-driver-meter"></u></div><em>${number(payload.baseline, 0)} → ${number(payload.new_value, 0)}</em></aside>
+        <div class="h1-mini-books">
+          <article class="h1-mini-sheet" data-wiggle-sheet="bs"><header><span>BS</span><b>资产负债表</b><i>48 CELLS</i></header><div class="h1-mini-grid">${sheetCells("bs")}</div></article>
+          <article class="h1-mini-sheet" data-wiggle-sheet="cfs"><header><span>CFS</span><b>现金流量表</b><i>48 CELLS</i></header><div class="h1-mini-grid">${sheetCells("cfs")}</div></article>
+          <article class="h1-mini-sheet" data-wiggle-sheet="pnl"><header><span>P&amp;L</span><b>利润表</b><i>48 CELLS</i></header><div class="h1-mini-grid">${sheetCells("pnl")}</div></article>
+        </div>
+        <aside class="h1-wiggle-lineage" id="h1-wiggle-lineage"><span>LINEAGE AUTO-OPEN</span><b id="h1-wiggle-lineage-title">公式链正在重算</b><code>${escapeHtml(payload.formula)}</code><ol><li>DIO · 已授权输入</li><li>Inventory · 应变化</li><li>CFO / Cash · 应联动</li><li>Revenue · 不在这条 lineage</li></ol><em id="h1-wiggle-control-state">RUNNING CONTROL</em><small>红框是教学反例，不代表当前模型报错。</small></aside>
       </div>
-      <div class="h1-wiggle-stable"><span>不该动</span><b>2027E 营业收入</b><strong>${money(deltas.revenue, 2)} · 保持不变</strong><i>LOCKED</i></div>
+      <div class="h1-wiggle-verdict"><span>本轮真实结果</span><b id="h1-wiggle-verdict">该动的已联动；Revenue Δ ${money(deltas.revenue, 2)}</b><i id="h1-wiggle-verdict-chip">CHECKING</i></div>
     </div>
-    <ol class="h1-teach-steps"><li><b>1</b><span>只改一个已授权变量</span></li><li><b>2</b><span>沿公式链重新计算</span></li><li><b>3</b><span>该动与不该动的科目分开检查</span></li><li><b>4</b><span>BS、CFS 和现金滚存再勾稽</span></li></ol>`;
+    <ol class="h1-teach-steps"><li><b>1</b><span>输入源快速扰动</span></li><li><b>2</b><span>应变化的 cell 逐个点亮</span></li><li><b>3</b><span>不应变化的 cell 保持锁定</span></li><li><b>4</b><span>异常自动框选并展开 lineage</span></li></ol>`;
+}
+
+function h1LatticeDimensionValue(dimension, value) {
+  if (dimension.id === "organic_growth_profiles") return `G ${value.map((item) => `${number(item * 100, 0)}%`).join("/")}`;
+  if (new Set(["gross_margin", "management_expense_ratio"]).has(dimension.id)) return `${dimension.id === "gross_margin" ? "GM" : "ADMIN"} ${number(value * 100, 1)}%`;
+  if (dimension.id === "advertising_spend") return `ADS HK$${number(value, 0)}m`;
+  return `${dimension.id.toUpperCase()} ${number(value, 0)}d`;
+}
+
+function h1LatticeCandidate(candidateIndex) {
+  const lattice = demoData.hero1.lattice;
+  let remainder = Math.max(0, Math.min(lattice.dimension_product - 1, candidateIndex));
+  const values = new Array(lattice.dimensions.length);
+  for (let index = lattice.dimensions.length - 1; index >= 0; index -= 1) {
+    const dimension = lattice.dimensions[index];
+    const choice = remainder % dimension.cardinality;
+    remainder = Math.floor(remainder / dimension.cardinality);
+    values[index] = h1LatticeDimensionValue(dimension, dimension.values[choice]);
+  }
+  return { id: candidateIndex + 1, formula: values.join(" · ") };
 }
 
 function h1TeachLatticeMarkup() {
   const lattice = demoData.hero1.lattice;
-  return `<section class="h1-teach-intro"><span>SOLVER LATTICE / 有限候选空间</span><h3>先把授权范围里的组合全部铺开，再一关一关淘汰。</h3><p>动画中的粒子是缩小示意；结果数字仍以全部 ${integer(lattice.evaluated_candidates)} 个实际计算组合为准。</p></section>
+  const dimensions = lattice.dimensions.map((dimension) => `<span><small>${escapeHtml(LATTICE_DIMENSION_LABELS[dimension.id])}</small><b>×${integer(dimension.cardinality)}</b></span>`).join("<i>×</i>");
+  return `<section class="h1-teach-intro"><span>SOLVER LATTICE / 七维有限组合空间</span><h3>它不是二叉树：每个点是一套由七个参数拼出的完整假设。</h3><p>候选编号与公式来自实际枚举；七维空间以 3D 透视投影呈现。粒子颜色用于解释总体筛选结构，不冒充逐编号审计结论。</p></section>
+    <div class="h1-lattice-equation" aria-label="七项搜索维度的组合公式">${dimensions}<strong>${LATTICE_PRODUCT_EQUATION}<br>= ${integer(lattice.dimension_product)}</strong></div>
     <div class="h1-lattice-teach">
-      <div class="h1-lattice-stage"><canvas id="h1-lattice-canvas" role="img" aria-label="候选组合从空间展开、约束淘汰、资金分组到最优解浮现的示意动画"></canvas><div class="h1-lattice-scan" aria-hidden="true"></div><div class="h1-lattice-hud"><span><i></i> REPRESENTATIVE PARTICLES</span><b id="h1-lattice-phase">PHASE 01 / EXPAND</b><em><u id="h1-lattice-progress"></u></em></div><output id="h1-lattice-caption">正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合</output></div>
+      <div class="h1-lattice-stage"><canvas id="h1-lattice-canvas" role="img" aria-label="七维候选组合在三维透视空间中生成、过约束门、归组并排序的动画"></canvas><div class="h1-lattice-scan" aria-hidden="true"></div><div class="h1-lattice-hud"><span><i></i> 216 个代表点 / ${integer(lattice.evaluated_candidates)} 个实际组合</span><b id="h1-lattice-phase">PHASE 01 / BUILD 7D</b><em><u id="h1-lattice-progress"></u></em></div><aside class="h1-lattice-candidate"><span>SCANNING CANDIDATE</span><b id="h1-lattice-candidate-id">#00001</b><code id="h1-lattice-candidate-formula">读取七项取值…</code><em id="h1-lattice-candidate-state">BUILDING VECTOR</em></aside><output id="h1-lattice-caption">七项参数依次装配为一套候选假设</output></div>
       <div class="h1-lattice-ledger"><div><span>全量计算</span><strong>${integer(lattice.evaluated_candidates)}</strong></div><div><span>通过约束</span><strong>${integer(lattice.feasible_candidates)}</strong></div><div><span>本轮剔除</span><strong>${integer(lattice.rejected_candidates)}</strong></div><div><span>零外部融资</span><strong>${integer(lattice.liquidity_funding.feasible_zero_external_funding)}</strong></div></div>
     </div>
-    <ol id="h1-lattice-phases" class="h1-teach-steps h1-lattice-phases"><li><b>1</b><span>展开候选空间</span></li><li><b>2</b><span>刚性约束逐层淘汰</span></li><li><b>3</b><span>按融资负担分组</span></li><li><b>4</b><span>按目标层级选出前三</span></li></ol>`;
+    <ol id="h1-lattice-phases" class="h1-teach-steps h1-lattice-phases"><li><b>1</b><span>七个维度装配组合</span></li><li><b>2</b><span>候选束穿过刚性约束门</span></li><li><b>3</b><span>按融资负担形成四簇</span></li><li><b>4</b><span>目标层级拉出前三</span></li></ol>`;
 }
 
 function clampH1(value, min = 0, max = 1) {
@@ -709,54 +753,92 @@ function h1TeachReducedMotionActive() {
 }
 
 function drawH1WiggleFrame(progress) {
-  const track = $(".h1-wiggle-track");
-  if (!track) return;
-  const nodes = $$(".h1-wiggle-track article");
-  const signals = $$(".h1-wiggle-signal");
-  if (nodes.length !== 4 || signals.length !== 3) return;
+  const workbench = $("#h1-wiggle-workbench");
+  const svg = $("#h1-wiggle-map");
+  const driver = $('[data-wiggle-node="driver"]');
+  const inventory = $('[data-wiggle-cell="bs-inv"]');
+  const funding = $('[data-wiggle-cell="cfs-fund"]');
+  const cash = $('[data-wiggle-cell="bs-cash"]');
+  const revenue = $('[data-wiggle-cell="pnl-rev"]');
+  if (!workbench || !svg || !driver || !inventory || !funding || !cash || !revenue) return;
 
-  const activeProgress = clampH1((progress - .035) / .9);
-  const travel = activeProgress * (nodes.length - 1);
-  const activeIndex = Math.min(nodes.length - 1, Math.floor(travel + .001));
-  const trackRect = track.getBoundingClientRect();
-  const isVertical = nodes[1].offsetTop > nodes[0].offsetTop + 20;
-  const points = nodes.map((node) => {
-    const rect = node.getBoundingClientRect();
-    return { x: isVertical ? 17 : rect.left - trackRect.left + rect.width / 2, y: rect.top - trackRect.top + rect.height / 2 };
-  });
-  const pointAt = (position) => {
-    const bounded = clampH1(position, 0, nodes.length - 1);
-    const index = Math.min(nodes.length - 2, Math.floor(bounded));
-    const local = easeH1(bounded - index);
-    return {
-      x: points[index].x + (points[index + 1].x - points[index].x) * local,
-      y: points[index].y + (points[index + 1].y - points[index].y) * local,
-    };
+  const phaseIndex = progress < .18 ? 0 : progress < .44 ? 1 : progress < .7 ? 2 : 3;
+  const faultDemo = progress > .835 && progress < .945;
+  const payload = demoData.hero1.simple;
+  const driverProgress = easeH1(clampH1(progress / .18));
+  const oscillation = progress < .18 ? Math.sin(progress * Math.PI * 34) * (1 - driverProgress) * 1.35 : 0;
+  const driverValue = clampH1(payload.baseline + (payload.new_value - payload.baseline) * driverProgress + oscillation, payload.new_value, payload.baseline);
+  $("#h1-wiggle-driver-value").textContent = number(driverValue, progress < .18 ? 1 : 0);
+  $("#h1-wiggle-driver-meter").style.width = `${Math.round(driverProgress * 100)}%`;
+
+  const bounds = workbench.getBoundingClientRect();
+  svg.setAttribute("viewBox", `0 0 ${Math.max(1, bounds.width)} ${Math.max(1, bounds.height)}`);
+  const center = (element) => {
+    const rect = element.getBoundingClientRect();
+    return { x: rect.left - bounds.left + rect.width / 2, y: rect.top - bounds.top + rect.height / 2 };
   };
-
-  signals.forEach((signal, index) => {
-    const lag = index === 2 ? 0 : index === 1 ? .115 : .22;
-    const location = pointAt(Math.max(0, travel - lag));
-    const scale = index === 2 ? 1.2 + Math.sin(progress * Math.PI * 18) * .16 : index === 1 ? .8 : .55;
-    signal.style.transform = `translate3d(${location.x}px,${location.y}px,0) translate3d(-50%,-50%,0) scale(${scale})`;
-    signal.style.opacity = String(progress < .025 || progress > .965 ? 0 : index === 2 ? 1 : index === 1 ? .58 : .28);
+  const mainPoints = [center(driver), center(inventory), center(cash), center(funding)];
+  const holdPoints = [center(driver), center(revenue)];
+  const pathString = (points) => points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+  $("#h1-wiggle-main-path").setAttribute("d", pathString(mainPoints));
+  $("#h1-wiggle-hold-path").setAttribute("d", pathString(holdPoints));
+  const pointAt = (points, normalized) => {
+    const distances = points.slice(1).map((point, index) => Math.hypot(point.x - points[index].x, point.y - points[index].y));
+    const total = distances.reduce((sum, value) => sum + value, 0);
+    let remaining = clampH1(normalized) * total;
+    for (let index = 0; index < distances.length; index += 1) {
+      if (remaining <= distances[index] || index === distances.length - 1) {
+        const local = distances[index] ? remaining / distances[index] : 0;
+        return { x: points[index].x + (points[index + 1].x - points[index].x) * local, y: points[index].y + (points[index + 1].y - points[index].y) * local };
+      }
+      remaining -= distances[index];
+    }
+    return points[points.length - 1];
+  };
+  const traceProgress = easeH1(clampH1((progress - .11) / .61));
+  $$('[data-wiggle-signal]:not([data-wiggle-signal="fault"])').forEach((signal, index) => {
+    const lag = index === 2 ? 0 : index === 1 ? .055 : .105;
+    const point = pointAt(mainPoints, Math.max(0, traceProgress - lag));
+    signal.setAttribute("cx", point.x.toFixed(1));
+    signal.setAttribute("cy", point.y.toFixed(1));
+    signal.style.opacity = progress > .08 && progress < .8 ? String(index === 2 ? 1 : index === 1 ? .55 : .25) : "0";
   });
+  const faultSignal = $('[data-wiggle-signal="fault"]');
+  const faultPoint = pointAt(holdPoints, easeH1(clampH1((progress - .835) / .09)));
+  faultSignal.setAttribute("cx", faultPoint.x.toFixed(1));
+  faultSignal.setAttribute("cy", faultPoint.y.toFixed(1));
+  faultSignal.style.opacity = faultDemo ? "1" : "0";
 
-  nodes.forEach((node, index) => {
-    node.classList.toggle("is-trace-active", index === activeIndex);
-    node.classList.toggle("is-trace-passed", index < activeIndex);
+  const moveCells = $$("[data-wiggle-cell].is-move");
+  moveCells.forEach((cell, index) => {
+    const activation = index < 2 ? 1 : 2;
+    cell.classList.toggle("is-cell-active", phaseIndex === activation);
+    cell.classList.toggle("is-cell-passed", phaseIndex > activation);
   });
-  $$(".h1-teach-steps li").forEach((item, index) => item.classList.toggle("is-active", index === activeIndex));
-  $(".h1-wiggle-stable")?.classList.toggle("is-verified", activeIndex >= 2);
+  $$('[data-wiggle-cell$="=0"], [data-wiggle-cell].is-check').forEach((cell) => cell.classList.toggle("is-cell-passed", phaseIndex >= 3 && !faultDemo));
+  revenue.classList.toggle("is-cell-locked", phaseIndex >= 2 && !faultDemo);
+  revenue.classList.toggle("is-fault-demo", faultDemo);
+  driver.classList.toggle("is-active", phaseIndex === 0);
+  $$("[data-wiggle-sheet]").forEach((sheet) => sheet.classList.toggle("is-scanning", phaseIndex > 0 && phaseIndex < 3));
+
+  const lineage = $("#h1-wiggle-lineage");
+  lineage.classList.toggle("is-open", progress > .2);
+  lineage.classList.toggle("is-fault", faultDemo);
+  $("#h1-wiggle-lineage-title").textContent = faultDemo ? "发现未授权 cell 变化，向上展开公式链" : "DIO → Inventory → CFO / Cash → Funding";
+  $("#h1-wiggle-control-state").textContent = faultDemo ? "SIMULATED FAULT / 教学反例" : phaseIndex >= 3 ? "CONTROL PASS" : "RUNNING CONTROL";
+  $("#h1-wiggle-verdict-chip").textContent = faultDemo ? "TRACE OPEN" : phaseIndex >= 3 ? "PASS" : "CHECKING";
+  $("#h1-wiggle-verdict-chip").classList.toggle("is-fault", faultDemo);
+
+  $$(".h1-teach-steps li").forEach((item, index) => item.classList.toggle("is-active", index === phaseIndex));
   const captions = [
-    "DIO 是本轮唯一获授权改变的输入",
-    "存货按新周转天数重算，变化进入资产负债表",
-    "营运资金变化传导至月度现金滚存",
-    "资金缺口刷新；收入支路仍被锁定",
+    "DIO 在授权范围内快速扰动；其余 cell 暂时冻结",
+    "Inventory cell 重算并点亮，公式变化进入资产负债表",
+    "CFO、Cash 与 Funding 沿 lineage 继续联动；Revenue 仍锁定",
+    faultDemo ? "教学反例：若锁定 cell 变化，立即红框并自动展开 lineage" : "三项控制检查归零；本轮真实结果通过",
   ];
-  $("#h1-wiggle-phase").textContent = `${String(activeIndex + 1).padStart(2, "0")} / 04`;
-  $("#h1-wiggle-caption").textContent = captions[activeIndex];
-  track.style.setProperty("--trace-progress", String(activeProgress));
+  $("#h1-wiggle-phase").textContent = `${String(phaseIndex + 1).padStart(2, "0")} / 04`;
+  $("#h1-wiggle-caption").textContent = captions[phaseIndex];
+  workbench.style.setProperty("--trace-progress", String(traceProgress));
 }
 
 function drawH1LatticeFrame(progress) {
@@ -773,10 +855,10 @@ function drawH1LatticeFrame(progress) {
   const context = canvas.getContext("2d");
   context.setTransform(density, 0, 0, density, 0, 0);
   context.clearRect(0, 0, width, height);
-  const background = context.createRadialGradient(width * .5, height * .42, 4, width * .5, height * .5, width * .72);
-  background.addColorStop(0, "#21483d");
-  background.addColorStop(.48, "#132f29");
-  background.addColorStop(1, "#081814");
+  const background = context.createRadialGradient(width * .52, height * .42, 4, width * .5, height * .52, width * .75);
+  background.addColorStop(0, "#234a40");
+  background.addColorStop(.42, "#122f29");
+  background.addColorStop(1, "#06130f");
   context.fillStyle = background;
   context.fillRect(0, 0, width, height);
 
@@ -788,98 +870,156 @@ function drawH1LatticeFrame(progress) {
   const lattice = demoData.hero1.lattice;
   const rejectedShare = lattice.rejected_candidates / lattice.evaluated_candidates;
   const count = 216;
-  const columns = 18;
   const phaseIndex = Math.min(3, Math.floor(visualProgress * 4));
   const localPhaseProgress = (visualProgress * 4) % 1;
   const sceneAlpha = Math.min(1, progress / .028, (1 - progress) / .032);
+  const yaw = Math.sin(progress * Math.PI * 2) * .16;
+  const project = (x, y, z) => {
+    const centeredZ = z - .5;
+    const rotatedX = x * Math.cos(yaw) - centeredZ * Math.sin(yaw) * .52;
+    const rotatedZ = clampH1(centeredZ * Math.cos(yaw) + x * Math.sin(yaw) * .2 + .5, -.1, 1.18);
+    const scale = .25 + rotatedZ * .83;
+    return {
+      x: width * .5 + rotatedX * width * .43 * scale,
+      y: height * .47 + y * height * .39 * scale + (1 - rotatedZ) * height * .07,
+      scale,
+      z: rotatedZ,
+    };
+  };
 
   context.globalAlpha = sceneAlpha;
-  context.strokeStyle = "rgba(199,219,205,.11)";
+  const tunnelCorners = [[-1, -.82], [1, -.82], [1, .82], [-1, .82]];
+  context.strokeStyle = "rgba(183,222,200,.16)";
   context.lineWidth = 1;
-  for (let x = 0; x < width; x += 34) {
-    const vanishingX = width * .5 + (x - width * .5) * .15;
-    context.beginPath(); context.moveTo(vanishingX, 0); context.lineTo(x, height); context.stroke();
-  }
-  for (let y = 18; y < height; y += 34) {
-    context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
+  tunnelCorners.forEach(([x, y]) => {
+    const far = project(x, y, 0);
+    const near = project(x, y, 1);
+    context.beginPath(); context.moveTo(far.x, far.y); context.lineTo(near.x, near.y); context.stroke();
+  });
+  const dimensionCards = lattice.dimensions.map((dimension, index) => ({ dimension, z: .08 + index * .115 }));
+  dimensionCards.forEach(({ dimension, z }, index) => {
+    const corners = tunnelCorners.map(([x, y]) => project(x, y, z));
+    const live = phaseIndex === 0 && localPhaseProgress >= index / dimensionCards.length;
+    context.fillStyle = live ? "rgba(104,180,143,.065)" : "rgba(93,135,114,.025)";
+    context.strokeStyle = live ? "rgba(179,235,204,.48)" : "rgba(174,211,191,.14)";
+    context.shadowColor = live ? "rgba(127,224,174,.55)" : "transparent";
+    context.shadowBlur = live ? 11 : 0;
+    context.beginPath();
+    corners.forEach((point, cornerIndex) => cornerIndex ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+    context.closePath(); context.fill(); context.stroke();
+    context.shadowBlur = 0;
+    const label = project(-1, -.91, z);
+    context.globalAlpha = sceneAlpha * (live ? 1 : .48);
+    context.fillStyle = live ? "#f0c27d" : "#8ebca3";
+    context.font = `${Math.max(7, 7.5 * label.scale)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+    context.fillText(`D${index + 1} ×${dimension.cardinality}`, label.x, label.y);
+  });
+
+  if (phaseIndex === 1) {
+    const z = localPhaseProgress;
+    const corners = tunnelCorners.map(([x, y]) => project(x, y, z));
+    const scanGradient = context.createLinearGradient(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+    scanGradient.addColorStop(0, "rgba(219,172,94,.03)");
+    scanGradient.addColorStop(.52, "rgba(238,197,124,.24)");
+    scanGradient.addColorStop(1, "rgba(129,218,174,.05)");
+    context.fillStyle = scanGradient;
+    context.strokeStyle = "rgba(245,207,137,.88)";
+    context.shadowColor = "rgba(245,207,137,.72)";
+    context.shadowBlur = 18;
+    context.beginPath();
+    corners.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+    context.closePath(); context.fill(); context.stroke(); context.shadowBlur = 0;
   }
 
-  const beamX = width * (.06 + localPhaseProgress * .88);
-  const beamGradient = context.createLinearGradient(beamX - 44, 0, beamX + 44, 0);
-  beamGradient.addColorStop(0, "rgba(236,193,115,0)");
-  beamGradient.addColorStop(.5, "rgba(236,193,115,.24)");
-  beamGradient.addColorStop(1, "rgba(236,193,115,0)");
-  context.fillStyle = beamGradient;
-  context.fillRect(beamX - 44, 0, 88, height);
-  context.strokeStyle = "rgba(245,207,137,.9)";
-  context.shadowColor = "rgba(245,207,137,.9)";
-  context.shadowBlur = 14;
-  context.lineWidth = 1.3;
-  context.beginPath(); context.moveTo(beamX, 0); context.lineTo(beamX, height); context.stroke();
-  context.shadowBlur = 0;
-
+  const particles = [];
   for (let index = 0; index < count; index += 1) {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
     const rejected = index / count < rejectedShare;
-    const startX = width * .5 + Math.sin(index * 2.17) * width * .12;
-    const startY = height * .5 + Math.cos(index * 1.73) * height * .12;
-    const gridX = 28 + column * ((width - 56) / (columns - 1));
-    const gridY = 34 + row * ((height - 68) / 11);
-    const filterX = rejected ? width * .18 + (column % 5) * 9 : width * .58 + (column % 10) * 12;
-    const filterY = rejected ? height * .67 + (row % 4) * 11 : height * .23 + (row % 8) * 17;
+    const baseX = ((index * 37) % 101) / 50 - 1;
+    const baseY = ((index * 53) % 97) / 48 - 1;
+    const baseZ = ((index * 29) % 109) / 108;
+    const seedAngle = index * 2.399963;
+    const seedRadius = .04 + (index % 13) / 13 * .2;
+    const startX = Math.cos(seedAngle) * seedRadius;
+    const startY = Math.sin(seedAngle) * seedRadius;
+    const startZ = .04 + (index % 9) * .004;
+    let x = startX + (baseX - startX) * enter;
+    let y = startY + (baseY - startY) * enter;
+    let z = startZ + (baseZ - startZ) * enter;
+    if (rejected) {
+      y += filter * (.88 + (index % 5) * .03);
+      z -= filter * .16;
+    } else {
+      z += filter * .08;
+    }
     const bin = index % 4;
-    const groupX = rejected ? width * .12 + (column % 5) * 8 : width * (.42 + bin * .14) + (column % 3) * 8;
-    const groupY = rejected ? height * .76 + (row % 3) * 9 : height * .25 + (row % 7) * 18;
-    let x = startX + (gridX - startX) * enter;
-    let y = startY + (gridY - startY) * enter;
-    x += (filterX - gridX) * filter;
-    y += (filterY - gridY) * filter;
-    x += (groupX - filterX) * group;
-    y += (groupY - filterY) * group;
+    const groupTargets = [-.7, -.24, .25, .7];
+    const groupX = groupTargets[bin] + Math.cos(seedAngle) * .15;
+    const groupY = -.15 + Math.sin(seedAngle) * .34;
+    const groupZ = .43 + bin * .12 + (index % 7) * .014;
+    if (!rejected) {
+      x += (groupX - x) * group;
+      y += (groupY - y) * group;
+      z += (groupZ - z) * group;
+    }
     const topRank = !rejected && index >= count - 3;
     if (topRank) {
       const rankIndex = count - 1 - index;
-      const targetX = width * .59 + rankIndex * 44;
-      const targetY = height * .48 - rankIndex * 19;
-      x += (targetX - groupX) * rank;
-      y += (targetY - groupY) * rank;
+      x += ((rankIndex - 1) * .34 - x) * rank;
+      y += ((-.42 + rankIndex * .13) - y) * rank;
+      z += (1.08 - z) * rank;
+    } else if (!rejected) {
+      z -= rank * .16;
     }
-    const shimmer = .75 + Math.sin(progress * Math.PI * 20 + index * .61) * .25;
-    const alpha = (rejected ? 1 - group * .64 : .78 + rank * .22) * sceneAlpha;
-    context.globalAlpha = alpha;
-    context.fillStyle = topRank && rank > .05 ? "#e1b76d" : rejected ? "#a96043" : "#71aa8c";
-    if (!rejected && Math.abs(x - beamX) < 26) {
-      context.shadowColor = "rgba(174,239,202,.95)";
-      context.shadowBlur = 10;
-    }
-    context.beginPath();
-    context.arc(x, y, topRank ? 4.2 + rank * 2.4 : 1.8 + shimmer * 1.2, 0, Math.PI * 2);
-    context.fill();
-    context.shadowBlur = 0;
-    if (index % 9 === 0 && !rejected) {
-      context.strokeStyle = `rgba(113,170,140,${.08 + shimmer * .13})`;
-      context.beginPath(); context.moveTo(x - 10 - shimmer * 7, y); context.lineTo(x, y); context.stroke();
-    }
-    if (topRank && rank > .05) {
-      context.strokeStyle = `rgba(225,183,109,${.25 + rank * .55})`;
-      context.lineWidth = 1;
-      context.beginPath(); context.arc(x, y, 8 + Math.sin(progress * Math.PI * 18) * 2, 0, Math.PI * 2); context.stroke();
-    }
+    const projected = project(x, y, z);
+    particles.push({ index, rejected, topRank, ...projected });
   }
+  particles.sort((a, b) => a.z - b.z);
+  const activeCandidateIndex = Math.min(lattice.dimension_product - 1, Math.floor(visualProgress * lattice.dimension_product));
+  const activeRepresentative = Math.round(activeCandidateIndex / (lattice.dimension_product - 1) * (count - 1));
+  const labelEvery = width < 620 ? 42 : 18;
+  particles.forEach((particle) => {
+    const shimmer = .72 + Math.sin(progress * Math.PI * 18 + particle.index * .61) * .28;
+    const active = particle.index === activeRepresentative;
+    const alpha = (particle.rejected ? 1 - group * .7 : .62 + particle.scale * .32) * sceneAlpha;
+    context.globalAlpha = alpha;
+    context.fillStyle = particle.topRank && rank > .05 ? "#f0c477" : particle.rejected ? "#ad6345" : "#79c09a";
+    if (active || particle.topRank) {
+      context.shadowColor = particle.topRank ? "rgba(245,197,111,.95)" : "rgba(166,242,202,.95)";
+      context.shadowBlur = active ? 18 : 12;
+    }
+    const radius = (particle.topRank ? 4.4 + rank * 2.8 : 1.4 + shimmer * 1.45) * (.56 + particle.scale * .64);
+    context.beginPath(); context.arc(particle.x, particle.y, active ? radius + 2.2 : radius, 0, Math.PI * 2); context.fill(); context.shadowBlur = 0;
+    if (particle.index % labelEvery === 0 || active || (particle.topRank && rank > .35)) {
+      const actualId = 1 + Math.floor(particle.index / (count - 1) * (lattice.dimension_product - 1));
+      context.globalAlpha = sceneAlpha * (active ? 1 : .65);
+      context.fillStyle = active ? "#fff0c9" : particle.topRank ? "#efc77d" : "#a8d4bd";
+      context.font = `${active ? 10 : 7}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+      context.fillText(`#${String(actualId).padStart(5, "0")}`, particle.x + radius + 4, particle.y - radius - 2);
+    }
+    if (particle.topRank && rank > .08) {
+      context.globalAlpha = sceneAlpha;
+      context.strokeStyle = `rgba(239,195,112,${.3 + rank * .6})`;
+      context.lineWidth = 1;
+      context.beginPath(); context.arc(particle.x, particle.y, radius + 6 + Math.sin(progress * Math.PI * 14) * 1.5, 0, Math.PI * 2); context.stroke();
+    }
+  });
   context.globalAlpha = 1;
 
   $$("#h1-lattice-phases li").forEach((item, index) => item.classList.toggle("is-active", index === phaseIndex));
   const captions = [
-    `展开授权组合空间 · 示意粒子 ${Math.max(1, Math.round(216 * enter))} / 216`,
-    `刚性约束逐层扫描 · 剔除 ${integer(lattice.rejected_candidates)} 个不合规方案`,
-    `剩余 ${integer(lattice.feasible_candidates)} 个方案 · 正按融资需求分组`,
-    "锁定最优三组 · 依次比较融资、改动幅度、现金和净利润",
+    `七项参数依次装配 · 3D 投影中的代表点 ${Math.max(1, Math.round(216 * enter))} / 216`,
+    `候选束穿过刚性约束门 · 总体剔除 ${integer(lattice.rejected_candidates)} 个方案`,
+    `剩余 ${integer(lattice.feasible_candidates)} 个方案 · 按融资需求形成四簇`,
+    "前三组被拉到近景 · 依次比较融资、改动幅度、现金和净利润",
   ];
   $("#h1-lattice-caption").textContent = captions[phaseIndex];
-  const phaseLabels = ["PHASE 01 / EXPAND", "PHASE 02 / FILTER", "PHASE 03 / CLUSTER", "PHASE 04 / RANK"];
+  const phaseLabels = ["PHASE 01 / BUILD 7D", "PHASE 02 / CONSTRAINT GATES", "PHASE 03 / FUNDING CLUSTERS", "PHASE 04 / MULTI-OBJECTIVE RANK"];
   $("#h1-lattice-phase").textContent = phaseLabels[phaseIndex];
   $("#h1-lattice-progress").style.width = `${Math.round(localPhaseProgress * 100)}%`;
+  const candidate = h1LatticeCandidate(activeCandidateIndex);
+  $("#h1-lattice-candidate-id").textContent = `#${String(candidate.id).padStart(5, "0")}`;
+  $("#h1-lattice-candidate-formula").textContent = candidate.formula;
+  $("#h1-lattice-candidate-state").textContent = ["ASSEMBLING 7 VALUES", "AGGREGATE CONSTRAINT SCAN", "GROUPING BY FUNDING", "COMPARING OBJECTIVES"][phaseIndex];
 }
 
 function runH1TeachMotion(reset = false) {
@@ -895,8 +1035,8 @@ function runH1TeachMotion(reset = false) {
   $("#h1-teach-pause").setAttribute("aria-pressed", "false");
   if (h1TeachReducedMotionActive()) {
     drawer.classList.add("is-reduced");
-    if (h1TeachMode === "lattice") drawH1LatticeFrame(.91);
-    if (h1TeachMode === "wiggle") drawH1WiggleFrame(.91);
+    if (h1TeachMode === "lattice") drawH1LatticeFrame(.86);
+    if (h1TeachMode === "wiggle") drawH1WiggleFrame(.78);
     $("#h1-teach-pause").textContent = "播放动画";
     return;
   }
@@ -905,7 +1045,7 @@ function runH1TeachMotion(reset = false) {
     const elapsed = h1TeachElapsed + now - h1TeachStart;
     const travelSpan = Math.max(drawer.clientWidth, drawer.clientHeight);
     const viewportScale = clampH1(travelSpan / 820, .95, 1.25);
-    const cycle = (h1TeachMode === "lattice" ? 8200 : 6400) * viewportScale;
+    const cycle = (h1TeachMode === "lattice" ? 14200 : 10800) * viewportScale;
     const progress = (elapsed % cycle) / cycle;
     if (h1TeachMode === "lattice") drawH1LatticeFrame(progress);
     if (h1TeachMode === "wiggle") drawH1WiggleFrame(progress);

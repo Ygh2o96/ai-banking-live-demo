@@ -95,6 +95,7 @@
         <small>${escapeHtml(actorNames[node.actor])}</small>
         <strong>${escapeHtml(node.title)}</strong>
         <span>${escapeHtml(node.meta)}</span>
+        <i class="rr-node-progress" aria-hidden="true"></i>
       </button>`).join("");
     $$(".rr-node", layer).forEach((button) => button.addEventListener("click", () => showInspector(button.dataset.rrNode)));
   }
@@ -119,7 +120,7 @@
 
   function clearRuntimeState() {
     $$(".rr-node").forEach((node) => {
-      node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized", "is-visited", "is-muted");
+      node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized", "is-just-completed", "is-visited", "is-muted");
       node.removeAttribute("aria-busy");
     });
     $$(".rr-charge").forEach((edge) => edge.classList.remove("is-charging", "is-complete", "is-failed", "is-muted"));
@@ -212,7 +213,7 @@
   function setNodeState(nodeId, state) {
     const node = $(`.rr-node[data-rr-node="${CSS.escape(nodeId)}"]`);
     if (!node) return;
-    node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized");
+    node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized", "is-just-completed");
     if (state) node.classList.add(`is-${state}`);
     if (state && !["charging", "waiting"].includes(state)) node.classList.add("is-visited");
     node.setAttribute("aria-busy", String(state === "charging"));
@@ -280,19 +281,27 @@
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 60;
     const traveler = $(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`);
     const length = traveler?.getTotalLength?.() || 0;
-    const mobile = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
-    const floor = mobile ? 2500 : 3600;
-    const ceiling = mobile ? 5200 : 8500;
-    const pixelsPerSecond = mobile ? 150 : 105;
-    const distanceDuration = length ? (length / pixelsPerSecond) * 1000 : floor;
-    const base = Math.max(floor, Math.min(ceiling, distanceDuration));
-    return Math.round(base * (rrCinematicTempo ? 1.4 : 1));
+    const mobile = window.matchMedia("(max-width: 760px)").matches;
+    const floor = mobile ? 3600 : 5500;
+    const ceiling = mobile ? 9000 : 13000;
+    const pixelsPerSecond = mobile ? 105 : 65;
+    const visibleLength = length * rrZoom;
+    const distanceDuration = visibleLength ? (visibleLength / pixelsPerSecond) * 1000 : floor;
+    const pacedDuration = Math.max(floor, distanceDuration) * (rrCinematicTempo ? 1.3 : 1);
+    return Math.round(Math.min(ceiling, pacedDuration));
   }
 
   function setEdgeTravelDuration(edgeId, duration) {
     $$(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`).forEach((traveler) => {
       traveler.style.setProperty("--rr-edge-travel-duration", `${duration}ms`);
     });
+  }
+
+  function nodeProcessingDuration() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 60;
+    const mobile = window.matchMedia("(max-width: 760px)").matches;
+    if (mobile) return rrCinematicTempo ? 3400 : 2400;
+    return rrCinematicTempo ? 4600 : 3200;
   }
 
   function scrollToPhase(phase) {
@@ -316,11 +325,14 @@
 
   async function processNode(nodeId, finalState, token) {
     if (token !== rrRunToken) return false;
+    const node = $(`.rr-node[data-rr-node="${CSS.escape(nodeId)}"]`);
+    const duration = nodeProcessingDuration();
+    node?.style.setProperty("--rr-node-processing-duration", `${duration}ms`);
     setNodeState(nodeId, "charging");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    await rrMotionWait(reduced ? 60 : rrCinematicTempo ? 2200 : 1600, token);
+    await rrMotionWait(duration, token);
     if (token !== rrRunToken) return false;
     setNodeState(nodeId, finalState);
+    if (finalState !== "waiting") node?.classList.add("is-just-completed");
     return true;
   }
 
