@@ -1,0 +1,264 @@
+{
+  "id": "third-party-payment",
+  "title": "第三方付款",
+  "query": "Customer payments received from third party payors: actual amounts, commercial reasons, independent due diligence, cessation and internal controls.",
+  "fts_query": "\"third party payments\" OR \"third party payors\" OR \"payments on behalf\"",
+  "coverage": {
+    "fts_matching_chunks_all_document_types": 2038,
+    "ranked_prospectus_chunk_limit": 180,
+    "ranked_prospectus_chunks_returned": 180,
+    "bounded_unique_issuers": 14,
+    "bounded_chunks": 41,
+    "recall_not_estimated": true,
+    "displayed_case_records": 5,
+    "supported_disclosure_candidates": 5,
+    "boundary_only_candidates": 0
+  },
+  "bluf": [
+    "可用披露通常把付款人身份、实际金额、商业原因与资金核查放在同一证据链。",
+    "全面停止与保留经批准例外是两种不同路径：Softcare 不能被写成无例外的完全停止。",
+    "停止收款日与后续收入确认期可能不同；淮北绿金的预收款案例需要单独解释。"
+  ],
+  "actions": [
+    "把合同客户、付款人及其关系逐笔映射。",
+    "对齐第三方付款金额与相关收入的不同口径。",
+    "列示付款凭证、发票、交货及客户确认的核对路径。",
+    "写清停止日、遗留预收款及任何保留例外。",
+    "分别归属董事事实确认、律师法律意见及保荐人已执行程序。"
+  ],
+  "cases": [
+    {
+      "id": "third-party-payment-1",
+      "issuer": "FAR International Holdings Group Company Limited",
+      "stock_code": "02516",
+      "date": "2023-12-12",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2023/1212/2023121200029.pdf",
+      "pdf_page": 289,
+      "printed_page": "279",
+      "page_refs": [
+        {
+          "pdf_page": 287,
+          "printed_page": "277"
+        },
+        {
+          "pdf_page": 288,
+          "printed_page": "278"
+        },
+        {
+          "pdf_page": 289,
+          "printed_page": "279"
+        },
+        {
+          "pdf_page": 290,
+          "printed_page": "280"
+        },
+        {
+          "pdf_page": 291,
+          "printed_page": "281"
+        },
+        {
+          "pdf_page": 292,
+          "printed_page": "282"
+        },
+        {
+          "pdf_page": 293,
+          "printed_page": "283"
+        },
+        {
+          "pdf_page": 294,
+          "printed_page": "284"
+        }
+      ],
+      "excerpt": "Since February 2023, we have ceased all Third-party Payment Arrangements. During the",
+      "category": "事实与整改链",
+      "facts": "物流服务客户由法定代表人、董事、股东、员工等代付；披露逐期第三方付款及收入占比，2020 年占总收入约 1.6%。",
+      "analysis": "披露付款人与客户及发行人的关系、商业便利原因，以及三方付款协议和付款核对安排。",
+      "controls": "披露自 2023 年 2 月停止全部第三方付款安排，并修订政策、上报异常收款。",
+      "applicability": "适合讨论停止代付后的防复发控制和历史协议覆盖。",
+      "boundary": "须保留其部分协议事后送交存档的实际执行情况；不能把书面政策自动等同于每笔事前审批。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "third-party-payment-2",
+      "issuer": "Huaibei GreenGold Industry Investment Co., Ltd",
+      "stock_code": "02450",
+      "date": "2022-12-30",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2022/1230/2022123000043.pdf",
+      "pdf_page": 311,
+      "printed_page": "302",
+      "page_refs": [
+        {
+          "pdf_page": 310,
+          "printed_page": "301"
+        },
+        {
+          "pdf_page": 311,
+          "printed_page": "302"
+        },
+        {
+          "pdf_page": 312,
+          "printed_page": "303"
+        },
+        {
+          "pdf_page": 313,
+          "printed_page": "304"
+        },
+        {
+          "pdf_page": 314,
+          "printed_page": "305"
+        },
+        {
+          "pdf_page": 315,
+          "printed_page": "306"
+        },
+        {
+          "pdf_page": 316,
+          "printed_page": "307"
+        }
+      ],
+      "excerpt": "in December 2020, revenue was recognised in the year ended 31 December",
+      "category": "预收款与截止性边界",
+      "facts": "骨料客户存在第三方预付款；披露付款人亦可能是发行人其他客户。2020 年 12 月停止新增安排后，仍有先前预收款对应收入在 2021 年确认。",
+      "analysis": "解释预付款、交货与收入确认时间差，并引述律师对合同及确认文件的审阅。",
+      "controls": "新订单要求客户自有账户付款，披露未来不再采用代付安排的承诺。",
+      "applicability": "适合解释停止代付后仍出现相关收入，避免把付款与收入期间混为一谈。",
+      "boundary": "不能仅因付款人也是客户便推定循环交易；需要合同、货流和债务关系证据。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "third-party-payment-3",
+      "issuer": "Softcare Limited",
+      "stock_code": "02698",
+      "date": "2025-10-31",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/1031/2025103100021.pdf",
+      "pdf_page": 228,
+      "printed_page": "219",
+      "page_refs": [
+        {
+          "pdf_page": 228,
+          "printed_page": "219"
+        },
+        {
+          "pdf_page": 229,
+          "printed_page": "220"
+        },
+        {
+          "pdf_page": 230,
+          "printed_page": "221"
+        },
+        {
+          "pdf_page": 231,
+          "printed_page": "222"
+        },
+        {
+          "pdf_page": 232,
+          "printed_page": "223"
+        },
+        {
+          "pdf_page": 233,
+          "printed_page": "224"
+        },
+        {
+          "pdf_page": 234,
+          "printed_page": "225"
+        }
+      ],
+      "excerpt": "save for certain Relevant Customers who had not completely ceased Third-party Payment",
+      "category": "保留例外与持续内控",
+      "facts": "客户为纸尿裤、卫生巾等消费品的经销商或批发商；第三方付款占收入由 2022 年 29.2% 降至 2025 年首四个月 0.6%。",
+      "analysis": "披露部分客户存在银行服务及行政困难；原文停止安排的陈述明确附有保留例外。",
+      "controls": "对保留安排逐案审批、访问客户、取得客户与付款人共同签署的指定函，并确认客户仍承担主要付款责任。",
+      "applicability": "适合讨论具有真实商业原因、经严格管理的残留代付安排。",
+      "boundary": "这是特定业务地域和事实下的披露，不支持所有项目保留代付；不能省略例外条件。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "third-party-payment-4",
+      "issuer": "Wuhan Youji Holdings Ltd.",
+      "stock_code": "02881",
+      "date": "2024-06-07",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0607/2024060700013.pdf",
+      "pdf_page": 180,
+      "printed_page": "172",
+      "page_refs": [
+        {
+          "pdf_page": 180,
+          "printed_page": "172"
+        },
+        {
+          "pdf_page": 181,
+          "printed_page": "173"
+        },
+        {
+          "pdf_page": 182,
+          "printed_page": "174"
+        },
+        {
+          "pdf_page": 183,
+          "printed_page": "175"
+        },
+        {
+          "pdf_page": 184,
+          "printed_page": "176"
+        }
+      ],
+      "excerpt": "Our Group has fully ceased the acceptance of Third Party Payments as",
+      "category": "核查与退款操作最清楚",
+      "facts": "2021 年有 38 名客户通过境内第三方付款，相关收入约占当年总收入 0.18%；付款人包括客户关联人士及客户的下游客户。",
+      "analysis": "披露大部分交易有付款指示，但未订立三方协议；保荐人对选定客户和付款人作访谈、关系文件核查及背景检索。",
+      "controls": "自 2022 年 1 月 1 日停止接受代付；误收款须隔离、通知客户直接付款、退还付款人并保留退款凭证。",
+      "applicability": "适合把整改政策写成财务人员可执行的具体步骤。",
+      "boundary": "律师及保荐人的措辞有各自程序边界；不得改写成对全部资金来源或全部交易的保证。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "third-party-payment-5",
+      "issuer": "SANVO Fine Chemicals Group Limited",
+      "stock_code": "00301",
+      "date": "2019-12-27",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2019/1227/2019122700009.pdf",
+      "pdf_page": 133,
+      "printed_page": "126",
+      "page_refs": [
+        {
+          "pdf_page": 133,
+          "printed_page": "126"
+        },
+        {
+          "pdf_page": 134,
+          "printed_page": "127"
+        },
+        {
+          "pdf_page": 135,
+          "printed_page": "128"
+        },
+        {
+          "pdf_page": 136,
+          "printed_page": "129"
+        },
+        {
+          "pdf_page": 137,
+          "printed_page": "130"
+        }
+      ],
+      "excerpt": "Third Party Payments During the Track Record Period, certain of our customers",
+      "category": "传统制造业对照",
+      "facts": "精细化工客户通过中国境内第三方付款；原文列示逐年付款人相关客户数量、金额与收入占比，并称自 2018 年 10 月中停止。",
+      "analysis": "披露配偶或亲属、股东、董事及员工等付款人与客户的关系，以及便利和现金流管理解释。",
+      "controls": "停止安排与核查、内控披露在相邻页面展开。",
+      "applicability": "适合制造业代付事实、关系分类及量化披露的基本结构。",
+      "boundary": "较早的 2019 年版本只作历史披露参照；法律框架和当下监管要求须重新核查。",
+      "classification": "披露先例",
+      "is_boundary": false
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "id": "gross-net",
+  "title": "Gross vs Net",
+  "query": "Revenue recognition as principal or agent: control before transfer, primary responsibility, inventory risk, pricing discretion and gross versus net presentation.",
+  "fts_query": "\"principal versus agent\" OR \"principal or an agent\" OR \"gross basis\" OR \"net basis\"",
+  "coverage": {
+    "fts_matching_chunks_all_document_types": 4580,
+    "ranked_prospectus_chunk_limit": 180,
+    "ranked_prospectus_chunks_returned": 180,
+    "bounded_unique_issuers": 14,
+    "bounded_chunks": 32,
+    "recall_not_estimated": true,
+    "displayed_case_records": 5,
+    "supported_disclosure_candidates": 5,
+    "boundary_only_candidates": 0
+  },
+  "bluf": [
+    "同一发行人的不同服务可以分别采用 gross 和 net；合同职责与控制权比行业标签更重要。",
+    "Tianju 的查询/SMS 与充值业务、Plus 的营销服务与人员派驻业务形成直接对照。",
+    "库存风险并非所有服务的决定性指标；需要完整判断并与会计师报告对应。"
+  ],
+  "actions": [
+    "先按具体合同识别承诺提供的商品或服务及客户。",
+    "追踪转让前控制权、履约责任及供应商选择权。",
+    "分别评估库存风险、定价权限及其他指标。",
+    "将业务描述、会计政策和金额对账放在同一页码链。",
+    "禁止把 gross margin 或净结算等字面命中直接当作 principal-agent 分析。"
+  ],
+  "cases": [
+    {
+      "id": "gross-net-1",
+      "issuer": "Doumob",
+      "stock_code": "01917",
+      "date": "2019-02-28",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2019/0228/ltn20190228087.pdf",
+      "pdf_page": 225,
+      "printed_page": "219",
+      "page_refs": [
+        {
+          "pdf_page": 225,
+          "printed_page": "219"
+        },
+        {
+          "pdf_page": 226,
+          "printed_page": "220"
+        },
+        {
+          "pdf_page": 231,
+          "printed_page": "225"
+        },
+        {
+          "pdf_page": 331,
+          "printed_page": "I-28"
+        },
+        {
+          "pdf_page": 332,
+          "printed_page": "I-29"
+        }
+      ],
+      "excerpt": "For contracts where we acts as principal, we recognize revenue on a",
+      "category": "同一广告业务两种安排",
+      "facts": "广告服务中按特定行为计费的安排按总额列示；某些媒体返点安排按净额列示。",
+      "analysis": "分析主要履约义务、广告客户和媒体供应商识别、定价和履约责任，并以控制权判断 principal/agent。",
+      "controls": "会计政策与不同收入确认方式的收入分解相互对应。",
+      "applicability": "适合广告代理业务内不同合同安排的区别。",
+      "boundary": "2019 年历史版本；所列指标应整体审阅，不能只凭信用风险或开票方作决定。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "gross-net-2",
+      "issuer": "XD Inc.",
+      "stock_code": "02400",
+      "date": "2019-11-29",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2019/1129/2019112900015.pdf",
+      "pdf_page": 266,
+      "printed_page": "260",
+      "page_refs": [
+        {
+          "pdf_page": 160,
+          "printed_page": "154"
+        },
+        {
+          "pdf_page": 264,
+          "printed_page": "258"
+        },
+        {
+          "pdf_page": 265,
+          "printed_page": "259"
+        },
+        {
+          "pdf_page": 266,
+          "printed_page": "260"
+        },
+        {
+          "pdf_page": 276,
+          "printed_page": "270"
+        },
+        {
+          "pdf_page": 277,
+          "printed_page": "271"
+        }
+      ],
+      "excerpt": "When we act as agents of game publishers We also engage in",
+      "category": "开发商、发行商与渠道角色",
+      "facts": "游戏运营、开发商代理、发行商服务及不同发行渠道具有不同收入呈列方式。",
+      "analysis": "依据客户身份、服务职责和选择及谈判渠道的权限分析，App Store/Google Play 的安排有特别说明。",
+      "controls": "按游戏及地域列示 principal/agent 和收入方式，再提供 gross/net 收入分解。",
+      "applicability": "适合平台、内容授权和多方分成合同。",
+      "boundary": "同一游戏在不同地域可有不同角色；不得把渠道名称或分成比例当作唯一判据。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "gross-net-3",
+      "issuer": "Tianju Dihe (Suzhou) Technology Co., Ltd",
+      "stock_code": "02479",
+      "date": "2024-06-20",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0620/2024062000191.pdf",
+      "pdf_page": 468,
+      "printed_page": "I-29",
+      "page_refs": [
+        {
+          "pdf_page": 202,
+          "printed_page": "191"
+        },
+        {
+          "pdf_page": 203,
+          "printed_page": "192"
+        },
+        {
+          "pdf_page": 221,
+          "printed_page": "210"
+        },
+        {
+          "pdf_page": 467,
+          "printed_page": "I-28"
+        },
+        {
+          "pdf_page": 468,
+          "printed_page": "I-29"
+        },
+        {
+          "pdf_page": 469,
+          "printed_page": "I-30"
+        }
+      ],
+      "excerpt": "Therefore, the Group is acting as a principal for query and SMS",
+      "category": "控制权分析最完整",
+      "facts": "API 查询和 SMS 通知服务按总额，充值服务按净额；充值请求主要传递至电信运营商完成。",
+      "analysis": "会计师报告按 IFRS 15 分析控制权、履约责任、定价、供应商选择及库存风险。查询/SMS 虽无库存风险，仍因整体因素判断为 principal。",
+      "controls": "把各服务流程和费用机制与会计判断对应。",
+      "applicability": "适合轻资产数字服务中无库存但仍可能控制服务的分析。",
+      "boundary": "不能把该结论推广至所有 API 或转售服务；指定供应商和实际控制权差异会改变判断。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "gross-net-4",
+      "issuer": "Plus Group Holdings Inc.",
+      "stock_code": "02486",
+      "date": "2023-04-28",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2023/0428/2023042800147.pdf",
+      "pdf_page": 218,
+      "printed_page": "208",
+      "page_refs": [
+        {
+          "pdf_page": 189,
+          "printed_page": "179"
+        },
+        {
+          "pdf_page": 204,
+          "printed_page": "194"
+        },
+        {
+          "pdf_page": 218,
+          "printed_page": "208"
+        },
+        {
+          "pdf_page": 219,
+          "printed_page": "209"
+        },
+        {
+          "pdf_page": 343,
+          "printed_page": "333"
+        },
+        {
+          "pdf_page": 344,
+          "printed_page": "334"
+        },
+        {
+          "pdf_page": 345,
+          "printed_page": "335"
+        }
+      ],
+      "excerpt": "Revenue for marketers assignment service is recognised on a net basis which",
+      "category": "服务实施控制与人员派驻",
+      "facts": "定制营销及任务匹配服务按总额，营销人员派驻服务按净额；后者工资福利从收款中抵销。",
+      "analysis": "虽然与营销人员签雇佣合同，客户仍主要决定日常表现、排班、工资和解雇等，发行人控制有限。",
+      "controls": "业务流程图、gross transaction amounts 与净收入对账及会计师报告互相对应。",
+      "applicability": "适合人力资源、外包服务及代付工资安排。",
+      "boundary": "签约雇主身份本身不足以决定总额呈列；仍需核对实质管理和风险承担。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "gross-net-5",
+      "issuer": "Lesi Group Limited",
+      "stock_code": "02540",
+      "date": "2024-02-29",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0229/2024022900168.pdf",
+      "pdf_page": 180,
+      "printed_page": "172",
+      "page_refs": [
+        {
+          "pdf_page": 161,
+          "printed_page": "153"
+        },
+        {
+          "pdf_page": 162,
+          "printed_page": "154"
+        },
+        {
+          "pdf_page": 170,
+          "printed_page": "162"
+        },
+        {
+          "pdf_page": 180,
+          "printed_page": "172"
+        },
+        {
+          "pdf_page": 181,
+          "printed_page": "173"
+        },
+        {
+          "pdf_page": 182,
+          "printed_page": "174"
+        }
+      ],
+      "excerpt": "We have control in the specified service before the service is delivered",
+      "category": "内容方案与纯流量采购",
+      "facts": "移动广告整合方案按总额，单独广告分发按净额。",
+      "analysis": "整合方案控制内容生成并承担履约责任；单独分发按客户指定媒体采购流量，原文认为对指定服务没有控制。",
+      "controls": "用总额与净额业务特征对照表解释合同模式。",
+      "applicability": "适合区分创意整合服务与媒体采购代理。",
+      "boundary": "不能把所有广告服务一概净额化，也不能仅凭提供部分增值服务主张总额。",
+      "classification": "披露先例",
+      "is_boundary": false
+    }
+  ]
+}

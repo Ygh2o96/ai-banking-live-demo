@@ -84,6 +84,9 @@ button { font: inherit; }
 .lane-panel[data-lane="regulatory"] { background: #08130f; }
 .lane-panel[data-lane="control"] { background: #0b1512; }
 .lane-panel[data-lane="qa"] { background: #f1ede4; }
+.model-cinema-open .orchestrator-stage { position: fixed; inset: 0; z-index: 50; }
+.model-cinema-open .orchestrator-topbar,
+.model-cinema-open .orchestrator-foot { visibility: hidden; }
 
 .orchestrator-foot {
   min-width: 0;

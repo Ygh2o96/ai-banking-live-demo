@@ -1,0 +1,216 @@
+{
+  "id": "cross-border-data",
+  "title": "跨境数据与个人信息",
+  "query": "Actual cross border personal information transfers, overseas cloud storage, applicable data law analysis, security assessment and concrete compliance controls.",
+  "fts_query": "\"cross border\" AND (\"personal information\" OR \"data transfer\" OR \"security assessment\")",
+  "coverage": {
+    "fts_matching_chunks_all_document_types": 2129,
+    "ranked_prospectus_chunk_limit": 180,
+    "ranked_prospectus_chunks_returned": 180,
+    "bounded_unique_issuers": 14,
+    "bounded_chunks": 20,
+    "recall_not_estimated": true,
+    "displayed_case_records": 5,
+    "supported_disclosure_candidates": 1,
+    "boundary_only_candidates": 4,
+    "actual_outbound_business_data_cases": 1,
+    "proved_personal_information_export_cases": 0
+  },
+  "bluf": [
+    "本轮找到 1 个明确业务数据出境实例及 4 个数据处理/不触发评估的边界候选；未证明五个个人信息实际出境案例。",
+    "首惠的保险经纪跨境数据说明业务场景、数据分类、自评报告及法律判断，最接近完整出境分析。",
+    "境外电商、全球经营或海外访问不自动等于发行人主动向境外提供境内个人信息。"
+  ],
+  "actions": [
+    "画出数据从收集、处理、存储到接收方的实际流向。",
+    "区分个人信息、去标识化信息、匿名化信息及重要数据。",
+    "把境内存储、境外访问和主动出境分开分析。",
+    "核对法规版本、适用门槛、自评报告及监管沟通。",
+    "如果必须要个人信息实际出境案例，扩大后续检索；不要把本轮边界案例凑成五例。"
+  ],
+  "cases": [
+    {
+      "id": "cross-border-data-1",
+      "issuer": "Shouhui Group Ltd.",
+      "stock_code": "02621",
+      "date": "2025-05-22",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0522/2025052200031.pdf",
+      "pdf_page": 311,
+      "printed_page": "301",
+      "page_refs": [
+        {
+          "pdf_page": 309,
+          "printed_page": "299"
+        },
+        {
+          "pdf_page": 310,
+          "printed_page": "300"
+        },
+        {
+          "pdf_page": 311,
+          "printed_page": "301"
+        },
+        {
+          "pdf_page": 312,
+          "printed_page": "302"
+        }
+      ],
+      "excerpt": "involves transfer of data overseas which requires compliance with the relevant laws",
+      "category": "真实业务数据出境",
+      "facts": "小雨伞保险经纪为 eBay 平台上的境内跨境电商企业提供保险经纪，业务涉及数据出境。",
+      "analysis": "自评报告和律师意见认为相关数据不含所述个人信息或重要数据，且未被认定 CIIO，因此不落入当时需要申报安全评估的情形。",
+      "controls": "开展数据出境风险自评并说明所用标准的时间差，以及其他子公司不从事日常数据出境。",
+      "applicability": "适合数据分类、业务流与不触发评估理由的完整表达。",
+      "boundary": "这是实际业务数据出境案例，但原文认为并不包含个人信息；不可称作个人信息出境获批案例。",
+      "cross_border_transfer_proved": true,
+      "personal_information_export_proved": false,
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "cross-border-data-2",
+      "issuer": "Autostreets Development Limited",
+      "stock_code": "02443",
+      "date": "2024-05-23",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0523/2024052300027.pdf",
+      "pdf_page": 313,
+      "printed_page": "303",
+      "page_refs": [
+        {
+          "pdf_page": 309,
+          "printed_page": "299"
+        },
+        {
+          "pdf_page": 310,
+          "printed_page": "300"
+        },
+        {
+          "pdf_page": 311,
+          "printed_page": "301"
+        },
+        {
+          "pdf_page": 312,
+          "printed_page": "302"
+        },
+        {
+          "pdf_page": 313,
+          "printed_page": "303"
+        }
+      ],
+      "excerpt": "We only use servers within the PRC to store data, and all",
+      "category": "境内存储及用户海外访问边界",
+      "facts": "应用在境内开发运营，数据存储和日常收集处理在境内；原文另分析用户自主决定海外访问其账户数据的情况。",
+      "analysis": "律师按所述业务事实解释安全评估及标准合同要求不适用，并保留监管解释可能不同的风险。",
+      "controls": "持续沟通监管发展、按需调整措施；汽车重要数据另作分析。",
+      "applicability": "适合区分用户访问与企业主动出境。",
+      "boundary": "只支持该文件所述不出境/不触发边界，不是已执行个人信息出境的案例。",
+      "cross_border_transfer_proved": false,
+      "personal_information_export_proved": false,
+      "classification": "边界对照",
+      "is_boundary": true
+    },
+    {
+      "id": "cross-border-data-3",
+      "issuer": "Carote Ltd",
+      "stock_code": "02549",
+      "date": "2024-09-23",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0923/2024092300003.pdf",
+      "pdf_page": 260,
+      "printed_page": "249",
+      "page_refs": [
+        {
+          "pdf_page": 260,
+          "printed_page": "249"
+        },
+        {
+          "pdf_page": 261,
+          "printed_page": "250"
+        },
+        {
+          "pdf_page": 262,
+          "printed_page": "251"
+        }
+      ],
+      "excerpt": "including de-identified customer information, such as partially removed or obscured names, addresses,",
+      "category": "电商平台间接取得个人信息",
+      "facts": "通过电商平台间接取得部分去标识化的姓名、地址和电话，用于履约；境内收集的消费者数据存于境内。",
+      "analysis": "解释数据来源、客户同意及相关个人信息保护政策，海外业务 ERP 并不单独证明境内信息出境。",
+      "controls": "最小必要、可追溯数据来源、权限管理、告知同意及敏感信息措施。",
+      "applicability": "适合消费品企业电商订单数据处理披露。",
+      "boundary": "去标识化不当然等于匿名化；本轮页面未证明实际跨境个人信息传输。",
+      "cross_border_transfer_proved": false,
+      "personal_information_export_proved": false,
+      "classification": "边界对照",
+      "is_boundary": true
+    },
+    {
+      "id": "cross-border-data-4",
+      "issuer": "NINGBO JOYSON ELECTRONIC CORP.-  H shares",
+      "stock_code": "00699",
+      "date": "2025-10-28",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/1028/2025102800057.pdf",
+      "pdf_page": 299,
+      "printed_page": "289",
+      "page_refs": [
+        {
+          "pdf_page": 299,
+          "printed_page": "289"
+        },
+        {
+          "pdf_page": 300,
+          "printed_page": "290"
+        }
+      ],
+      "excerpt": "we collect, process and store data in accordance with applicable laws, data",
+      "category": "全球经营下的数据安全控制",
+      "facts": "披露收集、处理和存储数据的保留规则，并在全球业务背景下列示访问控制、加密及信息安全制度。",
+      "analysis": "PRC 数据合规律师认为未出现所列需申报数据出境评估的情形；说明当时的豁免规则。",
+      "controls": "内部认证授权、备份、终端安全、防火墙和流量监控。",
+      "applicability": "适合工业企业数据治理控制的披露结构。",
+      "boundary": "未给出具体出境数据集和接收方；不得推导出该公司没有任何出境或已经完成安全评估。",
+      "cross_border_transfer_proved": false,
+      "personal_information_export_proved": false,
+      "classification": "边界对照",
+      "is_boundary": true
+    },
+    {
+      "id": "cross-border-data-5",
+      "issuer": "Xunfei Healthcare Technology Co., Ltd.  - H shares",
+      "stock_code": "02506",
+      "date": "2024-12-18",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/1218/2024121800019.pdf",
+      "pdf_page": 281,
+      "printed_page": "270",
+      "page_refs": [
+        {
+          "pdf_page": 281,
+          "printed_page": "270"
+        },
+        {
+          "pdf_page": 282,
+          "printed_page": "271"
+        },
+        {
+          "pdf_page": 283,
+          "printed_page": "272"
+        }
+      ],
+      "excerpt": "we collect healthcare data, including, but not limited to, health consultation queries",
+      "category": "医疗个人信息与本地存储",
+      "facts": "面向用户的服务收集健康咨询、报告等医疗数据，并通过客户系统 API 处理有关数据；原文称境内用户业务数据仅在境内存储。",
+      "analysis": "披露当期数据隐私合规及日常业务不涉及所述核心数据、重要数据或大量个人信息跨境传输。",
+      "controls": "按服务必要性收集个人数据并制定收集、使用、存储和传输政策。",
+      "applicability": "适合医疗 AI 业务对敏感数据用途和存储范围的说明。",
+      "boundary": "原文的限定词必须保留；它不能证明绝不存在任何少量个人信息出境。",
+      "cross_border_transfer_proved": false,
+      "personal_information_export_proved": false,
+      "classification": "边界对照",
+      "is_boundary": true
+    }
+  ]
+}

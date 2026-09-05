@@ -13,7 +13,7 @@
     "seed-skeleton": ["02", "模型骨架", "Sheet / Cell / Formula"],
     "seed-binding": ["03", "填入假设", "数值、边界与单元格"],
     "seed-living": ["04", "接通公式", "上下游关系与检查"],
-    "seed-models": ["05", "业务模块", "共用完整三表底盘"],
+    "seed-models": ["05", "业务模块", "共用完整三表模型结构"],
   };
   const slotLabels = {
     identity: "项目标识 ID",
@@ -198,7 +198,7 @@
 3. 所有数值用计算工具或 Excel 公式计算。保留币种和原报告单位；除非披露要求，不做无依据汇率换算。
 4. 本轮只交付模型文件和一页来源说明，不扩展为 PPT、网页或长报告。非关键问题按最稳妥的公开口径处理，并在限制项中写明。
 
-【标准模型底盘】
+【标准模型结构】
 沿用现场演示的标准三表模板。模板只提供工作表结构、公式联动、预测驱动和检查机制；其中所有演示数值、公司名和期间都必须替换，不得冒充真实资料。保留三表、营运资金、固定资产、债务、税项、权益及检查表的联动关系；只删去对该公司明显不适用的业务模块。
 
 【40 分钟执行节奏】
@@ -209,10 +209,15 @@
 3–10 分钟｜录入历史数据与来源
 - 录入 2023A、2024A、2025A 三年 P&L / BS / CFS；录入 2026H1A，并读取附注中的分部收入、成本、应收、存货、应付、PPE、债务、税项、股利及少数股东权益。
 - 每个历史录入数都要保存来源文件、发布日期、页码 / 表名、原单位和 URL。若新报告重列比较数，以最新重列数优先，并保留差异说明。
+- 打开PDF核对每页列头、单位、负号和括号。董事会决议、业绩摘要不能当成完整报告；单列比较数不得错放到本期。
+- 历史报表逐年核对：税前利润减所得税等于净利润，归母加少数股东损益等于净利润。检查直接对照原报告利润行和现金流附注；空白或漏行不得默认为零。
+- EBITDA 先核对发行人定义和披露值；模型口径不同就明确标成计算代理值，并列出与披露值的差异桥接。
 
 10–17 分钟｜建立预测依据
 - 收入：优先按公司披露的产品、业务或地区拆分；披露不足时才使用整体增长率。2026E–2028E 的每条增长率都要写明依据，包括历史趋势、2026H1 实际、管理层公开指引，以及订单、客户、产能或价格信息。
 - 2026E 必须等于 2026H1A + H2E。H2E 参考历史下半年季节性、公开指引和已披露经营信号；不得无依据地直接用 2×H1。
+- 资料出现断点时可以建立假设，逐项标注 LEAP：缺少什么、采用什么假设、为什么、影响哪些输出、补到什么资料后可替换。估计值不得标为已披露事实。
+- 保留各公司真实业务结构。分部口径变更先做可比桥接；没有销量或ASP披露时，不编造经营量，明确使用收入增长或结构假设。
 - 销售成本 / 毛利率、销售费用、管理费用、研发费用和其他经营收支分开预测，不把所有费用合成一个比例。
 - 营运资金：DSO = 平均应收 / 收入 × 天数；DIO = 平均存货 / 销售成本 × 天数；DPO = 平均应付 / 销售成本 × 天数。半年期统一使用 181 / 182 天口径，并写明分母。
 - 资本开支与固定资产：期初固定资产 + 资本开支 − 折旧 − 处置 / 减值 / 汇兑影响 = 期末固定资产；资本开支依据历史强度、产能计划和公司指引。
@@ -223,12 +228,15 @@
 - 列至少覆盖 2023A、2024A、2025A、2026H1A、2026E、2027E、2028E。
 - Workbook 至少保留：Cover、Source_Ledger、Assumptions、Revenue、Opex、Working_Capital、PPE、Debt_Interest、Tax_Equity、P&L、BS、CFS、Checks。
 - 历史数据必须有出处；预测输入只放在 Assumptions 或明细表；三张主表的预测数全部引用明细表，不得手工写死。
-- 现金流量表期末现金必须等于资产负债表现金；留存收益、固定资产、债务、应交税项和营运资金都要逐期滚动。不得用现金、其他资产、其他负债或权益作人为配平项。
+- 现金流量表期末现金及现金等价物应与资产负债表对应口径勾稽。受限存款、定期存款等按披露做固定口径桥接，不强行等同于货币资金总额。留存收益、固定资产、债务、应交税项和营运资金逐期滚动，不用现金、其他资产、其他负债或权益作配平项。
+- 税务表分别列税费、递延税项、应交税项和实际缴税现金。发行费用同时核对现金流、股本溢价和损益分类，防止净差额掩盖两个相反的错误。
 - “其他”项目只有在不重大时才可按历史占比或固定余额预测，并写明依据；绝不能用来填平差额。
 
 32–38 分钟｜完成交付前检查
 - 逐年检查利润表加总、资产 − 负债 − 权益 = 0、现金流量表期末现金 = 资产负债表现金，以及留存收益、营运资金天数、固定资产、债务和税项滚动。
 - 检查无 #REF! / #DIV/0! / #VALUE!、无外部工作簿链接、无预测结果手工写死、无隐藏配平项。
+- 对增长、毛利率、DIO/DSO/DPO、资本开支、债务偿还、税率和股利做独立扰动。检查实际与预期delta、输入年及下一年、固定科目不动。正负、零、边界和组合情景都覆盖；无效请求必须提示，不能静默截断成合理数。
+- 保存测试发现、修复位置和原测试重跑结果，将可复用问题补回建模提示词。作者自检和独立QA分开记录；没有复核结果就如实交付未完成状态。
 - 若 35 分钟仍未闭合，先把不重大明细合并到有来源的类别，再修正公式关系；不得用人为配平项。把尚未解决的问题写进 Checks，不得假装完成。
 
 38–40 分钟｜交付
@@ -314,7 +322,8 @@
           <div class="roulette-selected-card"><div><span id="roulette-readiness" class="roulette-readiness"></span><h4 id="roulette-selected-name"></h4><p id="roulette-selected-meta"></p></div><p id="roulette-selected-note"></p><a id="roulette-source-link" target="_blank" rel="noopener"></a></div>
           <textarea id="roulette-prompt" readonly spellcheck="false" aria-label="40 分钟现场财务模型任务书"></textarea>
           <button id="copy-live-prompt" class="primary-action" type="button">复制 40 分钟建模任务书</button>
-          <small id="roulette-action-status">交付：真实三表 Excel + 一页来源与假设说明；本轮不做独立复核。</small>
+          <small id="roulette-action-status">交付：公式联动的三表 Excel、来源与假设说明。</small>
+          <a class="secondary-action" href="../../fallback/models/index.html" target="_blank" rel="noopener noreferrer">查看六家公司的模型与假设 ↗</a>
         </section>
       </div>`;
     target.innerHTML = shell("company-roulette", body);
@@ -362,7 +371,7 @@
   function renderGenesis(target) {
     const statements = data.concept_pack.display_statements.slice(0, 5);
     const body = `
-      ${stateHeader("模型搭建路径 · MODEL BUILD", "两条搭建路径，一个证据标准", "没有现成底盘，可以从零搭建；有标准底盘，就从一套已经配平的完整模型结构开始。", "底稿事实 ≠ 模型结构")}
+      ${stateHeader("模型搭建路径 · MODEL BUILD", "从零搭表，或沿用三表模板", "有合适模板，就沿用工作表和公式；没有，就按目标公司的业务重新搭建。", "底稿事实 ≠ 模型结构")}
       <div class="genesis-overview-grid">
         <section class="genesis-business ruled-panel">
           <div class="genesis-panel-head"><span>业务是怎么说的</span><strong>先看原始依据，再明确模型要回答什么</strong></div>
@@ -371,8 +380,8 @@
         <section class="genesis-paths ruled-panel" data-testid="genesis-paths">
           <div class="genesis-panel-head"><span>构建路径选择</span><strong>选择模型架构，但不改变业务事实</strong></div>
           <div class="path-ledger">
-            <article data-build-path="no-seed"><span>路径 A · 从零搭建</span><h4>按目标公司重新搭表</h4><p>从标准化输入出发，搭出一套公式联动的新工作簿。</p><ol>${noSeedFlow.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol><strong>适合业务结构特殊、没有合适底盘的项目</strong></article>
-            <article data-build-path="with-seed"><span>路径 B · 沿用标准底盘</span><h4>从完整三表模板起步 · 当前演示路径</h4><p>业务结构匹配时，沿用已经定义工作表、单元格、公式关系和检查规则的完整三表底盘。</p><ol>${withSeedFlow.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol><strong>结构可直接执行；填充值全部为合成演示数据</strong></article>
+            <article data-build-path="no-seed"><span>路径 A · 从零搭建</span><h4>按目标公司重新搭表</h4><p>从标准化输入出发，搭出一套公式联动的新工作簿。</p><ol>${noSeedFlow.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol><strong>适合业务结构特殊、没有合适模型结构的项目</strong></article>
+            <article data-build-path="with-seed"><span>路径 B · 沿用标准模型结构</span><h4>从完整三表模板起步 · 当前演示路径</h4><p>业务结构匹配时，沿用已经定义工作表、单元格、公式关系和检查规则的完整三表模型结构。</p><ol>${withSeedFlow.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol><strong>结构可直接执行；填充值全部为合成演示数据</strong></article>
           </div>
         </section>
       </div>
@@ -398,7 +407,7 @@
       ["授权复核机制", "Banker 与 会计师协同", seed.authorization_confirmation_rules.relaxation_allowed ? "允许放宽" : "禁止静默放宽"],
     ];
     const body = `
-      ${stateHeader("项目完工进度模型骨架", "一套不带公司数据的模型结构", "标准底盘给出可复用的业务项目、公式关系、检查规则与授权机制；本身不含任何企业数据。", `${seed.required_concept_slots.length} 个待填项目 · ${seed.formula_lineage.nodes.length} 个计算节点`)}
+      ${stateHeader("项目完工进度模型骨架", "一套不带公司数据的模型结构", "标准模型结构给出可复用的业务项目、公式关系、检查规则与授权机制；本身不含任何企业数据。", `${seed.required_concept_slots.length} 个待填项目 · ${seed.formula_lineage.nodes.length} 个计算节点`)}
       <div class="seed-skeleton-grid">
         <section class="seed-anatomy ruled-panel" aria-label="Project Progress seed anatomy">
           <div class="genesis-panel-head"><span>语义结构解析</span><strong>清晰规范的结构定义，拒绝概念包装</strong></div>
@@ -621,25 +630,25 @@
       ["月度期间", contract.period_count, `${contract.period_start} → ${contract.period_end}`],
     ];
     const body = `
-      ${stateHeader("完整三表模型底盘", "不是几条零散公式，而是一套已配平工作簿", "底盘定义每张工作表、每个单元格、公式关系、假设位置和检查项；替换演示值后，仍沿同一套关系重算。", `${contract.sheet_count} 张工作表 · ${formatNumber(contract.formula_cell_count, 0)} 条公式`)}
+      ${stateHeader("完整三表模型", "从假设，一直追到三张报表", "工作表、单元格、公式关系和检查项都可以展开。替换演示值后，沿同一套关系重新计算。", `${contract.sheet_count} 张工作表 · ${formatNumber(contract.formula_cell_count, 0)} 条公式`)}
       <div class="cell-seed-stats" data-testid="cell-seed-stats">${stats.map(([label, value, note]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(note)}</small></article>`).join("")}</div>
       <div class="cell-seed-skeleton-grid">
         <section class="cell-seed-module-panel ruled-panel">
-          <div class="genesis-panel-head"><span>六个内生联动模块</span><strong>共用同一套月度三表计算底盘</strong></div>
+          <div class="genesis-panel-head"><span>六个内生联动模块</span><strong>共用同一套月度三表计算模型结构</strong></div>
           <div class="cell-seed-module-grid">${cellSeed.modules.map((module, index) => `<article data-seed-module="${escapeHtml(module.id)}"><b>${String(index + 1).padStart(2, "0")}</b><div><strong>${escapeHtml(module.label)}</strong><p>${escapeHtml(module.purpose)}</p><small>${escapeHtml(module.sheets.join(" → "))}</small></div></article>`).join("")}</div>
         </section>
         <section class="cell-seed-sheet-panel ruled-panel">
           <div class="genesis-panel-head"><span>工作表地图</span><strong>每个数都能回到具体工作表和单元格</strong></div>
           <div class="cell-seed-sheet-grid">${contract.workbook_sheets.map((sheet, index) => `<span class="${contract.support_sheets.includes(sheet) ? "is-support-sheet" : ""}"><b>${String(index + 1).padStart(2, "0")}</b>${escapeHtml(sheet)}</span>`).join("")}</div>
           <div class="cell-seed-integrity">
-            <strong>完整三表底盘已生成 · ${escapeHtml(cellSeed.full_seed_sha256.slice(0, 16))}…</strong>
+            <strong>完整三表模型结构已生成 · ${escapeHtml(cellSeed.full_seed_sha256.slice(0, 16))}…</strong>
             <p>合成值已填充并在源工作簿内生配平；不含真实项目名称、客户资料或本机路径。结构文件记录全工作簿 ${formatNumber(contract.nonempty_cell_count, 0)} 个非空单元格及 ${formatNumber(contract.dependency_edge_count, 0)} 条公式关系。</p>
             <div><button id="open-raw-seed" class="secondary-action" type="button">查看模型骨架摘要</button><a class="secondary-action cell-seed-json-link" href="${escapeHtml(cellSeed.full_seed_relative_path)}" target="_blank" rel="noopener">打开完整结构文件</a></div>
           </div>
         </section>
       </div>
       <div id="seed-drawer-scrim" class="seed-drawer-scrim" hidden></div>
-      <aside id="seed-raw-drawer" class="seed-raw-drawer" aria-hidden="true" aria-label="三表模型底盘摘要"><header><div><span>三表模型 · 结构文件</span><strong>完整三表模型 · 骨架摘要</strong><p class="seed-drawer-sub">演示数据 · 非真实项目 · 不可用于决策 · 完整底稿已锁定</p></div><button id="close-raw-seed" type="button">关闭</button></header><pre id="seed-raw-text"></pre></aside>`;
+      <aside id="seed-raw-drawer" class="seed-raw-drawer" aria-hidden="true" aria-label="三表模型结构摘要"><header><div><span>三表模型 · 结构文件</span><strong>完整三表模型 · 骨架摘要</strong><p class="seed-drawer-sub">演示数据 · 非真实项目 · 不可用于决策 · 完整底稿已锁定</p></div><button id="close-raw-seed" type="button">关闭</button></header><pre id="seed-raw-text"></pre></aside>`;
     target.innerHTML = shell("seed-skeleton", body);
     document.getElementById("seed-raw-text").textContent = JSON.stringify(cellSeed, null, 2);
     wireRawDrawer();
@@ -710,11 +719,11 @@
     const checks = cellSeed.controls.checks;
     const defaultIndex = Math.max(0, lineages.findIndex((lineage) => lineage.id === "working_capital_bridge"));
     const body = `
-      ${stateHeader("公式上下游关系", "每条公式都能回到工作表、单元格和传导方向", "收入、费用、营运资金、固定资产、债务与三表不是几张静态截图，而是同一套可追踪的计算关系。", `${lineages.length} 条主链路 · ${checks.length} 项检查`)}
+      ${stateHeader("公式上下游关系", "每条公式都能回到工作表、单元格和传导方向", "收入、费用、营运资金、固定资产、债务与三表按公式连接，每一步都能追到源单元格。", `${lineages.length} 条主链路 · ${checks.length} 项检查`)}
       <div class="cell-seed-lineage-tabs" aria-label="选择公式链路">${lineages.map((lineage, index) => `<button type="button" class="cell-seed-lineage-tab" data-lineage-index="${index}" data-lineage-id="${escapeHtml(lineage.id)}" aria-pressed="false"><b>${String(index + 1).padStart(2, "0")}</b><span>${escapeHtml(lineage.label)}</span></button>`).join("")}</div>
       <div class="cell-seed-living-grid">
         <section id="cell-seed-lineage-detail" class="cell-seed-lineage-detail ruled-panel" data-testid="cell-seed-lineage-detail"></section>
-        <section class="cell-seed-control-panel ruled-panel" data-testid="cell-seed-controls"><div class="genesis-panel-head"><span>源模型内部检查记录</span><strong>${escapeHtml(cellSeed.controls.status)} · ${checks.length}/${checks.length}</strong></div><div>${checks.map((check) => `<article><i class="lamp ${check.status === "PASS" ? "lamp-green" : "lamp-amber"}"></i><span>${escapeHtml(check.label)}</span><strong>${escapeHtml(formatSeedValue(check.max_abs_value))}</strong><small>容差 ${escapeHtml(formatSeedValue(check.tolerance))}</small></article>`).join("")}</div><p>这些检查只证明演示底盘内部自洽；换成目标公司的真实数据后，必须重新检查。</p></section>
+        <section class="cell-seed-control-panel ruled-panel" data-testid="cell-seed-controls"><div class="genesis-panel-head"><span>源模型内部检查记录</span><strong>${escapeHtml(cellSeed.controls.status)} · ${checks.length}/${checks.length}</strong></div><div>${checks.map((check) => `<article><i class="lamp ${check.status === "PASS" ? "lamp-green" : "lamp-amber"}"></i><span>${escapeHtml(check.label)}</span><strong>${escapeHtml(formatSeedValue(check.max_abs_value))}</strong><small>容差 ${escapeHtml(formatSeedValue(check.tolerance))}</small></article>`).join("")}</div><p>这些检查只证明演示模型结构内部自洽；换成目标公司的真实数据后，必须重新检查。</p></section>
       </div>`;
     target.innerHTML = shell("seed-living", body);
     document.querySelectorAll(".cell-seed-lineage-tab").forEach((button) => button.addEventListener("click", () => {
@@ -774,7 +783,7 @@
 
   function renderModels(target) {
     const body = `
-      ${stateHeader("BANKER 业务模块台账", "三种收入构建方式，共用同一套完整三表底盘", "项目进度、在手订单转化与销量 × 单价只决定收入及毛利的构建方式；费用、营运资金、固定资产、债务、税项与三表仍沿用同一套公式关系。", "先选收入逻辑，再接入完整三表")}
+      ${stateHeader("BANKER 业务模块台账", "三种收入构建方式，共用同一套完整三表模型结构", "项目进度、在手订单转化与销量 × 单价只决定收入及毛利的构建方式；费用、营运资金、固定资产、债务、税项与三表仍沿用同一套公式关系。", "先选收入逻辑，再接入完整三表")}
       <div class="seed-model-ledger" data-testid="three-models">${seedOrder.map((seedId, index) => {
         const seed = data.seeds[seedId];
         const answer = modelAnswers(seedId);
@@ -820,7 +829,7 @@
 
   function render(state, target, navigate) {
     if (!data || !data.seeds || !data.models || !data.seed_raw || !cellSeed || !cellSeed.workbook_contract || !liveChallenge || liveChallenge.fallback_companies.length !== 6) {
-      target.innerHTML = `<div class="genesis-error"><strong>模型底盘数据不可用</strong><p>集成后的演示数据未能加载。</p></div>`;
+      target.innerHTML = `<div class="genesis-error"><strong>模型结构数据不可用</strong><p>集成后的演示数据未能加载。</p></div>`;
       return;
     }
     if (state === "company-roulette") renderCompanyRoulette(target);

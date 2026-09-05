@@ -91,12 +91,16 @@
       frame.dataset.loadBound = "true";
       frame.addEventListener("load", () => {
         injectEmbedChrome(frame, scene);
+        if (scene === "hero1") document.body.classList.remove("model-cinema-open");
+        frame.contentWindow?.postMessage({ type: "LANE_VISIBILITY", active: scene === activeScene }, window.location.origin);
         if (scene === activeScene) status.textContent = LANES[scene].label;
       });
     }
     const desired = frameSource(scene, state);
     const current = currentFrameUrl(frame);
-    if (!current || (forceState && current.href !== desired.href)) frame.setAttribute("src", desired.href);
+    const loading = !current || (forceState && current.href !== desired.href);
+    if (loading) frame.setAttribute("src", desired.href);
+    return loading;
   }
 
   function writeRoute(scene, state, replace) {
@@ -110,6 +114,8 @@
     const hasExplicitState = options.state !== undefined && options.state !== null;
     const effectiveState = hasExplicitState ? resolved.state : currentFrameState(normalized);
     activeScene = normalized;
+    document.body.classList.remove("model-cinema-open");
+    frames.forEach((frame) => frame.contentWindow?.postMessage({ type: "LANE_VISIBILITY", active: frame.dataset.laneFrame === normalized }, window.location.origin));
     tabs.forEach((tab) => {
       const selected = tab.dataset.scene === normalized;
       tab.classList.toggle("is-active", selected);
@@ -124,7 +130,8 @@
     document.body.dataset.scene = normalized;
     status.textContent = "正在打开当前演示…";
     boundary.textContent = LANES[normalized].boundary;
-    ensureLoaded(normalized, effectiveState, hasExplicitState);
+    const loading = ensureLoaded(normalized, effectiveState, hasExplicitState);
+    if (!loading) status.textContent = LANES[normalized].label;
     if (options.writeRoute !== false) writeRoute(normalized, effectiveState, Boolean(options.replace));
   }
 
@@ -163,5 +170,11 @@
   });
 
   const initial = new URLSearchParams(window.location.search);
+  window.addEventListener("message", (event) => {
+    const frame = document.querySelector('[data-lane-frame="hero1"]');
+    if (event.origin !== window.location.origin || event.source !== frame?.contentWindow) return;
+    if (event.data?.type !== "MODEL_CINEMA_STATE" || typeof event.data.open !== "boolean") return;
+    document.body.classList.toggle("model-cinema-open", event.data.open && activeScene === "hero1");
+  });
   activateScene(initial.get("scene"), { state: initial.get("state"), replace: true });
 })();

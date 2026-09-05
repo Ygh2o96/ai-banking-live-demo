@@ -25,7 +25,10 @@
   let rrScenario = "daily";
   let rrRunToken = 0;
   let rrPaused = false;
-  let rrPlaybackRate = .09;
+  let rrHostActive = true;
+  let rrPageVisible = !document.hidden;
+  let rrVisibilityVersion = 0;
+  let rrPlaybackRate = 1;
   let rrMotionEnabled = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let rrGateResolver = null;
   let rrEvents = [];
@@ -42,7 +45,7 @@
   const RR_ZOOM_STEP = .1;
   const RR_SPEED_MIN = .03;
   const RR_SPEED_MAX = 1;
-  const RR_SPEED_DEFAULT = .09;
+  const RR_SPEED_DEFAULT = 1;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -273,6 +276,24 @@
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
+  function syncPlaybackVisibility() {
+    rrVisibilityVersion += 1;
+    document.body.classList.toggle("rr-suspended", !rrHostActive || !rrPageVisible);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    rrPageVisible = !document.hidden;
+    syncPlaybackVisibility();
+  });
+  window.addEventListener("message", (event) => {
+    if (window.parent === window || event.source !== window.parent || event.origin !== window.location.origin) return;
+    if (event.data?.type !== "LANE_VISIBILITY" || typeof event.data.active !== "boolean") return;
+    if (rrHostActive === event.data.active) return;
+    rrHostActive = event.data.active;
+    syncPlaybackVisibility();
+  });
+  syncPlaybackVisibility();
+
   function runPlaybackProgress(workMilliseconds, token, onProgress = () => {}) {
     if (token !== rrRunToken) return Promise.resolve(false);
     if (workMilliseconds <= 0) {
@@ -282,15 +303,18 @@
     return new Promise((resolve) => {
       let progress = 0;
       let previous = performance.now();
+      let visibilityVersion = rrVisibilityVersion;
       onProgress(0);
       const frame = (now) => {
         if (token !== rrRunToken) {
           resolve(false);
           return;
         }
-        const elapsed = Math.min(80, Math.max(0, now - previous));
+        // Never count time spent in another page, including the first frame back.
+        const elapsed = visibilityVersion === rrVisibilityVersion ? Math.min(80, Math.max(0, now - previous)) : 0;
+        visibilityVersion = rrVisibilityVersion;
         previous = now;
-        if (!rrPaused) {
+        if (!rrPaused && rrHostActive && rrPageVisible) {
           progress = Math.min(1, progress + (elapsed * rrPlaybackRate) / workMilliseconds);
           onProgress(progress);
         }

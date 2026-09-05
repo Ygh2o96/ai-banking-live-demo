@@ -6,7 +6,8 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#202820">
   <title>项目组 · 现场演示</title>
-  <link rel="stylesheet" href="styles.css?v=r11-0905">
+  <link rel="stylesheet" href="styles.css?v=r13-0906">
+  <link rel="stylesheet" href="cinema.css?v=r13-0906">
 </head>
 <body>
   <div class="shell">
@@ -22,7 +23,7 @@
       </nav>
       <div class="system-state">
         <div class="boundary-register" aria-label="运行与授权边界">
-          <strong>标准底盘 ≠ 项目事实</strong>
+          <strong>标准模型结构 ≠ 项目事实</strong>
           <span>真实数据必须回到来源并经人工确认</span>
         </div>
         <div class="state-cluster">
@@ -119,7 +120,7 @@
           </div>
           <section id="h1-wiggle-view" class="h1-view-panel h1-evidence-view" data-h1-view-panel="wiggle" role="tabpanel" aria-label="Wiggle test 影响传导图" aria-live="polite"></section>
           <section id="h1-lattice-view" class="h1-view-panel h1-evidence-view" data-h1-view-panel="lattice" role="tabpanel" aria-label="Solver lattice 有限解空间" aria-live="polite"></section>
-          <section id="h1-genesis-view" class="h1-view-panel h1-genesis-view" data-h1-view-panel="genesis" role="tabpanel" aria-label="模型搭建过程与标准底盘调用路径" aria-live="polite"></section>
+          <section id="h1-genesis-view" class="h1-view-panel h1-genesis-view" data-h1-view-panel="genesis" role="tabpanel" aria-label="模型搭建过程与标准模型结构调用路径" aria-live="polite"></section>
         </div>
       </section>
 
@@ -209,7 +210,7 @@
     <div id="dialog-body"></div>
   </dialog>
   <div id="h1-teach-scrim" class="h1-teach-scrim" hidden></div>
-  <aside id="h1-teach-drawer" class="h1-teach-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="h1-teach-title">
+  <dialog id="h1-teach-drawer" class="model-cinema" aria-labelledby="h1-teach-title">
     <header>
       <div><span id="h1-teach-kicker">FORECAST LAB / 拆开看</span><h2 id="h1-teach-title">模型动画讲解</h2></div>
       <button id="h1-teach-close" type="button" aria-label="关闭动画讲解">×</button>
@@ -218,14 +219,20 @@
     <footer>
       <button id="h1-teach-replay" type="button">重新播放</button>
       <button id="h1-teach-pause" type="button" aria-pressed="false">暂停讲解</button>
+      <button id="h1-teach-prev" type="button" aria-label="上一阶段">← 上一步</button>
+      <button id="h1-teach-next" type="button" aria-label="下一阶段">下一步 →</button>
+      <label class="cinema-speed">播放速度 <select id="h1-teach-speed" aria-label="播放速度"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></label>
+      <span id="cinema-time" class="cinema-time">00:00 / 00:36</span>
     </footer>
-  </aside>
+  </dialog>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="data/bootstrap.js?v=r7-0905"></script>
-  <script src="data/seed_lab_v5_audience.js?v=r7-0905"></script>
-  <script src="data/pfm_cell_seed_v2_audience.js?v=r7-0905"></script>
-  <script src="data/live_company_roulette.js?v=r7-0905"></script>
-  <script src="genesis.js?v=r7-0905" defer></script>
-  <script src="app.js?v=r11-0905" defer></script>
+  <script src="data/bootstrap.js?v=r13-0906"></script>
+  <script src="data/seed_lab_v5_audience.js?v=r13-0906"></script>
+  <script src="data/pfm_cell_seed_v2_audience.js?v=r13-0906"></script>
+  <script src="data/public_seed_metadata.js?v=r13-0906"></script>
+  <script src="data/live_company_roulette.js?v=r13-0906"></script>
+  <script src="genesis.js?v=r13-0906" defer></script>
+  <script src="cinema.js?v=r13-0906" defer></script>
+  <script src="app.js?v=r13-0906" defer></script>
 </body>
 </html>

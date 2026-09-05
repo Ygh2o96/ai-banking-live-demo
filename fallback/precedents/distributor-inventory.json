@@ -1,0 +1,284 @@
+{
+  "id": "distributor-inventory",
+  "title": "经销商库存与压货",
+  "query": "Outright sales to distributors: inventory monitoring, sell through, returns, rebates, subsequent sales and prevention of channel stuffing.",
+  "fts_query": "\"channel stuffing\" OR \"distributor inventory\" OR \"distributors inventory\" OR \"sell through\"",
+  "coverage": {
+    "fts_matching_chunks_all_document_types": 962,
+    "ranked_prospectus_chunk_limit": 180,
+    "ranked_prospectus_chunks_returned": 180,
+    "bounded_unique_issuers": 14,
+    "bounded_chunks": 26,
+    "recall_not_estimated": true,
+    "displayed_case_records": 5,
+    "supported_disclosure_candidates": 5,
+    "boundary_only_candidates": 0
+  },
+  "bluf": [
+    "库存监控有系统数据、年度 SKU 报表、月度反馈及补货沟通等不同强度，不能统称为实时终端销售。",
+    "买断、退货限制和经销商自担库存风险只是分析起点，仍需核对库存与终端需求。",
+    "Biostar 的期后售出证据与 Lancang 的库存系统覆盖率，比一般防压货承诺更具体。"
+  ],
+  "actions": [
+    "先拆买断、代销和自营渠道。",
+    "列示库存数据覆盖范围、频次和取得方式。",
+    "核对 sell-in、sell-through、退货与返利是否一致。",
+    "抽查期末发货、期后回款与期后售出。",
+    "保留数据缺口、特殊回收及最低采购条款的实际执行情况。"
+  ],
+  "cases": [
+    {
+      "id": "distributor-inventory-1",
+      "issuer": "Chaozhou Three-Circle (Group) Co., Ltd. - H Shares",
+      "stock_code": "06951",
+      "date": "2026-06-30",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0630/2026063000323.pdf",
+      "pdf_page": 175,
+      "printed_page": "166",
+      "page_refs": [
+        {
+          "pdf_page": 172,
+          "printed_page": "163"
+        },
+        {
+          "pdf_page": 173,
+          "printed_page": "164"
+        },
+        {
+          "pdf_page": 174,
+          "printed_page": "165"
+        },
+        {
+          "pdf_page": 175,
+          "printed_page": "166"
+        }
+      ],
+      "excerpt": "In September 2025, we engaged an internal control consultant to review our",
+      "category": "内控缺陷与改进记录",
+      "facts": "三环集团向经销商销售电子陶瓷等产品，披露库存跟踪、月度订单偏离分析及质量问题以外的退货限制。",
+      "analysis": "内部控制顾问曾提出不足；随后把退货和库存信息收集、复核、周转分析程序正式写入制度。",
+      "controls": "披露后续检查未发现相关重大缺陷，并附持续执行内控这一条件。",
+      "applicability": "适合说明整改前后制度变化与复核范围。",
+      "boundary": "不得把顾问对特定内控的意见扩展为对全部经销收入或全部库存真实性的保证。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "distributor-inventory-2",
+      "issuer": "PU’ER LANCANG ANCIENT TEA CO., LTD",
+      "stock_code": "06911",
+      "date": "2023-12-14",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2023/1214/2023121400011.pdf",
+      "pdf_page": 213,
+      "printed_page": "204",
+      "page_refs": [
+        {
+          "pdf_page": 206,
+          "printed_page": "197"
+        },
+        {
+          "pdf_page": 207,
+          "printed_page": "198"
+        },
+        {
+          "pdf_page": 208,
+          "printed_page": "199"
+        },
+        {
+          "pdf_page": 209,
+          "printed_page": "200"
+        },
+        {
+          "pdf_page": 210,
+          "printed_page": "201"
+        },
+        {
+          "pdf_page": 211,
+          "printed_page": "202"
+        },
+        {
+          "pdf_page": 212,
+          "printed_page": "203"
+        },
+        {
+          "pdf_page": 213,
+          "printed_page": "204"
+        },
+        {
+          "pdf_page": 214,
+          "printed_page": "205"
+        },
+        {
+          "pdf_page": 215,
+          "printed_page": "206"
+        },
+        {
+          "pdf_page": 216,
+          "printed_page": "207"
+        },
+        {
+          "pdf_page": 217,
+          "printed_page": "208"
+        },
+        {
+          "pdf_page": 218,
+          "printed_page": "209"
+        }
+      ],
+      "excerpt": "the revenue contribution of the distributors who responded to our inquiries and/or",
+      "category": "库存信息覆盖与交叉核对",
+      "facts": "普洱茶经销库存通过历史询问、Youxin Cloud 系统及实地检查取得；提供库存数据的经销商对应收入覆盖超过 90%。",
+      "analysis": "区分系统部署前后的历史库存口径，并使用补充询问核对系统库存。",
+      "controls": "对库存系统权限、数据点和流程进行检查；另有分销协议及退货约束。",
+      "applicability": "适合展示库存数据覆盖、系统迁移和旧库存的证据链。",
+      "boundary": "普洱茶的陈化和消费特征影响库存解释；不能直接套用其他消费品的合理库存周期。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "distributor-inventory-3",
+      "issuer": "Hangzhou Tongshifu Cultural and Creative (Group) Co., Ltd. - H Shares",
+      "stock_code": "00664",
+      "date": "2026-03-23",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0323/2026032300037.pdf",
+      "pdf_page": 142,
+      "printed_page": "133",
+      "page_refs": [
+        {
+          "pdf_page": 140,
+          "printed_page": "131"
+        },
+        {
+          "pdf_page": 141,
+          "printed_page": "132"
+        },
+        {
+          "pdf_page": 142,
+          "printed_page": "133"
+        },
+        {
+          "pdf_page": 143,
+          "printed_page": "134"
+        },
+        {
+          "pdf_page": 144,
+          "printed_page": "135"
+        }
+      ],
+      "excerpt": "Although we do not directly supervise distributors’ downstream inventory levels, we monitor",
+      "category": "无直接终端库存监控的边界",
+      "facts": "铜师傅同时存在买断经销及代销渠道；经销商通常预付、按月补货，自行管理下游销售。",
+      "analysis": "明确未直接监督经销商下游库存，改由订单节奏、SKU 选择、沟通及访问判断积压迹象。",
+      "controls": "最低采购条款实际灵活执行，异常补货会触发沟通及产品组合调整，按渠道披露退货情况。",
+      "applicability": "适合诚实说明有限库存可见性及替代监控程序。",
+      "boundary": "本案例不能证明实时取得终端库存或全量 sell-through；代销渠道须另作会计分析。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "distributor-inventory-4",
+      "issuer": "Shenzhen Hiphine Precision Technology Co., Ltd. - H shares",
+      "stock_code": "02583",
+      "date": "2025-09-19",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0919/2025091900019.pdf",
+      "pdf_page": 360,
+      "printed_page": "350",
+      "page_refs": [
+        {
+          "pdf_page": 343,
+          "printed_page": "333"
+        },
+        {
+          "pdf_page": 344,
+          "printed_page": "334"
+        },
+        {
+          "pdf_page": 357,
+          "printed_page": "347"
+        },
+        {
+          "pdf_page": 358,
+          "printed_page": "348"
+        },
+        {
+          "pdf_page": 359,
+          "printed_page": "349"
+        },
+        {
+          "pdf_page": 360,
+          "printed_page": "350"
+        },
+        {
+          "pdf_page": 361,
+          "printed_page": "351"
+        },
+        {
+          "pdf_page": 362,
+          "printed_page": "352"
+        }
+      ],
+      "excerpt": "an inventory report setting out its inventory level for each SKU of",
+      "category": "SKU 库存报告与周转比较",
+      "facts": "OBM 手表以买卖关系销售予一级经销商；其年末库存报告按 SKU 提供，披露 2022–2024 年库存约 9,000、7,000、7,000 只。",
+      "analysis": "将库存与对应销售量比较，同时解释无最低采购要求及不回收滞销库存。",
+      "controls": "年度店面检查、盘点基础的年度库存报表及仅限质量问题的退货。",
+      "applicability": "适合按数量而非只有金额说明库存积压风险。",
+      "boundary": "监控对象为一级经销商；不能把其报表称作全部下级经销商或终端零售商库存。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "distributor-inventory-5",
+      "issuer": "Beijing Biostar Pharmaceuticals Co., Ltd",
+      "stock_code": "02563",
+      "date": "2024-10-23",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/1023/2024102300015.pdf",
+      "pdf_page": 374,
+      "printed_page": "363",
+      "page_refs": [
+        {
+          "pdf_page": 369,
+          "printed_page": "358"
+        },
+        {
+          "pdf_page": 370,
+          "printed_page": "359"
+        },
+        {
+          "pdf_page": 371,
+          "printed_page": "360"
+        },
+        {
+          "pdf_page": 372,
+          "printed_page": "361"
+        },
+        {
+          "pdf_page": 373,
+          "printed_page": "362"
+        },
+        {
+          "pdf_page": 374,
+          "printed_page": "363"
+        },
+        {
+          "pdf_page": 375,
+          "printed_page": "364"
+        }
+      ],
+      "excerpt": "12,998 vials, or 100.0%, of the unsold inventory held by all of",
+      "category": "期后售出与异常回收",
+      "facts": "药品经销商按需求下单并按月提供库存；截至最后实际可行日期，2024 年 5 月末经销商未售库存已全部售出。",
+      "analysis": "披露 12,998 瓶期后售出，结合库存行业比较、无最低采购量及不因大额订单给予折扣作分析。",
+      "controls": "发货前评估经销商历史销售与库存，原则上限制退货；同章另有 CSO A 产品回收的特定事实。",
+      "applicability": "适合销售截止性和期后 sell-through 核查。",
+      "boundary": "必须连同特殊产品回收及经销商/CSO 角色阅读，不能只截取无退货结论。",
+      "classification": "披露先例",
+      "is_boundary": false
+    }
+  ]
+}

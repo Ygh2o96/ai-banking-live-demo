@@ -1,11 +1,11 @@
 # AI Banking Live Demo
 
-Five public training surfaces are kept separate behind one navigation shell:
+Five pages: financial models, Regulatory Radar, prospectus retrieval, control and feedback, and Q&A.
 
-1. Financial model live challenge
-2. Regulatory Radar
-3. Precedent retrieval and prospectus RAG
-4. Qian Xuesen-inspired control loop and an AI-opportunity maturity lens
-5. Question & Answer, QR return link, and two case slots
+The Forecast Lab uses synthetic teaching data. Six separate real-company workbooks use public reports and labeled forecast assumptions. Thirty prospectus records retain official sources, page references and case-specific boundaries.
 
-The financial-model numbers are synthetic training data. The Q&A page keeps two case slots for supporting materials.
+For a local presentation, serve this folder with Python 3:
+
+    python3 -m http.server 61326 --bind 127.0.0.1
+
+Then open http://127.0.0.1:61326/ . The animation and downloaded workbooks work without an agent; original report links require network access.

@@ -1,0 +1,204 @@
+{
+  "id": "entity-list-sales",
+  "title": "Entity List 客户销售",
+  "query": "Actual sales to customers listed on the U.S. Entity List: products, EAR jurisdiction, US origin content, de minimis, foreign direct product rules, license and ongoing controls.",
+  "fts_query": "\"Entity List\" AND (\"sales\" OR \"customers\")",
+  "coverage": {
+    "fts_matching_chunks_all_document_types": 696,
+    "ranked_prospectus_chunk_limit": 180,
+    "ranked_prospectus_chunks_returned": 180,
+    "bounded_unique_issuers": 14,
+    "bounded_chunks": 33,
+    "recall_not_estimated": true,
+    "displayed_case_records": 5,
+    "supported_disclosure_candidates": 5,
+    "boundary_only_candidates": 0
+  },
+  "bluf": [
+    "客户列名、交易发生时间、产品 EAR 管辖和许可结论必须逐项连接。",
+    "鼎泰 Footnote 4 客户、海致列名前交易和琻捷 Footnote 5 供应商分别构成不同角色/时间边界。",
+    "七牛同时披露 Entity List 与 SDN 客户，合并金额不能直接当作单独 Entity List 销售占比。"
+  ],
+  "actions": [
+    "确认具体列名实体与客户法律主体，而非仅搜索简称。",
+    "按交易日核对列名及 Footnote 状态。",
+    "把原产地、受控成分、产品范围与生产链 FDPR 分开核查。",
+    "分别列客户销售、供应商采购、Entity List 与 SDN 口径。",
+    "注明律师结论所依赖事实、停止交易安排和持续筛查。"
+  ],
+  "cases": [
+    {
+      "id": "entity-list-sales-1",
+      "issuer": "Guangdong Dtech Technology Co., Ltd. - H Shares",
+      "stock_code": "01377",
+      "date": "2026-06-30",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0630/2026063000041.pdf",
+      "pdf_page": 175,
+      "printed_page": "165",
+      "page_refs": [
+        {
+          "pdf_page": 175,
+          "printed_page": "165"
+        },
+        {
+          "pdf_page": 176,
+          "printed_page": "166"
+        }
+      ],
+      "excerpt": "Entity List Footnote 4 at the time of certain relevant transactions (the",
+      "category": "Footnote 4 与产品范围",
+      "facts": "鼎泰向一名在相关交易时已带 Footnote 4 的 Entity List 客户有历史交易；涉及其机械工具、耗材等产品。",
+      "analysis": "国际制裁顾问分别分析美国原产地、受控含量及 FDPR 产品范围，认为供货产品预计不受 EAR 管辖，历史交易不大可能需美国出口许可。",
+      "controls": "交易对手筛查、合规承诺、持续监控和员工培训。",
+      "applicability": "适合展示 Footnote 不替代产品范围分析。",
+      "boundary": "必须保留预计及不大可能等原文限定，不得改成无条件许可豁免；本页未提供可独立量化的客户销售金额。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "entity-list-sales-2",
+      "issuer": "Guangdong Tianyu Semiconductor Co., Ltd.  - H shares",
+      "stock_code": "02658",
+      "date": "2025-11-27",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/1127/2025112700013.pdf",
+      "pdf_page": 331,
+      "printed_page": "321",
+      "page_refs": [
+        {
+          "pdf_page": 330,
+          "printed_page": "320"
+        },
+        {
+          "pdf_page": 331,
+          "printed_page": "321"
+        },
+        {
+          "pdf_page": 332,
+          "printed_page": "322"
+        },
+        {
+          "pdf_page": 333,
+          "printed_page": "323"
+        }
+      ],
+      "excerpt": "We ceased such sales to the Entity List Customers in July 2023.",
+      "category": "美国原料与中国制成品区分",
+      "facts": "向 Entity List 客户销售中国原产晶圆产品，部分含从美国供应商取得的 SiC 基底；2022、2023 年相关收入占比分别约 0.9%、0.1%，2023 年 7 月停止。",
+      "analysis": "律师依据基底 EAR99 分类、制成品原产地、FDPR 不适用及交易事实，给出无需出口管制许可的历史意见。",
+      "controls": "停止有关交易，并由法务财务监控制裁风险、审议业务和筛查文件。",
+      "applicability": "适合区分进口原料、受控成分和最终制成品的分析链。",
+      "boundary": "EAR99 不等于不受 EAR；本案例的结论来自完整产品和交易分析，不能单独复制其 EAR99 字样。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "entity-list-sales-3",
+      "issuer": "Qiniu Limited",
+      "stock_code": "02567",
+      "date": "2024-09-30",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2024/0930/2024093000011.pdf",
+      "pdf_page": 322,
+      "printed_page": "312",
+      "page_refs": [
+        {
+          "pdf_page": 321,
+          "printed_page": "311"
+        },
+        {
+          "pdf_page": 322,
+          "printed_page": "312"
+        },
+        {
+          "pdf_page": 323,
+          "printed_page": "313"
+        }
+      ],
+      "excerpt": "we had 17 customers that are on the Entity List and three",
+      "category": "云服务及多清单口径",
+      "facts": "披露 17 名 Entity List 客户及 3 名 SDN 客户，主要提供公有云及私有云服务；另有独立的列名供应商采购段落。",
+      "analysis": "律师按服务未涉及受 EAR 管辖项目的出口、再出口或境内转移作许可判断。",
+      "controls": "披露替代供应商等安排；采购与销售须分别读取。",
+      "applicability": "适合服务型交易和 Entity List/SDN 双清单拆分。",
+      "boundary": "原文销售金额合并两类清单客户，不能把它称作仅 Entity List 销售额，也不能把服务结论套至芯片或设备。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "entity-list-sales-4",
+      "issuer": "Beijing Haizhi Technology Group Co., Ltd. - H Shares",
+      "stock_code": "02706",
+      "date": "2026-02-05",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0205/2026020500037.pdf",
+      "pdf_page": 89,
+      "printed_page": "79",
+      "page_refs": [
+        {
+          "pdf_page": 88,
+          "printed_page": "78"
+        },
+        {
+          "pdf_page": 89,
+          "printed_page": "79"
+        },
+        {
+          "pdf_page": 90,
+          "printed_page": "80"
+        },
+        {
+          "pdf_page": 304,
+          "printed_page": "294"
+        },
+        {
+          "pdf_page": 305,
+          "printed_page": "295"
+        }
+      ],
+      "excerpt": "All transactions with this customer were completed before this customer was added",
+      "category": "列名前后交易时间边界",
+      "facts": "披露两名列名客户：带 Footnote 客户的交易在其列名前完成；无 Footnote 客户于 2023 年贡献约 1.1% 收入，最后实际可行日期无持续业务。",
+      "analysis": "律师依赖自主开发、国内开发工具、无美国原产项目及未转移受 EAR 管辖项目等事实分析。",
+      "controls": "披露不再与所述列名客户持续交易；需将交易时间和客户 Footnote 各自配对。",
+      "applicability": "适合说明列名时间不能从现时状态倒推至全部历史交易。",
+      "boundary": "此处未指定 Footnote 的具体编号；不得猜为 1、3 或 4，也不可称带 Footnote 客户交易发生于列名后。",
+      "classification": "披露先例",
+      "is_boundary": false
+    },
+    {
+      "id": "entity-list-sales-5",
+      "issuer": "SENASIC Electronics Technology Co., Ltd. - H Shares",
+      "stock_code": "06675",
+      "date": "2026-06-09",
+      "doc_type": "Prospectus",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0609/2026060900029.pdf",
+      "pdf_page": 185,
+      "printed_page": "176",
+      "page_refs": [
+        {
+          "pdf_page": 46,
+          "printed_page": "37"
+        },
+        {
+          "pdf_page": 185,
+          "printed_page": "176"
+        },
+        {
+          "pdf_page": 186,
+          "printed_page": "177"
+        }
+      ],
+      "excerpt": "we sold products to one customer on the Entity List. The Entity",
+      "category": "生产链确认与供应商 Footnote 错配防护",
+      "facts": "向一名 Entity List 客户销售产品，相关交易价值少于记录期收入 0.03%；另有 Footnote 5 晶圆供应商。",
+      "analysis": "对非美国原产 EAR99/3A991 产品分别分析 de minimis、发行人设计流程及合同制造商生产流程；对合同制造商取得确认。",
+      "controls": "已停止对该客户交易，无未结交付，董事确认未来不再开展；保荐人披露独立核查。",
+      "applicability": "适合说明 fabless 模式下为何必须穿透生产链。",
+      "boundary": "Footnote 5 属供应商，且原文明确该供应商未参与售予列名客户产品的制造；不能将两条供应链拼接。",
+      "classification": "披露先例",
+      "is_boundary": false
+    }
+  ]
+}

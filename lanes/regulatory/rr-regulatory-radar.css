@@ -451,6 +451,7 @@
 .rr-motion-restrained .rr-node.is-charging { transform: none; filter: none; animation: none; }
 .rr-motion-restrained .rr-node.is-just-completed { transform: none; filter: none; }
 .rr-paused .rr-charge, .rr-paused .rr-traveler, .rr-paused .rr-node, .rr-paused .rr-node::after, .rr-paused .rr-node-progress::after, .rr-paused .rr-map-scan, .rr-paused .rr-cadence article::after, .rr-paused .rr-cadence article i, .rr-paused .rr-terminal-meta i, .rr-paused .rr-transition-line i { animation-play-state: paused !important; }
+.rr-suspended *, .rr-suspended *::before, .rr-suspended *::after { animation-play-state: paused !important; }
 
 @keyframes rr-current { to { stroke-dashoffset: -180; } }
 @keyframes rr-node-breathe { 0%,100% { transform: translateY(-3px) scale(1); filter: brightness(1); } 50% { transform: translateY(-4px) scale(1.012); filter: brightness(1.08); } }
