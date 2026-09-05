@@ -10,12 +10,14 @@
   const edgeMap = new Map(data.edges.map((edge) => [edge[0], edge]));
   const actorNames = Object.fromEntries(Object.entries(data.actors).map(([key, value]) => [key, value.label]));
   const actorCodes = { source: "SRC", script: "RUN", model: "CHECK", human: "BANKER", control: "CTRL", evidence: "EVID" };
+  const dailyGateKeys = ["source", "exception", "identity", "policy", "qc", "unresolved", "qa", "release"];
   const stateLabels = {
     pass: "完成",
     reviewed: "已复核",
     released: "已更新",
     attention: "需注意",
     candidate: "候选",
+    authorized: "自动核对",
     failed: "发现问题",
     hold: "HOLD",
   };
@@ -33,6 +35,7 @@
   let rrCycleNumber = 1;
   let rrRunSerial = 0;
   let rrCurrentBranch = "daily";
+  const rrDailyApprovedGates = new Set();
   let rrZoom = 1;
   const RR_ZOOM_MIN = .6;
   const RR_ZOOM_MAX = 1.4;
@@ -116,7 +119,7 @@
 
   function clearRuntimeState() {
     $$(".rr-node").forEach((node) => {
-      node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-visited", "is-muted");
+      node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized", "is-visited", "is-muted");
       node.removeAttribute("aria-busy");
     });
     $$(".rr-charge").forEach((edge) => edge.classList.remove("is-charging", "is-complete", "is-failed", "is-muted"));
@@ -209,10 +212,19 @@
   function setNodeState(nodeId, state) {
     const node = $(`.rr-node[data-rr-node="${CSS.escape(nodeId)}"]`);
     if (!node) return;
-    node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting");
+    node.classList.remove("is-charging", "is-pass", "is-reviewed", "is-released", "is-attention", "is-candidate", "is-failed", "is-hold", "is-waiting", "is-authorized");
     if (state) node.classList.add(`is-${state}`);
     if (state && !["charging", "waiting"].includes(state)) node.classList.add("is-visited");
     node.setAttribute("aria-busy", String(state === "charging"));
+  }
+
+  function scrollToNode(nodeId) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const node = nodeMap.get(nodeId);
+    if (!node) return;
+    const map = $("#rr-map");
+    const target = Math.max(0, Math.min(data.canvas.width * rrZoom - map.clientWidth, node.x * rrZoom - map.clientWidth * .48));
+    map.scrollTo({ left: target, behavior: "smooth" });
   }
 
   function setZoom(value, options = {}) {
@@ -255,27 +267,72 @@
     }
   }
 
+  async function rrMotionWait(milliseconds, token) {
+    let remaining = milliseconds;
+    while (remaining > 0 && token === rrRunToken) {
+      const slice = Math.min(50, remaining);
+      await sleepRaw(slice);
+      if (!rrPaused) remaining -= slice;
+    }
+  }
+
+  function edgeTravelDuration(edgeId) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 60;
+    const traveler = $(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`);
+    const length = traveler?.getTotalLength?.() || 0;
+    const mobile = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
+    const floor = mobile ? 2500 : 3600;
+    const ceiling = mobile ? 5200 : 8500;
+    const pixelsPerSecond = mobile ? 150 : 105;
+    const distanceDuration = length ? (length / pixelsPerSecond) * 1000 : floor;
+    const base = Math.max(floor, Math.min(ceiling, distanceDuration));
+    return Math.round(base * (rrCinematicTempo ? 1.4 : 1));
+  }
+
+  function setEdgeTravelDuration(edgeId, duration) {
+    $$(`.rr-traveler[data-rr-traveler="${CSS.escape(edgeId)}"]`).forEach((traveler) => {
+      traveler.style.setProperty("--rr-edge-travel-duration", `${duration}ms`);
+    });
+  }
+
   function scrollToPhase(phase) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const firstNodeId = phase.gate ? data.gates[phase.gate].node : phase.items?.[0]?.[0];
-    const node = nodeMap.get(firstNodeId);
-    if (!node) return;
-    const map = $("#rr-map");
-    const target = Math.max(0, Math.min(data.canvas.width * rrZoom - map.clientWidth, node.x * rrZoom - map.clientWidth * .42));
-    map.scrollTo({ left: target, behavior: "smooth" });
+    scrollToNode(firstNodeId);
+  }
+
+  async function traverseEdges(edgeIds, token, alert = false) {
+    for (const edgeId of edgeIds || []) {
+      if (token !== rrRunToken) return false;
+      const duration = edgeTravelDuration(edgeId);
+      setEdgeTravelDuration(edgeId, duration);
+      setEdges([edgeId], alert ? "gate-failed" : "charging");
+      await rrMotionWait(duration, token);
+      if (token !== rrRunToken) return false;
+      setEdges([edgeId], alert ? "failed" : "complete");
+    }
+    return true;
+  }
+
+  async function processNode(nodeId, finalState, token) {
+    if (token !== rrRunToken) return false;
+    setNodeState(nodeId, "charging");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    await rrMotionWait(reduced ? 60 : rrCinematicTempo ? 2200 : 1600, token);
+    if (token !== rrRunToken) return false;
+    setNodeState(nodeId, finalState);
+    return true;
   }
 
   async function runItem(item, index, token) {
     const [nodeId, state, edges, detail] = item;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    await rrWait(reduced ? 0 : index * 650, token);
+    await rrWait(reduced ? 0 : index ? 40 : 0, token);
     if (token !== rrRunToken) return;
-    setEdges(edges, "charging");
-    setNodeState(nodeId, "charging");
-    await rrWait(reduced ? 30 : 1750 + (index % 3) * 220, token);
-    if (token !== rrRunToken) return;
-    setNodeState(nodeId, state);
-    setEdges(edges, state === "failed" ? "failed" : "complete");
+    scrollToNode(nodeId);
+    if (!await traverseEdges(edges, token)) return;
+    if (!await processNode(nodeId, state, token)) return;
+    if (state === "failed") setEdges(edges, "failed");
     appendEvent(nodeId, state, detail);
   }
 
@@ -318,12 +375,41 @@
     });
   }
 
+  function renderGateTransition(gateKey, automatic = false) {
+    const gate = data.gates[gateKey];
+    const node = nodeMap.get(gate.node);
+    const gateNumber = node?.title.match(/\d+/)?.[0] || "—";
+    $("#rr-decision-panel").innerHTML = `
+      <div class="rr-decision-card rr-transition-card${automatic ? " is-automatic" : ""}">
+        <span>人工关口 ${escapeHtml(gateNumber)} / ${gateNumber === "09" ? "09" : "08"}</span>
+        <h3>${automatic ? "本页会话已授权 · 本轮自动核对" : "人工复核通过 · 正在进入下一步"}</h3>
+        <p class="rr-why">${automatic ? "这个关口已在本页会话的首轮完整流程中由人确认；本轮只重放同一演示检查，不新增授权。" : "判断和理由已经记下。接下来先沿交接路径走到下一节点，再继续处理。"}</p>
+        <div class="rr-transition-line" aria-hidden="true"><i></i></div>
+        <p class="rr-accountability"><b>本关判断：</b>${escapeHtml(gate.title)}</p>
+      </div>`;
+  }
+
   async function waitForHumanGate(phase, token) {
     const gate = data.gates[phase.gate];
     const nodeId = gate.node;
     const lockGate = ["source", "exception", "qc", "unresolved", "qa"].includes(phase.gate);
-    setEdges(phase.edges, lockGate ? "gate-failed" : "charging");
-    setNodeState(nodeId, "waiting");
+    const autoDailyGate = rrScenario === "daily"
+      && dailyGateKeys.includes(phase.gate)
+      && dailyGateKeys.every((gateKey) => rrDailyApprovedGates.has(gateKey));
+    scrollToNode(nodeId);
+    if (!await traverseEdges(phase.edges, token, lockGate)) return false;
+    if (!await processNode(nodeId, autoDailyGate ? "authorized" : "waiting", token)) return false;
+    if (autoDailyGate) {
+      setEdges(phase.edges, "complete");
+      renderGateTransition(phase.gate, true);
+      setStatus("本页会话已授权 · 本轮自动核对", "running");
+      $("#rr-phase").textContent = `已人工授权 · 自动核对 ${gate.title}`;
+      appendEvent(nodeId, "authorized", `本页会话首轮已人工通过；本轮开始自动核对：${gate.title}。`);
+      await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 900, token);
+      appendEvent(nodeId, "reviewed", `自动核对完成：${gate.title}；无需再次点击。`);
+      setStatus("自动核对完成 · 下一节点正在处理", "running");
+      return true;
+    }
     // The run already awaits the decision promise. Freeze the ambient network
     // too, so every gate reads as a genuine stop rather than a moving backdrop.
     document.body.classList.add("rr-paused", "rr-gate-paused");
@@ -350,9 +436,12 @@
     setEdges(phase.edges, "complete");
     const suffix = decision.action === "continue-excluded" ? "；记录为本期不纳入，其余事实继续更新。" : "；流程继续。";
     appendEvent(nodeId, "reviewed", `${decision.label}${suffix}`, true);
-    renderIdleDecision();
-    setStatus("继续运行", "running");
-    await rrWait(850, token);
+    if (rrScenario === "daily" && dailyGateKeys.includes(phase.gate)) rrDailyApprovedGates.add(phase.gate);
+    renderGateTransition(phase.gate);
+    setStatus("人工复核通过 · 正在进入下一步", "running");
+    $("#rr-phase").textContent = "人工复核通过 · 正在进入下一步";
+    await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 80 : 1250, token);
+    setStatus("复核完成 · 下一节点正在处理", "running");
     return true;
   }
 
@@ -383,7 +472,7 @@
         </div>
       </div>`;
     if (isDailyLoop) {
-      await rrWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 200 : 2600, token);
+      await rrMotionWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 120 : 1600, token);
       if (token === rrRunToken && !rrHumanHold && rrScenario === "daily") {
         startScenario("daily", { continuation: true });
       }
@@ -400,13 +489,17 @@
       if (phase.gate) {
         const proceed = await waitForHumanGate(phase, token);
         if (!proceed) {
+          if (token !== rrRunToken) return;
           await finishRun(false, token);
           return;
         }
       } else {
         setStatus("流程运行中", "running");
-        await Promise.all(phase.items.map((item, index) => runItem(item, index, token)));
-        await rrWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 1100, token);
+        for (const [index, item] of phase.items.entries()) {
+          await runItem(item, index, token);
+          if (token !== rrRunToken) return;
+        }
+        await rrWait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180, token);
       }
     }
     if (token === rrRunToken) await finishRun(true, token);

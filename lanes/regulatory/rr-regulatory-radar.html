@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>监管雷达 · HKEX × CSRC</title>
-  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r8-0905c">
+  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r9-0905">
 </head>
 <body class="rr-body">
   <a class="rr-skip" href="#rr-map">跳到流程图</a>
@@ -101,7 +101,7 @@
           <div class="rr-cycle-readout"><span id="rr-cycle-day">DAY 01</span><b id="rr-cycle-mode">主循环运行中</b><small>不是跑完一次就结束</small></div>
         </section>
 
-        <div class="rr-mobile-map-hint">左右拖动或用缩放按钮查看完整流程 · 到人工关口会自动停下</div>
+        <div class="rr-mobile-map-hint">左右拖动或用缩放按钮查看完整流程 · 首轮到人工关口会停下</div>
         <div class="rr-map-frame">
           <div class="rr-map-tools" role="group" aria-label="流程图缩放">
             <button id="rr-zoom-out" type="button" aria-label="缩小流程图" title="缩小流程图">−</button>
@@ -128,7 +128,7 @@
                   <div><i class="rr-key rr-key-human"></i><span>Banker 判断</span></div>
                   <div><i class="rr-key rr-key-control"></i><span>QC / 发布控制</span></div>
                   <div><i class="rr-key rr-key-evidence"></i><span>证据底座</span></div>
-                  <em>主线 A 每个工作日从官方来源重新开始 · 抽查线 B 每日把修复结果反馈回系统并重跑 · 每周 Eval 另走 09 · 人工关口 01–08 不点击就不会继续</em>
+                  <em>主线 A 每个工作日从官方来源重新开始 · 抽查线 B 每日把修复结果反馈回系统并重跑 · 每周 Eval 另走 09 · 首轮人工关口 01–08 要逐关点击，本页会话通过一遍后，后续每日自动核对</em>
                 </div>
               </div>
             </div>
@@ -163,7 +163,7 @@
     </div>
   </main>
   <div id="rr-announcer" class="rr-sr-only" aria-live="polite"></div>
-  <script src="data/rr-regulatory-radar-data.js?v=r8-0905c"></script>
-  <script src="rr-regulatory-radar.js?v=r8-0905c"></script>
+  <script src="data/rr-regulatory-radar-data.js?v=r9-0905"></script>
+  <script src="rr-regulatory-radar.js?v=r9-0905"></script>
 </body>
 </html>

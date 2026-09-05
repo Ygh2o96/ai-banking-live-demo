@@ -73,7 +73,7 @@ window.__RR_PIPELINE__ = Object.freeze({
     ["c_status", "csrc_hub", "csrc_status", "source"], ["c_notice", "csrc_hub", "csrc_notice", "source"], ["c_supp", "csrc_hub", "csrc_supp", "source"], ["c_archive", "csrc_hub", "csrc_archive", "source"],
     ["status_collect", "csrc_status", "csrc_collect", "script"], ["notice_collect", "csrc_notice", "csrc_collect", "script"], ["supp_collect", "csrc_supp", "csrc_collect", "script"], ["archive_collect", "csrc_archive", "csrc_collect", "script"],
     ["hkex_vault", "hkex_collect", "evidence_vault", "evidence"], ["csrc_vault", "csrc_collect", "evidence_vault", "evidence"],
-    ["notice_source_gate", "csrc_notice", "source_gate", "alert"], ["supp_source_gate", "csrc_supp", "source_gate", "alert"], ["source_recheck", "source_gate", "csrc_collect", "human"],
+    ["notice_source_gate", "csrc_notice", "source_gate", "alert"], ["supp_source_gate", "csrc_supp", "source_gate", "alert"], ["source_recheck", "source_gate", "csrc_supp", "human"],
     ["archive_exception", "csrc_archive", "exception_gate", "alert"], ["ap_exception", "hkex_ap", "exception_gate", "alert"], ["exception_retry", "exception_gate", "evidence_vault", "human"],
     ["vault_names", "evidence_vault", "name_norm", "script"], ["vault_versions", "evidence_vault", "version_group", "script"], ["vault_dates", "evidence_vault", "date_ledger", "script"], ["vault_routes", "evidence_vault", "route_flags", "script"],
     ["names_identity", "name_norm", "identity_graph", "script"], ["versions_identity", "version_group", "identity_graph", "script"], ["dates_identity", "date_ledger", "identity_graph", "script"], ["routes_identity", "route_flags", "identity_graph", "script"],
@@ -208,8 +208,8 @@ window.__RR_PIPELINE__ = Object.freeze({
   scenarios: {
     daily: {
       label: "每日主循环",
-      title: "完整演示会在 01–08 每一关停下；你点了，才继续",
-      outcome: "当天结果获授权后，下一个工作日从官方来源重新开始；抽查出问题，就先修名称、身份或 Sponsor 抽取，再把原来的检查重跑一遍。",
+      title: "首次完整演示会在 01–08 每一关停下；本页会话逐关通过后，后续每天自动核对",
+      outcome: "当天结果获授权后，下一个工作日从官方来源重新开始；抽查出问题，就先修名称、身份或 Sponsor 抽取，再把原来的检查重跑一遍。本页会话首轮逐关确认后，后续每日循环会重放同一检查，不新增授权。",
       phases: [
         { label: "打开两边公开源", items: [["hkex_hub", "pass", ["daily_restart"], "联交所四条支流启动。"], ["csrc_hub", "pass", [], "证监会当前、归档与附件入口启动。"]] },
         { label: "两个官方来源并行跟踪", items: [["hkex_ap", "pass", ["h_ap"], "抓取申请版本。"], ["hkex_index", "pass", ["h_index"], "读取中英文索引。"], ["hkex_nlr", "pass", ["h_nlr"], "读取上市报告。"], ["hkex_newly", "pass", ["h_newly"], "检查同日上市回补。"], ["csrc_status", "pass", ["c_status"], "读取状态表。"], ["csrc_notice", "pass", ["c_notice"], "解析通知正文落款。"], ["csrc_supp", "pass", ["c_supp"], "检查补充材料附件。"], ["csrc_archive", "pass", ["c_archive"], "回看历史归档。"]] },

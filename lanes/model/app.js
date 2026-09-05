@@ -17,6 +17,7 @@ let h1TeachElapsed = 0;
 let h1TeachPaused = false;
 let h1TeachMode = null;
 let h1TeachTrigger = null;
+let h1TeachMotionOverride = false;
 
 const H1_GENESIS_STATES = ["company-roulette", "genesis", "seed-skeleton", "seed-binding", "seed-living", "seed-models"];
 const LIQUIDITY_FIGURE_NOTE = "允许并明确标注文中所需融资金额，优先最小化融资需求；维持月度最低安全现金底线。";
@@ -665,15 +666,19 @@ function h1TeachWiggleMarkup() {
   const deltas = payload.deltas;
   return `<section class="h1-teach-intro"><span>WIGGLE TEST / 只动一个假设</span><h3>不是看结果好不好，是看模型会不会按公式正确联动。</h3><p>把 DIO 从 ${number(payload.baseline, 0)} 天调到 ${number(payload.new_value, 0)} 天：该动的存货、现金和融资需求必须动；不该动的收入必须保持不变。</p></section>
     <div class="h1-wiggle-teach" aria-label="DIO 单变量扰动与三表联动动画">
+      <div class="h1-wiggle-hud"><span><i></i> LIVE FORMULA TRACE</span><b id="h1-wiggle-phase">01 / 04</b><output id="h1-wiggle-caption">授权变量 DIO 已改变，准备沿公式链重算</output></div>
       <div class="h1-wiggle-track">
-        <article style="--teach-step:0"><small>01 / 授权变动</small><b>DIO</b><strong>${number(payload.baseline, 0)} → ${number(payload.new_value, 0)} 天</strong></article>
+        <div class="h1-wiggle-rail" aria-hidden="true"></div>
+        <article data-trace-step="0"><small>01 / 授权变动</small><b>DIO</b><strong>${number(payload.baseline, 0)} → ${number(payload.new_value, 0)} 天</strong><em>INPUT</em></article>
         <i aria-hidden="true"></i>
-        <article style="--teach-step:1"><small>02 / 公式重算</small><b>INVENTORY</b><strong>${money(deltas.first_month_inventory, 2)}</strong></article>
+        <article data-trace-step="1"><small>02 / 公式重算</small><b>INVENTORY</b><strong>${money(deltas.first_month_inventory, 2)}</strong><em>BS</em></article>
         <i aria-hidden="true"></i>
-        <article style="--teach-step:2"><small>03 / 现金传导</small><b>MIN CASH</b><strong>${money(deltas.minimum_monthly_cash, 2)}</strong></article>
+        <article data-trace-step="2"><small>03 / 现金传导</small><b>MIN CASH</b><strong>${money(deltas.minimum_monthly_cash, 2)}</strong><em>CFS</em></article>
         <i aria-hidden="true"></i>
-        <article style="--teach-step:3"><small>04 / 资金缺口</small><b>FUNDING</b><strong>${money(deltas.external_funding, 2)}</strong></article>
-        <span class="h1-wiggle-signal" aria-hidden="true"></span>
+        <article data-trace-step="3"><small>04 / 资金缺口</small><b>FUNDING</b><strong>${money(deltas.external_funding, 2)}</strong><em>OUTPUT</em></article>
+        <span class="h1-wiggle-signal is-trail-b" aria-hidden="true"></span>
+        <span class="h1-wiggle-signal is-trail-a" aria-hidden="true"></span>
+        <span class="h1-wiggle-signal is-lead" aria-hidden="true"></span>
       </div>
       <div class="h1-wiggle-stable"><span>不该动</span><b>2027E 营业收入</b><strong>${money(deltas.revenue, 2)} · 保持不变</strong><i>LOCKED</i></div>
     </div>
@@ -684,10 +689,74 @@ function h1TeachLatticeMarkup() {
   const lattice = demoData.hero1.lattice;
   return `<section class="h1-teach-intro"><span>SOLVER LATTICE / 有限候选空间</span><h3>先把授权范围里的组合全部铺开，再一关一关淘汰。</h3><p>动画中的粒子是缩小示意；结果数字仍以全部 ${integer(lattice.evaluated_candidates)} 个实际计算组合为准。</p></section>
     <div class="h1-lattice-teach">
-      <div class="h1-lattice-stage"><canvas id="h1-lattice-canvas" role="img" aria-label="候选组合从空间展开、约束淘汰、资金分组到最优解浮现的示意动画"></canvas><div class="h1-lattice-scan" aria-hidden="true"></div><output id="h1-lattice-caption">正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合</output></div>
+      <div class="h1-lattice-stage"><canvas id="h1-lattice-canvas" role="img" aria-label="候选组合从空间展开、约束淘汰、资金分组到最优解浮现的示意动画"></canvas><div class="h1-lattice-scan" aria-hidden="true"></div><div class="h1-lattice-hud"><span><i></i> REPRESENTATIVE PARTICLES</span><b id="h1-lattice-phase">PHASE 01 / EXPAND</b><em><u id="h1-lattice-progress"></u></em></div><output id="h1-lattice-caption">正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合</output></div>
       <div class="h1-lattice-ledger"><div><span>全量计算</span><strong>${integer(lattice.evaluated_candidates)}</strong></div><div><span>通过约束</span><strong>${integer(lattice.feasible_candidates)}</strong></div><div><span>本轮剔除</span><strong>${integer(lattice.rejected_candidates)}</strong></div><div><span>零外部融资</span><strong>${integer(lattice.liquidity_funding.feasible_zero_external_funding)}</strong></div></div>
     </div>
     <ol id="h1-lattice-phases" class="h1-teach-steps h1-lattice-phases"><li><b>1</b><span>展开候选空间</span></li><li><b>2</b><span>刚性约束逐层淘汰</span></li><li><b>3</b><span>按融资负担分组</span></li><li><b>4</b><span>按目标层级选出前三</span></li></ol>`;
+}
+
+function clampH1(value, min = 0, max = 1) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function easeH1(value) {
+  const clamped = clampH1(value);
+  return 1 - Math.pow(1 - clamped, 3);
+}
+
+function h1TeachReducedMotionActive() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches && !h1TeachMotionOverride;
+}
+
+function drawH1WiggleFrame(progress) {
+  const track = $(".h1-wiggle-track");
+  if (!track) return;
+  const nodes = $$(".h1-wiggle-track article");
+  const signals = $$(".h1-wiggle-signal");
+  if (nodes.length !== 4 || signals.length !== 3) return;
+
+  const activeProgress = clampH1((progress - .035) / .9);
+  const travel = activeProgress * (nodes.length - 1);
+  const activeIndex = Math.min(nodes.length - 1, Math.floor(travel + .001));
+  const trackRect = track.getBoundingClientRect();
+  const isVertical = nodes[1].offsetTop > nodes[0].offsetTop + 20;
+  const points = nodes.map((node) => {
+    const rect = node.getBoundingClientRect();
+    return { x: isVertical ? 17 : rect.left - trackRect.left + rect.width / 2, y: rect.top - trackRect.top + rect.height / 2 };
+  });
+  const pointAt = (position) => {
+    const bounded = clampH1(position, 0, nodes.length - 1);
+    const index = Math.min(nodes.length - 2, Math.floor(bounded));
+    const local = easeH1(bounded - index);
+    return {
+      x: points[index].x + (points[index + 1].x - points[index].x) * local,
+      y: points[index].y + (points[index + 1].y - points[index].y) * local,
+    };
+  };
+
+  signals.forEach((signal, index) => {
+    const lag = index === 2 ? 0 : index === 1 ? .115 : .22;
+    const location = pointAt(Math.max(0, travel - lag));
+    const scale = index === 2 ? 1.2 + Math.sin(progress * Math.PI * 18) * .16 : index === 1 ? .8 : .55;
+    signal.style.transform = `translate3d(${location.x}px,${location.y}px,0) translate3d(-50%,-50%,0) scale(${scale})`;
+    signal.style.opacity = String(progress < .025 || progress > .965 ? 0 : index === 2 ? 1 : index === 1 ? .58 : .28);
+  });
+
+  nodes.forEach((node, index) => {
+    node.classList.toggle("is-trace-active", index === activeIndex);
+    node.classList.toggle("is-trace-passed", index < activeIndex);
+  });
+  $$(".h1-teach-steps li").forEach((item, index) => item.classList.toggle("is-active", index === activeIndex));
+  $(".h1-wiggle-stable")?.classList.toggle("is-verified", activeIndex >= 2);
+  const captions = [
+    "DIO 是本轮唯一获授权改变的输入",
+    "存货按新周转天数重算，变化进入资产负债表",
+    "营运资金变化传导至月度现金滚存",
+    "资金缺口刷新；收入支路仍被锁定",
+  ];
+  $("#h1-wiggle-phase").textContent = `${String(activeIndex + 1).padStart(2, "0")} / 04`;
+  $("#h1-wiggle-caption").textContent = captions[activeIndex];
+  track.style.setProperty("--trace-progress", String(activeProgress));
 }
 
 function drawH1LatticeFrame(progress) {
@@ -704,27 +773,50 @@ function drawH1LatticeFrame(progress) {
   const context = canvas.getContext("2d");
   context.setTransform(density, 0, 0, density, 0, 0);
   context.clearRect(0, 0, width, height);
-  context.fillStyle = "#172a25";
+  const background = context.createRadialGradient(width * .5, height * .42, 4, width * .5, height * .5, width * .72);
+  background.addColorStop(0, "#21483d");
+  background.addColorStop(.48, "#132f29");
+  background.addColorStop(1, "#081814");
+  context.fillStyle = background;
   context.fillRect(0, 0, width, height);
 
-  const ease = (value) => 1 - Math.pow(1 - Math.max(0, Math.min(1, value)), 3);
-  const enter = ease(progress / .22);
-  const filter = ease((progress - .22) / .28);
-  const group = ease((progress - .5) / .28);
-  const rank = ease((progress - .78) / .22);
+  const visualProgress = clampH1(progress / .94);
+  const enter = easeH1(visualProgress / .25);
+  const filter = easeH1((visualProgress - .25) / .25);
+  const group = easeH1((visualProgress - .5) / .25);
+  const rank = easeH1((visualProgress - .75) / .25);
   const lattice = demoData.hero1.lattice;
   const rejectedShare = lattice.rejected_candidates / lattice.evaluated_candidates;
   const count = 216;
   const columns = 18;
+  const phaseIndex = Math.min(3, Math.floor(visualProgress * 4));
+  const localPhaseProgress = (visualProgress * 4) % 1;
+  const sceneAlpha = Math.min(1, progress / .028, (1 - progress) / .032);
 
-  context.strokeStyle = "rgba(199,219,205,.10)";
+  context.globalAlpha = sceneAlpha;
+  context.strokeStyle = "rgba(199,219,205,.11)";
   context.lineWidth = 1;
-  for (let x = 0; x < width; x += 32) {
-    context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke();
+  for (let x = 0; x < width; x += 34) {
+    const vanishingX = width * .5 + (x - width * .5) * .15;
+    context.beginPath(); context.moveTo(vanishingX, 0); context.lineTo(x, height); context.stroke();
   }
-  for (let y = 0; y < height; y += 32) {
+  for (let y = 18; y < height; y += 34) {
     context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
   }
+
+  const beamX = width * (.06 + localPhaseProgress * .88);
+  const beamGradient = context.createLinearGradient(beamX - 44, 0, beamX + 44, 0);
+  beamGradient.addColorStop(0, "rgba(236,193,115,0)");
+  beamGradient.addColorStop(.5, "rgba(236,193,115,.24)");
+  beamGradient.addColorStop(1, "rgba(236,193,115,0)");
+  context.fillStyle = beamGradient;
+  context.fillRect(beamX - 44, 0, 88, height);
+  context.strokeStyle = "rgba(245,207,137,.9)";
+  context.shadowColor = "rgba(245,207,137,.9)";
+  context.shadowBlur = 14;
+  context.lineWidth = 1.3;
+  context.beginPath(); context.moveTo(beamX, 0); context.lineTo(beamX, height); context.stroke();
+  context.shadowBlur = 0;
 
   for (let index = 0; index < count; index += 1) {
     const column = index % columns;
@@ -753,12 +845,22 @@ function drawH1LatticeFrame(progress) {
       x += (targetX - groupX) * rank;
       y += (targetY - groupY) * rank;
     }
-    const alpha = rejected ? 1 - group * .58 : .82 + rank * .18;
+    const shimmer = .75 + Math.sin(progress * Math.PI * 20 + index * .61) * .25;
+    const alpha = (rejected ? 1 - group * .64 : .78 + rank * .22) * sceneAlpha;
     context.globalAlpha = alpha;
     context.fillStyle = topRank && rank > .05 ? "#e1b76d" : rejected ? "#a96043" : "#71aa8c";
+    if (!rejected && Math.abs(x - beamX) < 26) {
+      context.shadowColor = "rgba(174,239,202,.95)";
+      context.shadowBlur = 10;
+    }
     context.beginPath();
-    context.arc(x, y, topRank ? 3.6 + rank * 2 : 2.15, 0, Math.PI * 2);
+    context.arc(x, y, topRank ? 4.2 + rank * 2.4 : 1.8 + shimmer * 1.2, 0, Math.PI * 2);
     context.fill();
+    context.shadowBlur = 0;
+    if (index % 9 === 0 && !rejected) {
+      context.strokeStyle = `rgba(113,170,140,${.08 + shimmer * .13})`;
+      context.beginPath(); context.moveTo(x - 10 - shimmer * 7, y); context.lineTo(x, y); context.stroke();
+    }
     if (topRank && rank > .05) {
       context.strokeStyle = `rgba(225,183,109,${.25 + rank * .55})`;
       context.lineWidth = 1;
@@ -767,15 +869,17 @@ function drawH1LatticeFrame(progress) {
   }
   context.globalAlpha = 1;
 
-  const phaseIndex = progress < .22 ? 0 : progress < .5 ? 1 : progress < .78 ? 2 : 3;
   $$("#h1-lattice-phases li").forEach((item, index) => item.classList.toggle("is-active", index === phaseIndex));
   const captions = [
-    `正在展开 ${integer(lattice.evaluated_candidates)} 个候选组合`,
-    `刚性约束剔除 ${integer(lattice.rejected_candidates)} 个不合规方案`,
-    `剩余 ${integer(lattice.feasible_candidates)} 个方案，按外部融资需求分组`,
-    "按融资、改动幅度、现金和净利润层层排序",
+    `展开授权组合空间 · 示意粒子 ${Math.max(1, Math.round(216 * enter))} / 216`,
+    `刚性约束逐层扫描 · 剔除 ${integer(lattice.rejected_candidates)} 个不合规方案`,
+    `剩余 ${integer(lattice.feasible_candidates)} 个方案 · 正按融资需求分组`,
+    "锁定最优三组 · 依次比较融资、改动幅度、现金和净利润",
   ];
   $("#h1-lattice-caption").textContent = captions[phaseIndex];
+  const phaseLabels = ["PHASE 01 / EXPAND", "PHASE 02 / FILTER", "PHASE 03 / CLUSTER", "PHASE 04 / RANK"];
+  $("#h1-lattice-phase").textContent = phaseLabels[phaseIndex];
+  $("#h1-lattice-progress").style.width = `${Math.round(localPhaseProgress * 100)}%`;
 }
 
 function runH1TeachMotion(reset = false) {
@@ -784,23 +888,38 @@ function runH1TeachMotion(reset = false) {
   h1TeachPaused = false;
   h1TeachStart = performance.now();
   const drawer = $("#h1-teach-drawer");
-  drawer.classList.remove("is-paused", "is-running");
+  drawer.classList.remove("is-paused", "is-running", "is-reduced");
   void drawer.offsetWidth;
   drawer.classList.add("is-running");
   $("#h1-teach-pause").textContent = "暂停讲解";
   $("#h1-teach-pause").setAttribute("aria-pressed", "false");
-  if (h1TeachMode !== "lattice") return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    drawH1LatticeFrame(.96);
+  if (h1TeachReducedMotionActive()) {
+    drawer.classList.add("is-reduced");
+    if (h1TeachMode === "lattice") drawH1LatticeFrame(.91);
+    if (h1TeachMode === "wiggle") drawH1WiggleFrame(.91);
+    $("#h1-teach-pause").textContent = "播放动画";
     return;
   }
   const draw = (now) => {
-    if (h1TeachPaused || h1TeachMode !== "lattice") return;
+    if (h1TeachPaused || !h1TeachMode) return;
     const elapsed = h1TeachElapsed + now - h1TeachStart;
-    drawH1LatticeFrame((elapsed % 12000) / 12000);
+    const travelSpan = Math.max(drawer.clientWidth, drawer.clientHeight);
+    const viewportScale = clampH1(travelSpan / 820, .95, 1.25);
+    const cycle = (h1TeachMode === "lattice" ? 8200 : 6400) * viewportScale;
+    const progress = (elapsed % cycle) / cycle;
+    if (h1TeachMode === "lattice") drawH1LatticeFrame(progress);
+    if (h1TeachMode === "wiggle") drawH1WiggleFrame(progress);
     h1TeachFrame = requestAnimationFrame(draw);
   };
   h1TeachFrame = requestAnimationFrame(draw);
+}
+
+function replayH1TeachMotion() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    h1TeachMotionOverride = true;
+    document.body.classList.add("h1-motion-opt-in");
+  }
+  runH1TeachMotion(true);
 }
 
 function openH1TeachDrawer(mode, trigger) {
@@ -830,23 +949,29 @@ function closeH1TeachDrawer() {
   if (h1TeachFrame !== null) cancelAnimationFrame(h1TeachFrame);
   h1TeachFrame = null;
   h1TeachMode = null;
+  h1TeachMotionOverride = false;
   scrim.classList.remove("is-open");
-  drawer.classList.remove("is-open", "is-running", "is-paused");
+  drawer.classList.remove("is-open", "is-running", "is-paused", "is-reduced");
   drawer.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("h1-teach-open");
+  document.body.classList.remove("h1-teach-open", "h1-motion-opt-in");
   window.setTimeout(() => { if (!drawer.classList.contains("is-open")) scrim.hidden = true; }, 420);
   h1TeachTrigger?.focus();
   h1TeachTrigger = null;
 }
 
 function toggleH1TeachPause() {
-  if (!h1TeachMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!h1TeachMode) return;
+  if (h1TeachReducedMotionActive()) {
+    h1TeachMotionOverride = true;
+    document.body.classList.add("h1-motion-opt-in");
+    runH1TeachMotion(true);
+    return;
+  }
   const drawer = $("#h1-teach-drawer");
   h1TeachPaused = !h1TeachPaused;
   drawer.classList.toggle("is-paused", h1TeachPaused);
   $("#h1-teach-pause").textContent = h1TeachPaused ? "继续讲解" : "暂停讲解";
   $("#h1-teach-pause").setAttribute("aria-pressed", String(h1TeachPaused));
-  if (h1TeachMode !== "lattice") return;
   if (h1TeachPaused) {
     h1TeachElapsed += performance.now() - h1TeachStart;
     if (h1TeachFrame !== null) cancelAnimationFrame(h1TeachFrame);
@@ -1160,7 +1285,7 @@ function bindEvents() {
   });
   $("#h1-teach-close").addEventListener("click", closeH1TeachDrawer);
   $("#h1-teach-scrim").addEventListener("click", closeH1TeachDrawer);
-  $("#h1-teach-replay").addEventListener("click", () => runH1TeachMotion(true));
+  $("#h1-teach-replay").addEventListener("click", replayH1TeachMotion);
   $("#h1-teach-pause").addEventListener("click", toggleH1TeachPause);
   $$(".statement-tab").forEach((button) => button.addEventListener("click", () => {
     currentStatement = button.dataset.statement;
