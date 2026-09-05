@@ -5,6 +5,6 @@ Four public training surfaces are kept separate behind one navigation shell:
 1. Financial model live challenge
 2. Regulatory Radar
 3. Precedent retrieval and prospectus RAG
-4. QA and post-session evidence
+4. Question & Answer, QR return link, and two case slots
 
-The financial-model numbers are synthetic training data. The two post-session case slots remain clearly marked as pending until real outputs are uploaded.
+The financial-model numbers are synthetic training data. The Q&A page keeps two case slots for supporting materials.

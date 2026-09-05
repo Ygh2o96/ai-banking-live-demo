@@ -97,7 +97,7 @@ window.__RR_PIPELINE__ = Object.freeze({
   gates: {
     source: {
       node: "source_gate",
-      title: "先判断来源够不够",
+      title: "先看官方材料够不够",
       whyNow: "两边入口已经完成第一轮抓取；进入匹配前，先确认关键事实是否都有官方文件和明确日期支撑。",
       question: "现有官方文件足够往下判断吗？若不够，缺哪份、谁来补？",
       lookAt: ["缺失的来源 URL、原文件或附件", "正文日期与网页发布日期是否混在一起", "另一官方入口能否提供同一事件的直接证据"],
@@ -208,8 +208,8 @@ window.__RR_PIPELINE__ = Object.freeze({
   scenarios: {
     daily: {
       label: "每日主循环",
-      title: "两个闭环持续运行；完整演示会在人工关口 01–08 逐关停下",
-      outcome: "Loop A 在放行后进入下一工作日并从官方来源重新开始；Loop B 把 Spot Check 的修复反馈回系统上游，重跑原检查后才允许回到 Loop A。",
+      title: "完整演示会在 01–08 每一关停下；你点了，才继续",
+      outcome: "当天结果获授权后，下一个工作日从官方来源重新开始；抽查出问题，就先修名称、身份或 Sponsor 抽取，再把原来的检查重跑一遍。",
       phases: [
         { label: "打开两边公开源", items: [["hkex_hub", "pass", ["daily_restart"], "联交所四条支流启动。"], ["csrc_hub", "pass", [], "证监会当前、归档与附件入口启动。"]] },
         { label: "两个官方来源并行跟踪", items: [["hkex_ap", "pass", ["h_ap"], "抓取申请版本。"], ["hkex_index", "pass", ["h_index"], "读取中英文索引。"], ["hkex_nlr", "pass", ["h_nlr"], "读取上市报告。"], ["hkex_newly", "pass", ["h_newly"], "检查同日上市回补。"], ["csrc_status", "pass", ["c_status"], "读取状态表。"], ["csrc_notice", "pass", ["c_notice"], "解析通知正文落款。"], ["csrc_supp", "pass", ["c_supp"], "检查补充材料附件。"], ["csrc_archive", "pass", ["c_archive"], "回看历史归档。"]] },
@@ -225,7 +225,7 @@ window.__RR_PIPELINE__ = Object.freeze({
         { gate: "policy", edges: ["sponsor_policy", "industry_policy", "regulator_policy", "structure_policy", "geo_policy"] },
         { label: "生成统一候选快照", items: [["governed_snapshot", "candidate", ["policy_snapshot"], "规则版本与人工理由写入同一候选快照，尚未替换旧版本。"]] },
         { label: "四个产品面生成候选结果", items: [["tracker_output", "candidate", ["snap_tracker"], "项目进度候选视图完成。"], ["league_output", "candidate", ["snap_league"], "保荐龙虎榜候选重算。"], ["pk_output", "candidate", ["snap_pk"], "Sponsor PK 候选重算。"], ["slice_output", "candidate", ["snap_slice"], "监管切面候选完成。"]] },
-        { branch: "spot", label: "Loop B：全量缺口初筛 + 5/3/3 Spot Check", items: [["qc_global", "failed", ["snapshot_qc_global"], "全量缺口初筛标出一个 Sponsor 角色缺口。"], ["qc_issuer", "attention", ["tracker_qc"], "5 个项目中有一个角色页与候选快照不一致。"], ["qc_league", "failed", ["league_qc"], "3 个榜单中一家 Sponsor 少计一单。"], ["qc_pk", "attention", ["pk_qc"], "3 组 PK 中一组受同一角色缺口影响。"], ["qc_freshness", "pass", ["slice_qc"], "快照时间一致，问题来自上游角色抽取。"], ["llm_root_trace", "candidate", ["global_trace", "issuer_trace", "league_trace", "pk_trace"], "模型把异常追到角色抽取与名称承继，列出影响范围和修复候选。"]] },
+        { branch: "spot", label: "每日 Spot Check：全量缺口初筛 + 5/3/3 抽查", items: [["qc_global", "failed", ["snapshot_qc_global"], "全量缺口初筛标出一个 Sponsor 角色缺口。"], ["qc_issuer", "attention", ["tracker_qc"], "5 个项目中有一个角色页与候选快照不一致。"], ["qc_league", "failed", ["league_qc"], "3 个榜单中一家 Sponsor 少计一单。"], ["qc_pk", "attention", ["pk_qc"], "3 组 PK 中一组受同一角色缺口影响。"], ["qc_freshness", "pass", ["slice_qc"], "快照时间一致，问题来自上游角色抽取。"], ["llm_root_trace", "candidate", ["global_trace", "issuer_trace", "league_trace", "pk_trace"], "模型把异常追到角色抽取与名称承继，列出影响范围和修复候选。"]] },
         { branch: "spot", gate: "qc", edges: ["qc_hold", "issuer_hold", "league_hold", "pk_hold", "trace_hold"] },
         { branch: "spot", label: "第一次修复与原检查重跑", items: [["root_fix", "failed", ["hold_fix"], "第一次修复后原检查仍失败，相邻名称承继也出现同类问题。"], ["llm_root_trace", "attention", ["fix_retrace"], "第二轮溯源显示共同根因横跨角色抽取与名称字典。"]] },
         { branch: "spot", gate: "unresolved", edges: ["root_unresolved", "trace_unresolved"] },
@@ -235,7 +235,7 @@ window.__RR_PIPELINE__ = Object.freeze({
         { branch: "spot", gate: "qa", edges: ["review_qa"] },
         { branch: "spot", label: "复核条件补齐后再提交", items: [["independent_review", "reviewed", ["qa_review"], "同一独立复核人确认原检查、5/3/3、相邻案例和版本摘要。"]] },
         { branch: "daily", gate: "release", edges: ["review_release"] },
-        { branch: "daily", label: "Loop A 放行并排入下一工作日", items: [["quiet_release", "released", ["release_publish"], "获授权后新快照替换旧版本；修复和复核记录继续保留。"], ["daily_reset", "candidate", ["daily_repeat"], "本日记录封存；下一工作日从官方来源重新跑一圈。"]] },
+        { branch: "daily", label: "主线放行，排入下一工作日", items: [["quiet_release", "released", ["release_publish"], "获授权后新快照替换旧版本；修复和复核记录继续保留。"], ["daily_reset", "candidate", ["daily_repeat"], "本日记录封存；下一工作日从官方来源重新跑一圈。"]] },
       ],
     },
     weekly_eval: {

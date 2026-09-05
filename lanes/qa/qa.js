@@ -42,12 +42,12 @@
     const href = safeHref(config.finalSiteUrl);
     if (!href) return;
 
-    siteStatus.textContent = "页面地址已确认";
+    siteStatus.textContent = "页面已上线";
     siteStatus.classList.add("is-ready");
     siteUrl.textContent = href;
-    if (boundaryCopy) boundaryCopy.textContent = "页面地址和二维码已就绪；两项真实案例仍待会后上传。";
+    if (boundaryCopy) boundaryCopy.textContent = "可以从屏幕上的任何一步开始，也可以直接问适用边界、人工判断和落地方式。";
     siteLink.replaceChildren();
-    const link = element("a", "", "打开最终页面");
+    const link = element("a", "", "打开完整演示");
     link.href = href;
     link.target = "_blank";
     link.rel = "noopener";
@@ -60,7 +60,7 @@
     }
 
     const image = new Image();
-    image.alt = "扫描二维码打开会后证据页";
+    image.alt = "扫描二维码打开完整演示页面";
     image.addEventListener("load", () => {
       qrVisual.replaceChildren(image);
       qrVisual.setAttribute("aria-label", image.alt);
@@ -80,14 +80,14 @@
 
     const main = element("div", "case-main");
     const heading = element("div", "case-heading");
-    heading.appendChild(element("h3", "", item.title || "未命名实跑案例"));
-    heading.appendChild(element("span", "status-chip", item.status || "待上传"));
+    heading.appendChild(element("h3", "", item.title || "未命名案例"));
+    heading.appendChild(element("span", "status-chip", item.status || "待更新"));
     main.appendChild(heading);
-    main.appendChild(element("p", "", item.summary || "培训结束后补充真实输出。"));
+    main.appendChild(element("p", "", item.summary || "案例资料待更新。"));
 
     const href = safeHref(item.href);
     if (href) {
-      const link = element("a", "case-link", item.fileLabel || "打开实跑材料");
+      const link = element("a", "case-link", item.fileLabel || "打开案例资料");
       link.href = href;
       link.target = "_blank";
       link.rel = "noopener";
@@ -113,14 +113,14 @@
     caseList.replaceChildren();
     const cases = Array.isArray(config.cases) ? config.cases : [];
     if (!cases.length) {
-      caseList.appendChild(element("div", "qa-empty", "尚未配置会后实跑案例。"));
+      caseList.appendChild(element("div", "qa-empty", "尚未配置案例资料。"));
       return;
     }
     cases.forEach((item, index) => caseList.appendChild(renderCase(item, index)));
   }
 
   if (!config || typeof config !== "object") {
-    caseList.replaceChildren(element("div", "qa-error", "会后证据配置未载入，请检查 data/qa-config.js。"));
+    caseList.replaceChildren(element("div", "qa-error", "页面配置未载入，请检查 data/qa-config.js。"));
     siteStatus.textContent = "配置载入失败";
     return;
   }

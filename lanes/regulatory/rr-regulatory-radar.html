@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>监管雷达 · HKEX × CSRC</title>
-  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r7-0905">
+  <link rel="stylesheet" href="rr-regulatory-radar.css?v=r8-0905b">
 </head>
 <body class="rr-body">
   <a class="rr-skip" href="#rr-map">跳到流程图</a>
@@ -88,39 +88,49 @@
       <section class="rr-workspace">
         <div class="rr-workspace-head">
           <div>
-            <span>HKEX × CSRC · 全部结论可回到官方来源</span>
-            <h2 id="rr-title">每天跑一圈；Spot Check 每日旁路抽查；每周再做一次 Eval</h2>
+            <span>两边都查官方来源，每个判断都能回到原文</span>
+            <h2 id="rr-title">日常更新每天继续跑；抽查发现问题就回头修，每周再复盘一次</h2>
           </div>
-          <div class="rr-phase-state"><small>当前进度</small><strong id="rr-phase">准备启动</strong></div>
+          <div class="rr-phase-state"><small>现在走到这里</small><strong id="rr-phase">准备启动</strong></div>
         </div>
 
         <section class="rr-cadence" aria-label="监管雷达运行节奏">
-          <article class="is-active" data-rr-track="daily"><i></i><span>LOOP A · 每个工作日</span><strong>持续主循环</strong><small>抓来源 → 对主体 → 补标签 → 次日重启</small></article>
-          <article data-rr-track="spot"><i></i><span>LOOP B · 每日旁支</span><strong>Spot Check 修复闭环</strong><small>抽查 → 修上游 → 反馈系统 → 原检查重跑</small></article>
-          <article data-rr-track="weekly"><i></i><span>每周一次</span><strong>Eval</strong><small>汇总漏报、误报和边界案例，再决定要不要改规则</small></article>
+          <article class="is-active" data-rr-track="daily"><i></i><span>日常更新 · 每个工作日</span><strong>每天从 HKEX 和 CSRC 重新查一遍</strong><small>先找新披露，再对项目、补标签；放行后第二天接着跑</small></article>
+          <article data-rr-track="spot"><i></i><span>抽查返修 · 每日</span><strong>抽到问题，回上游修好再重跑</strong><small>不在结果页手改；修复重新经过匹配、抽取和快照</small></article>
+          <article data-rr-track="weekly"><i></i><span>每周回看</span><strong>哪些是个案，哪些该改规则</strong><small>把一周的漏报、误报和边界案例放在一起看</small></article>
           <div class="rr-cycle-readout"><span id="rr-cycle-day">DAY 01</span><b id="rr-cycle-mode">主循环运行中</b><small>不是跑完一次就结束</small></div>
         </section>
 
-        <div class="rr-mobile-map-hint">左右拖动查看完整流程 · 到人工关口会自动停下</div>
-        <div id="rr-map" class="rr-map" tabindex="0" aria-label="可横向滚动的监管流程图">
-          <div id="rr-canvas" class="rr-canvas">
-            <div class="rr-zone rr-zone-source" style="--x:12px;--w:506px"><span>01 · 官方来源</span><small>HKEX 与 CSRC 独立更新，不互相等待</small></div>
-            <div class="rr-zone rr-zone-identity" style="--x:518px;--w:502px"><span>02 · 主体匹配</span><small>先保存证据，再确认是不是同一项目</small></div>
-            <div class="rr-zone rr-zone-enrich" style="--x:1020px;--w:548px"><span>03 · 补标签与定口径</span><small>资料整理完成后，由 Banker 定口径</small></div>
-            <div class="rr-zone rr-zone-output" style="--x:1568px;--w:290px"><span>04 · 统一快照</span><small>四个视图共用同一套事实</small></div>
-            <div class="rr-zone rr-zone-qc" style="--x:232px;--w:1626px;--y:582px;--h:252px"><span>05 · LOOP B / 每日旁支 SPOT CHECK</span><small>全量缺口 → 5 / 3 / 3 → 人工判断 → 修上游 → 反馈系统 → 重跑</small></div>
-            <div class="rr-zone rr-zone-weekly" style="--x:900px;--w:958px;--y:846px;--h:126px"><span>06 · 每周 EVAL 旁支</span><small>回看漏报 / 误报 / 边界案例 → 人决定是否改规则</small></div>
-            <div class="rr-map-scan" aria-hidden="true"></div>
-            <svg id="rr-network" class="rr-network" viewBox="0 0 1870 990" aria-hidden="true"></svg>
-            <div id="rr-node-layer" class="rr-node-layer"></div>
-            <div class="rr-legend" aria-label="责任类型图例">
-              <div><i class="rr-key rr-key-source"></i><span>官方公开源</span></div>
-              <div><i class="rr-key rr-key-script"></i><span>脚本自动</span></div>
-              <div><i class="rr-key rr-key-model"></i><span>模型整理 / 溯源</span></div>
-              <div><i class="rr-key rr-key-human"></i><span>Banker 判断</span></div>
-              <div><i class="rr-key rr-key-control"></i><span>QC / 发布控制</span></div>
-              <div><i class="rr-key rr-key-evidence"></i><span>证据底座</span></div>
-              <em>LOOP A 每天重启 · LOOP B 把 Spot Check 修复反馈回系统再重跑 · 每周 Eval 另走 09 · 每日人工关口 01–08 不点击就不会继续</em>
+        <div class="rr-mobile-map-hint">左右拖动或用缩放按钮查看完整流程 · 到人工关口会自动停下</div>
+        <div class="rr-map-frame">
+          <div class="rr-map-tools" role="group" aria-label="流程图缩放">
+            <button id="rr-zoom-out" type="button" aria-label="缩小流程图" title="缩小流程图">−</button>
+            <output id="rr-zoom-level" aria-live="polite" aria-label="当前缩放比例">100%</output>
+            <button id="rr-zoom-in" type="button" aria-label="放大流程图" title="放大流程图">+</button>
+            <button id="rr-zoom-reset" type="button" aria-label="还原流程图缩放" title="还原流程图缩放">还原</button>
+          </div>
+          <div id="rr-map" class="rr-map" tabindex="0" aria-label="可滚动、可缩放的监管流程图。按加号或减号缩放，按零还原。">
+            <div id="rr-zoom-stage" class="rr-zoom-stage">
+              <div id="rr-canvas" class="rr-canvas">
+                <div class="rr-zone rr-zone-source" style="--x:12px;--w:506px"><span>01 · 官方来源</span><small>HKEX 与 CSRC 独立更新，不互相等待</small></div>
+                <div class="rr-zone rr-zone-identity" style="--x:518px;--w:502px"><span>02 · 主体匹配</span><small>先保存证据，再确认是不是同一项目</small></div>
+                <div class="rr-zone rr-zone-enrich" style="--x:1020px;--w:548px"><span>03 · 补标签与定口径</span><small>资料整理完成后，由 Banker 定口径</small></div>
+                <div class="rr-zone rr-zone-output" style="--x:1568px;--w:290px"><span>04 · 统一快照</span><small>四个视图共用同一套事实</small></div>
+                <div class="rr-zone rr-zone-qc" style="--x:232px;--w:1626px;--y:582px;--h:252px"><span>05 · 抽查线 B / 每日 SPOT CHECK</span><small>全量缺口 → 5 / 3 / 3 → 人工判断 → 修上游 → 反馈系统 → 重跑</small></div>
+                <div class="rr-zone rr-zone-weekly" style="--x:900px;--w:958px;--y:846px;--h:126px"><span>06 · 每周 EVAL 旁支</span><small>回看漏报 / 误报 / 边界案例 → 人决定是否改规则</small></div>
+                <div class="rr-map-scan" aria-hidden="true"></div>
+                <svg id="rr-network" class="rr-network" viewBox="0 0 1870 990" aria-hidden="true"></svg>
+                <div id="rr-node-layer" class="rr-node-layer"></div>
+                <div class="rr-legend" aria-label="责任类型图例">
+                  <div><i class="rr-key rr-key-source"></i><span>官方公开源</span></div>
+                  <div><i class="rr-key rr-key-script"></i><span>脚本自动</span></div>
+                  <div><i class="rr-key rr-key-model"></i><span>模型整理 / 溯源</span></div>
+                  <div><i class="rr-key rr-key-human"></i><span>Banker 判断</span></div>
+                  <div><i class="rr-key rr-key-control"></i><span>QC / 发布控制</span></div>
+                  <div><i class="rr-key rr-key-evidence"></i><span>证据底座</span></div>
+                  <em>主线 A 每个工作日从官方来源重新开始 · 抽查线 B 每日把修复结果反馈回系统并重跑 · 每周 Eval 另走 09 · 人工关口 01–08 不点击就不会继续</em>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -134,8 +144,8 @@
 
           <div id="rr-decision-panel" class="rr-decision-panel" aria-live="assertive">
             <div class="rr-decision-idle">
-              <span>需要 Banker 判断</span>
-              <strong>系统只把真正需要经验的少数问题交给人。</strong>
+              <span>需要你来判断</span>
+              <strong>真正需要项目经验的地方，流程才会停下来等人。</strong>
               <div class="rr-expectation-grid">
                 <p><b>模型先整理</b> 全量检查、5/3/3 抽查和根因候选</p>
                 <p><b>Banker 再决定</b> 问题是否成立、谁修上游、能否放行</p>
@@ -153,7 +163,7 @@
     </div>
   </main>
   <div id="rr-announcer" class="rr-sr-only" aria-live="polite"></div>
-  <script src="data/rr-regulatory-radar-data.js?v=r7-0905"></script>
-  <script src="rr-regulatory-radar.js?v=r7-0905b"></script>
+  <script src="data/rr-regulatory-radar-data.js?v=r8-0905b"></script>
+  <script src="rr-regulatory-radar.js?v=r8-0905b"></script>
 </body>
 </html>

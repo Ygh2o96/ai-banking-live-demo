@@ -22,8 +22,8 @@
     },
     hero4: {
       panel: "panel-hero4",
-      label: "QA 页面已就绪",
-      boundary: "当前：QA 与会后案例 · 扫码回到本站；两项真实实跑材料将在培训结束后补充",
+      label: "Q&A 页面已就绪",
+      boundary: "当前：Question & Answer · 现场提问；扫码带走完整演示",
     },
   });
 

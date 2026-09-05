@@ -297,6 +297,7 @@
 
 #hero3 [data-pr-issue] {
   min-width: 0;
+  position: relative;
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr);
   grid-template-rows: 23px 17px;
@@ -353,7 +354,20 @@
 #hero3 [data-pr-issue].is-roulette-preview {
   background: #ead9c1;
   box-shadow: inset 5px 0 0 #a1603b;
-  transform: translateX(2px);
+  transform: translate3d(3px, -1px, 0);
+}
+
+#hero3 [data-pr-issue].is-roulette-preview::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 28%;
+  height: 2px;
+  background: #a1603b;
+  opacity: .85;
+  transform: translate3d(-110%, 0, 0);
+  animation: pr-issue-tracer 760ms linear infinite;
 }
 
 #hero3 [data-pr-issue] > b {
@@ -459,7 +473,7 @@
   border: 1px solid #855e42;
   border-radius: 50%;
   background: #f3e8d2;
-  transform: rotate(calc(var(--pr-chamber) * 72deg)) translateY(-24px);
+  transform: rotate(calc(var(--pr-chamber) * 60deg)) translateY(-24px);
 }
 
 #hero3 .pr-roulette-dial > span {
@@ -471,6 +485,17 @@
   border: 1px solid #2f6b5c;
   border-radius: 50%;
   background: #b9cec2;
+}
+
+#hero3 .pr-roulette-dial > em {
+  width: 5px;
+  height: 18px;
+  position: absolute;
+  left: calc(50% - 2.5px);
+  top: 3px;
+  border-radius: 4px;
+  background: #9b5939;
+  box-shadow: 0 0 0 2px rgba(244,234,215,.72);
 }
 
 #hero3 .pr-roulette-copy {
@@ -522,12 +547,58 @@
   background: #76513c;
 }
 
+#hero3 .pr-roulette-signal {
+  height: 4px;
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  right: 12px;
+  bottom: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(129,100,71,.16);
+  opacity: .7;
+}
+
+#hero3 .pr-roulette-signal > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #a1603b;
+  transform: scaleX(var(--pr-progress));
+  transform-origin: left center;
+  transition: transform var(--pr-duration) cubic-bezier(.16,1,.3,1), background 320ms ease;
+}
+
+#hero3 .pr-roulette-signal > i {
+  width: 20%;
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, #f7e8c7 52%, transparent);
+  opacity: 0;
+  transform: translate3d(-110%,0,0);
+}
+
 #hero3 .pr-roulette-window.is-spinning .pr-roulette-dial {
   will-change: transform;
 }
 
 #hero3 .pr-roulette-window.is-spinning .pr-roulette-dial > span {
   animation: pr-hub-pulse 980ms ease-in-out infinite alternate;
+}
+
+#hero3 .pr-roulette-window.is-spinning .pr-roulette-signal {
+  opacity: 1;
+}
+
+#hero3 .pr-roulette-window.is-spinning .pr-roulette-signal > i {
+  opacity: .92;
+  animation: pr-signal-travel 1.35s linear infinite;
+}
+
+#hero3 .pr-roulette-window.is-spinning .pr-roulette-copy small {
+  animation: pr-kicker-breathe 1.8s ease-in-out infinite;
 }
 
 #hero3 .pr-roulette-window.is-ticking .pr-roulette-copy {
@@ -540,7 +611,10 @@
 
 #hero3 .pr-roulette-window.is-paused .pr-roulette-dial,
 #hero3 .pr-roulette-window.is-paused .pr-roulette-dial > span,
-#hero3 .pr-roulette-window.is-paused .pr-roulette-copy {
+#hero3 .pr-roulette-window.is-paused .pr-roulette-copy,
+#hero3 .pr-roulette-window.is-paused .pr-roulette-copy small,
+#hero3 .pr-roulette-window.is-paused .pr-roulette-signal > i,
+#hero3.pr-roulette-paused [data-pr-issue].is-roulette-preview::after {
   animation-play-state: paused !important;
   will-change: auto;
 }
@@ -557,6 +631,14 @@
 
 #hero3 .pr-roulette-window.is-locked .pr-roulette-dial > span {
   background: #2f715f;
+}
+
+#hero3 .pr-roulette-window.is-locked .pr-roulette-signal > span {
+  background: #2f715f;
+}
+
+#hero3 .pr-roulette-window.is-locked .pr-roulette-copy {
+  animation: pr-locked-breathe 4.2s ease-in-out infinite;
 }
 
 #hero3 .pr-prompt-studio {
@@ -1123,6 +1205,27 @@
   0%,16% { transform: translate3d(-20%,0,0) skewX(-16deg); opacity: 0; }
   48% { opacity: .48; }
   78%,100% { transform: translate3d(480%,0,0) skewX(-16deg); opacity: 0; }
+}
+
+@keyframes pr-issue-tracer {
+  from { transform: translate3d(-110%,0,0); opacity: .25; }
+  45% { opacity: 1; }
+  to { transform: translate3d(470%,0,0); opacity: .25; }
+}
+
+@keyframes pr-signal-travel {
+  from { transform: translate3d(-110%,0,0); }
+  to { transform: translate3d(510%,0,0); }
+}
+
+@keyframes pr-kicker-breathe {
+  0%,100% { opacity: .58; }
+  50% { opacity: 1; }
+}
+
+@keyframes pr-locked-breathe {
+  0%,100% { transform: translate3d(0,0,0); filter: brightness(1); }
+  50% { transform: translate3d(2px,0,0); filter: brightness(1.035); }
 }
 
 @keyframes pr-engine-stage-enter {

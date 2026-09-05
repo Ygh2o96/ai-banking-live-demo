@@ -60,7 +60,7 @@
       must: "客户被列入 Entity List；存在实际销售；披露产品或服务；给出 EAR / licence 分析",
       expand: "Footnote 1 / 3 / 4；FDPR；de minimis；U.S.-origin；subject to the EAR；BIS licence",
       exclude: "仅一般制裁风险；只有供应商列名；SDN 付款问题；没有实际交易；角色或 Footnote 错配",
-      roulette: false,
+      roulette: true,
     },
   ]);
 
@@ -134,7 +134,7 @@
       '<div class="pr-live-grid">',
       '<section class="pr-issue-panel"><header><span>AUDIENCE PICK</span><strong>今天想检索哪一类先例？</strong></header><div id="pr-issue-grid" class="pr-issue-grid"></div></section>',
       '<section class="pr-roulette-card"><header><span>ISSUE ROULETTE</span><strong>不知道选哪个？让轮盘决定</strong></header>',
-      '<div id="pr-roulette-window" class="pr-roulette-window" aria-live="polite" aria-busy="false" style="--pr-angle:0deg;--pr-duration:520ms"><div class="pr-roulette-dial" aria-hidden="true"><i style="--pr-chamber:0"></i><i style="--pr-chamber:1"></i><i style="--pr-chamber:2"></i><i style="--pr-chamber:3"></i><i style="--pr-chamber:4"></i><span></span></div><div class="pr-roulette-copy"><small data-pr-roulette-kicker>READY</small><b data-pr-roulette-title>等待启动</b><span data-pr-roulette-label>五个常见招股书议题</span></div></div>',
+      '<div id="pr-roulette-window" class="pr-roulette-window" aria-live="polite" aria-busy="false" style="--pr-angle:0deg;--pr-duration:520ms;--pr-progress:0"><div class="pr-roulette-dial" aria-hidden="true"><i style="--pr-chamber:0"></i><i style="--pr-chamber:1"></i><i style="--pr-chamber:2"></i><i style="--pr-chamber:3"></i><i style="--pr-chamber:4"></i><i style="--pr-chamber:5"></i><span></span><em></em></div><div class="pr-roulette-copy"><small data-pr-roulette-kicker>READY</small><b data-pr-roulette-title>等待启动</b><span data-pr-roulette-label>六个常见招股书议题</span></div><div class="pr-roulette-signal" aria-hidden="true"><span></span><i></i></div></div>',
       '<div class="pr-roulette-controls"><button id="pr-roulette-run" class="primary-action" type="button">随机抽取一个议题</button><button id="pr-roulette-pause" class="secondary-action" type="button" aria-pressed="false" disabled>暂停轮盘</button></div></section>',
       '</div>',
       '<section class="pr-prompt-studio"><header><div><span>LIVE RESEARCH BRIEF</span><strong id="pr-selected-issue">尚未选题</strong></div><em id="pr-prompt-status" aria-live="polite">等待选择</em></header><textarea id="pr-live-prompt" readonly aria-label="现场先例检索任务书" placeholder="选择议题后，生成一份可直接执行的完整检索任务书。"></textarea><div class="pr-prompt-actions"><button id="pr-copy-prompt" class="primary-action" type="button" disabled>复制检索任务书</button><button class="secondary-action" type="button" data-pr-open-view="engine">看 RAG 引擎如何工作</button></div></section>',
@@ -242,9 +242,10 @@
   }
 
   function paintRoulette(hero, root, issue, step, totalSteps, durationMs, locking) {
-    rouletteAngle += locking ? 72 : 432;
+    rouletteAngle += locking ? 120 : 480;
     root.style.setProperty("--pr-angle", rouletteAngle + "deg");
     root.style.setProperty("--pr-duration", durationMs + "ms");
+    root.style.setProperty("--pr-progress", String((step + 1) / totalSteps));
     root.classList.remove("is-ticking", "is-locked");
     root.classList.add("is-spinning");
     void root.offsetWidth;
@@ -257,8 +258,10 @@
 
   function lockRoulette(hero, root, issue) {
     clearPreview(hero);
+    hero.classList.remove("pr-roulette-paused");
     root.classList.remove("is-spinning", "is-ticking", "is-paused");
     root.classList.add("is-locked");
+    root.style.setProperty("--pr-progress", "1");
     root.setAttribute("aria-busy", "false");
     root.setAttribute("aria-live", "polite");
     root.querySelector("[data-pr-roulette-kicker]").textContent = "SELECTED / 已锁定";
@@ -269,11 +272,13 @@
   function resetRoulette(hero, runLabel = "随机抽取一个议题") {
     stopRoulette();
     clearPreview(hero);
+    hero.classList.remove("pr-roulette-paused");
     const root = document.getElementById("pr-roulette-window");
     const runButton = document.getElementById("pr-roulette-run");
     const pauseButton = document.getElementById("pr-roulette-pause");
     if (!root || !runButton || !pauseButton) return;
     root.classList.remove("is-spinning", "is-ticking", "is-locked", "is-paused");
+    root.style.setProperty("--pr-progress", "0");
     root.setAttribute("aria-busy", "false");
     root.setAttribute("aria-live", "polite");
     runButton.disabled = false;
@@ -300,7 +305,7 @@
   function pauseRoulette() {
     const state = rouletteState;
     if (!state) return;
-    const { root, pauseButton } = state;
+    const { hero, root, pauseButton } = state;
     const dial = root.querySelector(".pr-roulette-dial");
     if (!state.paused) {
       state.paused = true;
@@ -313,6 +318,7 @@
       dial.style.transition = "none";
       dial.style.transform = frozenTransform;
       root.classList.add("is-paused");
+      hero.classList.add("pr-roulette-paused");
       root.setAttribute("aria-busy", "false");
       root.setAttribute("aria-live", "polite");
       root.querySelector("[data-pr-roulette-kicker]").textContent = "PAUSED / 已暂停";
@@ -326,6 +332,7 @@
     const resumeDelayMs = Math.max(120, state.remainingMs);
     root.style.setProperty("--pr-duration", resumeDelayMs + "ms");
     root.classList.remove("is-paused");
+    hero.classList.remove("pr-roulette-paused");
     root.setAttribute("aria-busy", "true");
     root.setAttribute("aria-live", "off");
     root.querySelector("[data-pr-roulette-kicker]").textContent = "RESUMING / 继续";
