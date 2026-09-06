@@ -1,0 +1,19 @@
+{
+  "title": "公牛集团｜演示时实时生成",
+  "event_date": "2026-09-06",
+  "revision": "r3",
+  "version_label": "演示时实时生成 · 会话最终修订 r3",
+  "provenance": "本次演示会话中生成并继续修订的月度经营模型。历史映射沿用演示前准备的公开报告材料；新增公开年报明细、月度支持表、重算与扰动复核在本次会话完成。不是从零取得全部来源，也不承诺在现场讲解结束前完成。",
+  "files": {
+    "603195_SH_THREE_STATEMENT_MODEL_2028E.xlsx": "41fa89ba86dbddaa6d665ac5a3b86212acf7ef2cb67b1041cc0a07ec281aed58",
+    "GONGNIU_PFM_ONE_PAGE_r3.pdf": "af9478ef87404dc59090313b6e28da78649edfab96baffd2ee7c63a2c08e197c"
+  },
+  "currency": "RMB",
+  "model_unit": "RMB million, except individually labeled units/people/rates",
+  "periods": "2023–2025A / 2026–2028E; 2026H1 anchors separately identified",
+  "forecast_months": 36,
+  "builder_cases_on_r3": 25,
+  "independent_native_checks_on_r3": 11,
+  "scope": "公开教学分享；非公司指引，不作投资、申报或营运资金充足性结论。现金缺口和公开资料未支持的假设仍保留。",
+  "publication_permission": "User authorized public demo sharing on this site after reviewing the delivered r3; generated files preserve their original version-time statements."
+}

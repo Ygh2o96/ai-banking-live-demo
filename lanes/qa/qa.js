@@ -95,6 +95,19 @@
     } else {
       main.appendChild(element("span", "case-link-pending", "案例资料待补充"));
     }
+    if (Array.isArray(item.links)) {
+      item.links.forEach((entry) => {
+        const extraHref = safeHref(entry.href);
+        if (!extraHref) return;
+        const extra = element("a", "case-link", entry.label || "打开资料");
+        extra.href = extraHref;
+        extra.target = "_blank";
+        extra.rel = "noopener";
+        if (entry.download) extra.download = "";
+        extra.style.marginRight = "18px";
+        main.appendChild(extra);
+      });
+    }
     article.appendChild(main);
 
     const metadata = element("dl", "case-meta");

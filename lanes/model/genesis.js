@@ -332,7 +332,7 @@
           <textarea id="roulette-prompt" readonly spellcheck="false" aria-label="40 分钟现场财务模型任务书"></textarea>
           <button id="copy-live-prompt" class="primary-action" type="button">复制 40 分钟建模任务书</button>
           <small id="roulette-action-status">交付：公式联动的三表 Excel、来源与假设说明。</small>
-          <a class="secondary-action" href="../../fallback/models/index.html" target="_blank" rel="noopener noreferrer">查看六家公司的模型与假设 ↗</a>
+          <a class="secondary-action" href="../../live/financial-model/index.html" target="_blank" rel="noopener noreferrer">查看现场生成的公牛模型与一页说明 ↗</a>
         </section>
       </div>`;
     target.innerHTML = shell("company-roulette", body);
