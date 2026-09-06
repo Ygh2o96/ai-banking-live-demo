@@ -26,19 +26,6 @@
         ]),
       }),
       Object.freeze({
-        id: "precedent-search-run",
-        title: "先例检索案例",
-        status: "六个议题",
-        summary: "从第三方付款到 Entity List 客户销售，查看案例比较、原文页码和适用边界。",
-        fileLabel: "打开先例检索案例",
-        href: "../../fallback/precedents/index.html",
-        metadata: Object.freeze([
-          Object.freeze({ label: "交付内容", value: "检索题目、候选清单、原文定位、Banker 取舍" }),
-          Object.freeze({ label: "证据口径", value: "保留来源、页码与适用性判断" }),
-          Object.freeze({ label: "案例范围", value: "30 份案例记录，边界案例单独标明" }),
-        ]),
-      }),
-      Object.freeze({
         id: "financial-model-run",
         title: "公牛集团 · 现场生成模型",
         status: "演示时实时生成 · r3",
