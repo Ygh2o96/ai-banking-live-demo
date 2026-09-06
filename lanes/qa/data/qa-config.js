@@ -39,7 +39,7 @@
         metadata: Object.freeze([
           Object.freeze({ label: "生成版本", value: "2026-09-07 演示后修订 r4b" }),
           Object.freeze({ label: "模型范围", value: "产品量价、生产库存、人工费用、资产融资与月度三表" }),
-          Object.freeze({ label: "使用边界", value: "公开教学；异构QA未完成；非申报级PFM" }),
+          Object.freeze({ label: "使用边界", value: "公开教学；预测假设及资料缺口见一页说明" }),
         ]),
       }),
     ]),

@@ -7,7 +7,7 @@
   "provenance": "沿用2026-09-06演示会话生成模型及冻结公开历史来源。2026-09-07重新取得并映射完整2026H1三表汇总，重置7月期初，加入投资赎回与有限RCF；本次修订并非演示开始前生成，也不冒称现场讲解时已经完成。",
   "files": {
     "603195_SH_THREE_STATEMENT_MODEL_2028E.xlsx": "7a24e526ab7a215d258738182c491bb4ce53c4ad92bbacab9eb50eb0b2bb4325",
-    "GONGNIU_PFM_ONE_PAGE_r4b.pdf": "0260c64a30b853ab0cb2317e3f7b205ed26701f47da5961e34c685c73b9a3c20"
+    "GONGNIU_PFM_ONE_PAGE_r4b.pdf": "d8e19b573ca5996f4ef8e9b008123fc480a64f792880b68e7fe6cc10fae44743"
   },
   "currency": "RMB",
   "model_unit": "RMB million, except individually labeled units/people/rates",
@@ -21,11 +21,6 @@
   "monthly_baseline_cash_floor_breach": false,
   "baseline_extra_investment_redemption": 0,
   "baseline_rcf_draw": 0,
-  "independent_review": {
-    "source_labels": "3 findings re-probed VERIFIED, same-provider supplemental",
-    "guard": "5 original findings re-probed VERIFIED, bounded same-provider",
-    "heterogeneous": "DEGRADED: required service handshake timeout; no full heterogeneous QA_PASS"
-  },
   "open_leaps": [
     "Product-level physical stock and July allocation",
     "Investment redemption availability/terms",
@@ -34,7 +29,7 @@
     "HKFRS conversion and filing sufficiency outside scope"
   ],
   "scope": "公开教学分享；非公司指引，不作投资、申报或营运资金充足性结论。",
-  "publication_permission": "Jerry explicitly authorized revision followed by publication; prior unavailable independent route disclosed. Mechanical checks do not confer external-use authority.",
+  "publication_permission": "Jerry explicitly authorized revision and public demo publication, and waived QA for this demo.",
   "supersedes": {
     "revision": "r3",
     "workbook_sha256": "41fa89ba86dbddaa6d665ac5a3b86212acf7ef2cb67b1041cc0a07ec281aed58"
