@@ -17,13 +17,13 @@
     dio:['连接三张表','展开计算公式','扰动 DIO','比较实际与预期','标记缺失连接','展开差异来源'],
     tax:['连接税务科目','查看原有公式','加入 DTA 变动','比较实际与预期','标记现金税差异','追到遗漏的来源'],
     equity:['连接融资与权益','查看原有公式','带入发行费用','比较实际与预期','标记权益差异','追到遗漏的来源'],
-    lattice:['七个维度拼成组合','逐项检查刚性约束','按融资金额分组','按目标顺序比较']
+    lattice:['七维空间的投影','固定四维看切片','约束与融资分组','优选方案持续比较']
   };
   const captions = {
     dio:['先连接 DIO、存货与经营现金流；利润表提供销售成本。','每张表保留单元格、公式和当前数值，可以沿着连接阅读。','DIO 在 65 天和 58 天之间摆动；首月公式同步重算。','存货与现金流按预期联动；收入、销售成本保持原值。','漏接存货变动的示例：存货已变化，CFO 仍停在原值。','CFO 少变动的金额，恰好等于释放的存货。沿差异追回缺失连接。'],
     tax:['税费、应交税费与递延所得税资产，一起影响实际缴税现金。','原公式已经计入税费与应交税费；DTA 变动尚未接入。','递延所得税资产增加 1,141；应付现金税还要补上这段变动。','原公式产生的现金流，比完整公式高 1,141：现金税少付了。','差异锁定在现金税支出这一行，其他融资与权益科目保持原值。','1,141 的差异与 DTA 期末减期初完全对应，定位到缺失项。'],
     equity:['现金流量表记下募集款与发行费用，权益表接收股本与溢价。','原公式从募集款扣除股本；尚未扣除已经支付的发行费用。','发行费用现金流为 −1,112；这笔费用也应减少权益。','现金已经流出；权益少扣 1,112，原公式结果偏高。','同一笔发行费用在 CFS 与 Equity 的处理出现差异。','差异 1,112 对应 CFS!N51。将该负数接入股本溢价公式。'],
-    lattice:['每个维度选一个值，七个值合在一起，就是一套完整假设。','全量计算 21,600 套组合，逐项检查盈利、现金与三表勾稽。','通过约束的方案中，10 套无需外部融资；其余方案显示融资负担。','先比较外部融资，再比较改动幅度、最低现金和净利润。']
+    lattice:['每个点带着七项假设。把七维投影到屏幕，先看组合如何铺开。','固定增长、毛利率、管理费率和广告，留下 DSO、DIO、DPO 三个维度。','全量检查盈利、现金与勾稽，再把可行方案按融资负担归组。','数值来自本轮计算；光点沿四项指标移动，持续比较前三个方案。']
   };
   function framePost(open) {
     if (window.parent !== window) window.parent.postMessage({type:'MODEL_CINEMA_STATE', open}, location.origin === 'null' ? '*' : location.origin);
@@ -55,10 +55,10 @@
     const isDio = state.example === 'dio';
     return `<div class="cinema-case-tabs" role="tablist" aria-label="选择模型案例"><button role="tab" type="button" data-cinema-case="dio" aria-selected="${isDio}">DIO · 三表联动</button><button role="tab" type="button" data-cinema-case="tax" aria-selected="${state.example==='tax'}">税款少了一段变动</button><button role="tab" type="button" data-cinema-case="equity" aria-selected="${state.example==='equity'}">发行费用漏记权益</button><span>${isDio?'演示模型 · 2027 年 1 月 · 百万港币':'回放案例 · 千元人民币 (RMB 千元)'}</span></div>${phasesMarkup()}
       <section class="cinema-wiggle-stage" aria-label="公式联动演示"><div class="cinema-driver" id="cinema-driver"><div><span>${isDio?'唯一变动的假设':'沿公式追踪的来源'}</span><h3>${isDio?'存货周转天数 DIO':state.example==='tax'?'递延所得税资产变动':'已支付的发行费用'}</h3></div><strong id="cinema-input">${isDio?'65.0':'0'}<small>${isDio?'天':''}</small></strong><svg id="cinema-wave" viewBox="0 0 220 52" aria-hidden="true"><path class="wave-base" d="M0 26 H220"/><path id="cinema-wave-path" d="M0 26 H220"/></svg><div class="cinema-driver-end"><span>${isDio?'65 → 58 天':state.example==='tax'?'BS!N11 − BS!J11':'CFS!N51'}</span><b id="cinema-live-state">连接公式</b></div></div>
-      <div class="cinema-books" id="cinema-books"><svg class="cinema-connections" id="cinema-connections" aria-hidden="true"></svg>${isDio?dioSheets():actualSheets()}</div>
+      <div class="cinema-wiggle-panes">${window.ModelSpatial.wiggleMarkup(state.example)}<div class="cinema-formula-pane"><header class="cinema-pane-title"><span>02 / 对照公式与结果</span><strong>实际与预期，逐项核对</strong></header><div class="cinema-books" id="cinema-books"><svg class="cinema-connections" id="cinema-connections" aria-hidden="true"></svg>${isDio?dioSheets():actualSheets()}</div>
       <div class="cinema-comparison"><span>本轮检查 <b id="cinema-compare-name">经营现金流变动</b></span><div>预期 <strong id="cinema-expected">0.00</strong></div><div>实际 <strong id="cinema-actual">0.00</strong></div><div class="cinema-diff">差异 <strong id="cinema-difference">0.00</strong><span id="cinema-diff-tag">等待扰动</span></div></div>
       <section class="cinema-lineage" id="cinema-lineage" aria-label="自动展开的公式来源"><div class="cinema-lineage-heading"><span>差异指纹</span><h3 id="cinema-lineage-title"></h3><strong id="cinema-fingerprint"></strong></div><div class="cinema-lineage-chain" id="cinema-lineage-chain"></div><p id="cinema-lineage-note"></p></section>
-      <p class="cinema-source-summary" id="cinema-source-summary"></p></section>`;
+      <p class="cinema-source-summary" id="cinema-source-summary"></p></div></div>${window.ModelSpatial.checklistMarkup()}</section>`;
   }
   const dimensionNames = ['增长率组合','毛利率','管理费用率','年度广告','DSO','DIO','DPO'];
   function dimensionValue(dimension,value) {
@@ -76,7 +76,7 @@
   function latticeMarkup() {
     const lattice = state.source.lattice;
     return `${phasesMarkup()}<section class="cinema-lattice"><div class="cinema-dimensions">${lattice.dimensions.map((dimension,i)=>`<div data-cinema-dimension="${i}"><span>${dimensionNames[i]}<b>×${dimension.cardinality}</b></span><strong data-dimension-value="${i}"></strong><div>${dimension.values.map((_,j)=>`<i data-dimension-choice="${i}-${j}"></i>`).join('')}</div></div>`).join('')}</div><div class="cinema-product"><span>每个维度各取一个值</span><strong>${lattice.dimensions.map(row=>row.cardinality).join(' × ')} <i>=</i> ${fmt(lattice.dimension_product,0)}</strong><span>七维有限候选空间</span></div>
-      <div class="cinema-lattice-workspace"><div class="cinema-lattice-board"><div class="cinema-candidate"><span>当前组合 <b id="cinema-candidate-id">#00001</b></span><code id="cinema-candidate-vector"></code></div><canvas id="cinema-lattice-canvas" aria-label="固定视角的候选点阵；点阵表示组合结构，右侧显示实际筛选数量" role="img"></canvas><div class="cinema-canvas-legend"><span><i></i>候选组合结构示意</span><span><i></i>零融资分组</span><span><i></i>剔除</span></div></div><aside class="cinema-results"><div class="cinema-totals"><div><span>全量计算</span><strong>${fmt(lattice.evaluated_candidates,0)}</strong></div><div><span>满足约束</span><strong>${fmt(lattice.feasible_candidates,0)}</strong></div><div><span>剔除</span><strong>${fmt(lattice.rejected_candidates,0)}</strong></div><div><span>零外部融资</span><strong>${fmt(lattice.liquidity_funding.feasible_zero_external_funding,0)}</strong></div></div><div id="cinema-result-detail"></div></aside></div><p class="cinema-lattice-note">点阵用于呈现组合结构。数量与排序指标来自本轮全量计算；搜索范围为上述七项有限取值。</p></section>`;
+      <div class="cinema-lattice-workspace"><div class="cinema-lattice-board"><div class="cinema-candidate"><span>正在查看 <b id="cinema-candidate-id">#00001</b></span><code id="cinema-candidate-vector"></code></div>${window.ModelSpatial.boardMarkup()}<canvas id="cinema-lattice-canvas" aria-label="七维投影、固定四维后的三维切片、融资分组与优选方案比较" role="img"></canvas></div><aside class="cinema-results"><div class="cinema-totals"><div><span>全量计算</span><strong>${fmt(lattice.evaluated_candidates,0)}</strong></div><div><span>满足约束</span><strong>${fmt(lattice.feasible_candidates,0)}</strong></div><div><span>剔除</span><strong>${fmt(lattice.rejected_candidates,0)}</strong></div><div><span>零外部融资</span><strong>${fmt(lattice.liquidity_funding.feasible_zero_external_funding,0)}</strong></div></div><div id="cinema-result-detail"></div></aside></div><p class="cinema-lattice-note">投影会压缩维度；切片固定四项假设。筛选数量与优选指标来自完整有限空间的计算。</p></section>`;
   }
   function setText(selector,value) { const node=$(selector); if(node && node.textContent!==String(value)) node.textContent=value; }
   function put(key,value) { setText(`[data-cinema-value="${key}"]`,typeof value==='number'?fmt(value):value); }
@@ -185,89 +185,19 @@
     connectionFrame(phase===0?ease(local):1,fault);
     if(state.lastLineagePhase!==phase) {lineage(phase);state.lastLineagePhase=phase;}
   }
-  function drawLattice(phase,local) {
-    const lattice=state.source.lattice;
-    const index=Math.min(lattice.dimension_product-1,Math.floor((state.elapsed/duration)*lattice.dimension_product));
-    const c=candidate(index);
-    setText('#cinema-candidate-id','#'+String(c.id).padStart(5,'0'));
-    setText('#cinema-candidate-vector',c.values.join(' · '));
-    c.values.forEach((value,i)=>{setText(`[data-dimension-value="${i}"]`,value);$$(`[data-cinema-dimension="${i}"] i`).forEach((el,j)=>el.classList.toggle('is-selected',j===c.choices[i]));});
-    const canvas=$('#cinema-lattice-canvas'), ctx=canvas.getContext('2d');
-    const rect=canvas.getBoundingClientRect(), w=rect.width,h=rect.height,dpr=Math.min(devicePixelRatio||1,2);
-    if(!w||!h)return;
-    const pixelW=Math.round(w*dpr),pixelH=Math.round(h*dpr);
-    if(canvas.width!==pixelW||canvas.height!==pixelH){canvas.width=pixelW;canvas.height=pixelH;}
-    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-    const mobile=w<650;
-    const columns=mobile?12:18, rows=mobile?8:12, count=columns*rows;
-    const spread=ease(phase===0?local*1.3:1), filter=phase===1?ease(local):phase>1?1:0,group=phase===2?ease(local):phase>2?1:0;
-    const left=w*.12,right=w*.86,top=h*.22,bottom=h*.76;
-    const side=mobile?4:6, depth=count/(side*side);
-    const project=(a,b,c)=>({x:w*.5+(a-b)*w*.28,y:h*.61+(a+b-1)*h*.16-c*h*.32});
-    ctx.lineWidth=1;
-    // Orthographic projection: a fixed camera keeps the geometry legible.
-    // Its three display axes are a schematic projection, not three financial drivers.
-    if(phase<2){
-      ctx.strokeStyle='rgba(151,193,168,.14)';
-      for(let z=0;z<depth;z++) for(let i=0;i<side;i++){
-        for(const edge of [[[0,i/(side-1),z/(depth-1)],[1,i/(side-1),z/(depth-1)]],[[i/(side-1),0,z/(depth-1)],[i/(side-1),1,z/(depth-1)]]]){
-          const a=project(...edge[0]),b=project(...edge[1]);
-          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-        }
-      }
-      const scan=(local*.9+.05)%1,plane=[project(scan,0,0),project(scan,1,0),project(scan,1,1),project(scan,0,1)];
-      ctx.beginPath();plane.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
-      ctx.fillStyle='rgba(191,220,136,.07)';ctx.fill();ctx.strokeStyle='rgba(210,222,147,.5)';ctx.stroke();
-    }
-    const removed=Math.round(count*lattice.rejected_candidates/lattice.evaluated_candidates);
-    // Allocate representative marks by the observed aggregate counts. A single
-    // zero-funding mark keeps the very small, nonzero group visible.
-    const feasibleMarks=count-removed;
-    const bins=lattice.liquidity_funding.feasible_funding_bins;
-    const allocations=bins.map(bin=>Math.max(1,Math.round(feasibleMarks*bin.candidates/lattice.feasible_candidates)));
-    const largest=bins.reduce((best,bin,i)=>bin.candidates>bins[best].candidates?i:best,0);
-    allocations[largest]+=feasibleMarks-allocations.reduce((sum,value)=>sum+value,0);
-    for(let i=0;i<count;i++) {
-      const col=i%side,row=Math.floor(i/side)%side,layer=Math.floor(i/(side*side));
-      const rejected=i<removed;
-      const point=project(col/(side-1),row/(side-1),layer/(depth-1));
-      let x=point.x,y=point.y;
-      x=w*.5+(x-w*.5)*spread;y=h*.49+(y-h*.49)*spread;
-      let bin=0;
-      if(rejected){x+=(w*.1-x)*filter*.35;y+=(h*.89-y)*filter;}
-      else {
-        let localMark=i-removed;
-        while(bin<allocations.length-1&&localMark>=allocations[bin]){localMark-=allocations[bin];bin++;}
-        const cols=Math.min(8,Math.ceil(Math.sqrt(allocations[bin]))),totalRows=Math.ceil(allocations[bin]/cols);
-        const gx=w*(.18+bin*.21)+(localMark%cols-(cols-1)/2)*w*.014;
-        const gy=h*.48+(Math.floor(localMark/cols)-(totalRows-1)/2)*h*.025;
-        x+=(gx-x)*group;y+=(gy-y)*group;
-      }
-      const alpha=rejected?1-filter*.55:1;
-      ctx.globalAlpha=alpha*(phase===0?bound(local*4-i/count):1);
-      ctx.fillStyle=rejected&&filter>.2?'#c58268':phase>=2&&!rejected&&bin===0?'#d8b774':'#88baa0';
-      const size=(mobile?2:2.4)+layer/(depth-1);
-      const nearScan=phase<2&&Math.abs(col/(side-1)-(local*.9+.05)%1)<.1;
-      if(nearScan){ctx.shadowColor='#cddd91';ctx.shadowBlur=13;ctx.fillStyle='#e3eab3';}
-      ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    }
-    ctx.globalAlpha=1;ctx.font=`500 ${mobile?11:13}px -apple-system, sans-serif`;ctx.textAlign='center';ctx.fillStyle='#bbcec0';
-    if(phase<2){ctx.fillText(phase===0?'七项选择，装配为完整假设':'检查盈利、融资后现金与勾稽',w*.5,h*.1);if(phase===1){ctx.fillStyle='#dca48b';ctx.fillText(`${fmt(lattice.rejected_candidates,0)} 个方案剔除`,w*.5,h*.97);}}
-    else {['零融资','0–100','100–250','250–1,000'].forEach((label,i)=>ctx.fillText(label,w*(.18+i*.21),h*.79));ctx.fillText('按融资金额归组 · 百万港币',w*.5,h*.1);}
-    if(phase===3){ctx.fillStyle='rgba(13,34,28,.9)';ctx.fillRect(w*.12,h*.29,w*.76,h*.3);ctx.strokeStyle='#b69762';ctx.strokeRect(w*.12,h*.29,w*.76,h*.3);ctx.fillStyle='#eddfc0';ctx.font=`600 ${mobile?16:24}px -apple-system, sans-serif`;ctx.fillText('同一组方案，按目标顺序比较',w*.5,h*.42);ctx.font=`500 ${mobile?11:15}px -apple-system, sans-serif`;ctx.fillStyle='#b9cdbf';ctx.fillText('右侧列出本轮优选方案的实际指标',w*.5,h*.51);}
-  }
+  function drawLattice(phase,local) { window.ModelSpatial.drawLattice(state,phase,local); }
   function render() {
     if(!state.mode)return;
     const phase=Math.min(stepCount()-1,Math.floor(state.elapsed/phaseDuration()));
     const local=bound((state.elapsed-phase*phaseDuration())/phaseDuration());
     phaseUpdate(phase);
     $$('.cinema-chapters button i').forEach((el,i)=>el.style.transform=`scaleX(${i<phase?1:i===phase?local:0})`);
-    if(state.mode==='wiggle')drawWiggle(phase,local);else drawLattice(phase,local);
-    const seconds=Math.floor(state.elapsed/1000);setText('#cinema-time',`00:${String(seconds).padStart(2,'0')} / 00:36`);
+    if(state.mode==='wiggle'){drawWiggle(phase,local);window.ModelSpatial.drawWiggle(state,phase,local);}else drawLattice(phase,local);
+    const seconds=Math.floor(Math.min(state.elapsed,duration)/1000);setText('#cinema-time',state.mode==='lattice'&&state.elapsed>=duration?'优选方案 · 循环比较':`00:${String(seconds).padStart(2,'0')} / 00:36`);
   }
   function syncControls() {
     const button=$('#h1-teach-pause');
-    button.textContent=state.playing?'暂停':reduced()?'播放完整动效':state.elapsed>=duration?'播放完毕':'继续播放';
+    button.textContent=state.playing?'暂停':reduced()?'播放完整动效':state.elapsed>=duration&&state.mode!=='lattice'?'播放完毕':'继续播放';
     button.setAttribute('aria-pressed',String(!state.playing));
     $('#h1-teach-prev').disabled=state.elapsed===0;
     $('#h1-teach-next').disabled=state.elapsed>=phaseDuration()*(stepCount()-1);
@@ -276,13 +206,14 @@
   function tick(timestamp) {
     state.frame=null;
     if(!state.playing||!state.mode||document.hidden||!state.laneActive)return;
-    if(state.last!==null)state.elapsed=Math.min(duration,state.elapsed+(timestamp-state.last)*state.speed);
+    if(state.last!==null){const next=state.elapsed+(timestamp-state.last)*state.speed;state.elapsed=state.mode==='lattice'?next:Math.min(duration,next);}
     state.last=timestamp;render();
-    if(state.elapsed>=duration){state.playing=false;syncControls();return;}
+    if(state.elapsed>=duration&&state.mode!=='lattice'){state.playing=false;syncControls();return;}
     state.frame=requestAnimationFrame(tick);
   }
   function schedule() {stopFrame();if(state.playing&&!document.hidden&&state.laneActive)state.frame=requestAnimationFrame(tick);syncControls();}
   function seek(phase) {state.elapsed=Math.max(0,Math.min(stepCount()-1,phase))*phaseDuration();state.playing=false;stopFrame();render();syncControls();}
+  function navigate(phase) {const playing=state.playing;seek(phase);state.playing=playing;schedule();}
   function rebuild() {
     stopFrame();state.phase=-1;state.lastLineagePhase=-1;state.elapsed=0;
     $('#h1-teach-title').textContent=state.mode==='wiggle'?titles[state.example]:'21,600 套假设，怎样逐步筛选';
@@ -307,15 +238,16 @@
     if(state.trigger?.isConnected)state.trigger.focus();state.trigger=null;
   }
   function replay() {state.optIn=true;state.elapsed=0;state.phase=-1;state.playing=true;render();schedule();}
-  function toggle() {if(!state.mode)return;if(reduced()){state.optIn=true;state.playing=true;}else if(state.elapsed>=duration){replay();return;}else state.playing=!state.playing;schedule();}
+  function toggle() {if(!state.mode)return;if(reduced()){state.optIn=true;state.playing=true;}else if(state.elapsed>=duration&&state.mode!=='lattice'){replay();return;}else state.playing=!state.playing;schedule();}
   $('#h1-teach-drawer').addEventListener('cancel',event=>{event.preventDefault();close();});
   $('#h1-teach-body').addEventListener('click',event=>{
     const example=event.target.closest('[data-cinema-case]'),phase=event.target.closest('[data-cinema-phase]');
     if(example){state.example=example.dataset.cinemaCase;rebuild();$(`[data-cinema-case="${state.example}"]`).focus();}
-    if(phase)seek(Number(phase.dataset.cinemaPhase));
+    if(phase)navigate(Number(phase.dataset.cinemaPhase));
   });
-  $('#h1-teach-prev').addEventListener('click',()=>seek(Math.floor(state.elapsed/phaseDuration())-1));
-  $('#h1-teach-next').addEventListener('click',()=>seek(Math.floor(state.elapsed/phaseDuration())+1));
+  $('#h1-teach-body').addEventListener('change',event=>{if(event.target.id==='spatial-slice-select')render();});
+  $('#h1-teach-prev').addEventListener('click',()=>navigate(Math.min(stepCount()-1,Math.floor(state.elapsed/phaseDuration()))-1));
+  $('#h1-teach-next').addEventListener('click',()=>navigate(Math.floor(state.elapsed/phaseDuration())+1));
   $('#h1-teach-speed').addEventListener('change',event=>{state.speed=Number(event.target.value);schedule();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopFrame();else if(state.mode)schedule();});
   window.addEventListener('message',event=>{
@@ -328,7 +260,7 @@
   window.addEventListener('resize',()=>{if(state.mode)render();});
   document.addEventListener('keydown',event=>{
     if(!state.mode)return;
-    if(event.code==='Space'&&!['BUTTON','SELECT','INPUT'].includes(event.target.tagName)){event.preventDefault();toggle();}
+    if(event.code==='Space'&&!event.target.closest('button,select,input,textarea,summary,a,[contenteditable="true"]')){event.preventDefault();toggle();}
     if(event.key==='Tab'){
       const focusable=$$('#h1-teach-drawer button:not(:disabled), #h1-teach-drawer select');
       const first=focusable[0],last=focusable.at(-1);
