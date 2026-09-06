@@ -54,8 +54,8 @@
     siteLink.appendChild(link);
 
     if (!isLocalQrAsset(config.qrAsset)) {
-      qrVisual.setAttribute("aria-label", "部署地址已注入，二维码文件待生成");
-      qrVisual.querySelector(".qa-qr-wait").textContent = "图片待注入";
+      qrVisual.setAttribute("aria-label", "二维码暂不可用，请使用下方网址");
+      qrVisual.querySelector(".qa-qr-wait").textContent = "请使用下方网址";
       return;
     }
 
@@ -93,7 +93,7 @@
       link.rel = "noopener";
       main.appendChild(link);
     } else {
-      main.appendChild(element("span", "case-link-pending", "文件尚未绑定"));
+      main.appendChild(element("span", "case-link-pending", "案例资料待补充"));
     }
     article.appendChild(main);
 

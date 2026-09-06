@@ -40,7 +40,7 @@
       </article>
       <article>
         <span>专业度在哪里</span>
-        <strong>不只是更新快，更知道什么时候必须停</strong>
+        <strong>资料每天更新，关键判断由人把关</strong>
         <p>脚本更新资料，模型先筛查并回到来源；Banker 判断问题是否成立、由谁修、何时放行。</p>
       </article>
     </section>
@@ -49,7 +49,7 @@
       <aside class="rr-rail" aria-label="流程控制">
         <div class="rr-rail-head">
           <span>PLAYBOOK</span>
-          <strong>选择一条真实工作路径</strong>
+          <strong>选择一种工作情形</strong>
         </div>
         <div class="rr-scenarios" role="group" aria-label="监管流程场景">
           <button class="rr-scenario is-selected" data-rr-scenario="daily"><b>01</b><span>每日主循环<small>双源并行 → 口径 → QC</small></span></button>
@@ -91,7 +91,7 @@
             <li><b>项目身份</b> — 两边是不是同一个项目</li>
             <li><b>标签与统计口径</b> — 行业、类型、地区是否匹配；从哪天算、该不该算、credit 怎么分</li>
             <li><b>问题处置</b> — 看原证据和模型溯源，定责任人与修复范围</li>
-            <li><b>修复未收口</b> — 原检查仍错就回到人，不打一次性补丁</li>
+            <li><b>修复未完成</b> — 原检查仍报错，继续查原因</li>
             <li><b>独立复核是否够</b> — 人、原检查、相邻案例复验和版本证据都要齐</li>
             <li><b>最终放行</b> — 独立复查完成后才轮到授权换版本</li>
           </ol>
@@ -112,9 +112,9 @@
 
         <section class="rr-cadence" aria-label="监管雷达运行节奏">
           <article class="is-active" data-rr-track="daily"><i></i><span>日常更新 · 每个工作日</span><strong>每天从 HKEX 和 CSRC 重新查一遍</strong><small>先找新披露，再对项目、补标签；放行后第二天接着跑</small></article>
-          <article data-rr-track="spot"><i></i><span>抽查返修 · 每日</span><strong>抽到问题，回上游修好再重跑</strong><small>不在结果页手改；修复重新经过匹配、抽取和快照</small></article>
+          <article data-rr-track="spot"><i></i><span>抽查返修 · 每日</span><strong>抽到问题，从出错处修好再重跑</strong><small>修正抽取、匹配或统计规则，再生成并核对结果</small></article>
           <article data-rr-track="weekly"><i></i><span>每周回看</span><strong>哪些是个案，哪些该改规则</strong><small>把一周的漏报、误报和边界案例放在一起看</small></article>
-          <div class="rr-cycle-readout"><span id="rr-cycle-day">DAY 01</span><b id="rr-cycle-mode">主循环运行中</b><small>不是跑完一次就结束</small></div>
+          <div class="rr-cycle-readout"><span id="rr-cycle-day">DAY 01</span><b id="rr-cycle-mode">主循环运行中</b><small>每个工作日重新检查</small></div>
         </section>
 
         <div class="rr-mobile-map-hint">左右拖动或用缩放按钮查看完整流程 · 首轮到人工关口会停下</div>
@@ -161,11 +161,11 @@
           <div id="rr-decision-panel" class="rr-decision-panel" aria-live="assertive">
             <div class="rr-decision-idle">
               <span>需要你来判断</span>
-              <strong>真正需要项目经验的地方，流程才会停下来等人。</strong>
+              <strong>来源、身份、统计口径和异常处置，都要由人确认。</strong>
               <div class="rr-expectation-grid">
                 <p><b>模型先整理</b> 全量检查、5/3/3 抽查和根因候选</p>
                 <p><b>Banker 再决定</b> 问题是否成立、谁修上游、能否放行</p>
-                <p><b>硬控制不变</b> 有异常就锁；对不上原始来源就继续留旧版本</p>
+                <p><b>异常时暂停更新</b> 对不上原始来源，继续保留旧版本</p>
               </div>
             </div>
           </div>

@@ -179,12 +179,13 @@
     const audiencePick = mode === "audience";
     const sourceInstruction = audiencePick
       ? "这是观众现场点名对象，尚未预检。先完成下述 3 分钟可行性门槛；不得默认代码、市场或报告期。"
-      : `该对象已纳入演示后备池。官方入口：${company.source_portal_url}`;
+      : `该对象已纳入演示后备池；既有文件是冻结材料，并非本次刚核对。官方入口：${company.source_portal_url}`;
     const selectedIdentity = audiencePick
       ? `${company.name_cn}｜市场提示：${company.market}｜股票代码需由你从官方披露确认`
       : `${company.name_cn} / ${company.name_en}｜${company.ticker}｜${company.market}｜报告货币 ${company.reporting_currency}`;
     const outputSlug = safeOutputSlug(company);
-    return `40 分钟现场任务：为一家真实上市公司搭建可直接打开的 Excel 财务预测模型。每项预测都要有依据，公式可逐格追踪，利润表、资产负债表和现金流量表互相联动；本轮不写长报告。
+    return `40 分钟财务建模任务：为现场选定的真实上市公司制作公式驱动的三表 Excel。先锁定来源，再做经营驱动与支持表，最后接通三表、重算、改假设测试并恢复基准。每个有效预测期间都须满足资产 = 负债 + 权益及现金勾稽，不能只让基准情景看起来平衡。
+现场讲解约 30 分钟；业务任务按 40 分钟安排，可在讲解结束后继续。时间是工作预算，不是完成或审阅承诺。本轮不写长报告。
 
 【现场对象】
 首选公司：${selectedIdentity}
@@ -194,55 +195,63 @@
 
 【资料和范围】
 1. 只使用公开资料。优先级固定为：交易所 / 法定披露平台原始公告与完整报告 > 公司 IR 页面上的同一原始文件 > 其他来源。不得用财经网站摘要替代原始报表，不得编造缺失值。
-2. 首选公司如属于银行、保险、券商、地产、矿业勘探、pre-revenue、生物科技无商业化收入，或年结日非 12 月 31 日，或 2023–2025 年报与 2026H1 完整报告任一无法在开始后 3 分钟内从官方来源定位，立即切换到上述后备公司，不要继续搜索。
+2. 开始业务后最多用 3 分钟确认公司身份、最新可用报告、年结日与单位。银行、保险等专用模型、报告期不匹配或关键官方资料拿不到时，说明具体缺口。若我已明确指定或授权后备公司，可在预检未满足时切换，并清楚回报切换原因、公司与所用版本；未指定或授权后备时，请我选择，不自行替换。页面默认列出的候选不等于我已授权。三分钟只是资料预检。
 3. 所有数值用计算工具或 Excel 公式计算。保留币种和原报告单位；除非披露要求，不做无依据汇率换算。
-4. 本轮只交付模型文件和一页来源说明，不扩展为 PPT、网页或长报告。非关键问题按最稳妥的公开口径处理，并在限制项中写明。
+4. 先读取已准备工作区的说明、来源目录、模型目录及适用建模 / 表格技能，运行现有 preflight。只在新 run 中制作输出；不改冻结原件、不安装工具、不重建资料库、不查私人或客户项目、不上传或发送。新取得公开输入另存，既有来源与旧复核记录保持原样。
+5. 提取后备模型时，显示目录中的文件版本、来源时间、哈希和既有复核范围，明说“已准备的公开教学模型”。复制、打开、解释或改假设都不是今天从零建成；旧结果不验证新修订，也不证明最新披露已核对。
 
 【标准模型结构】
-沿用现场演示的标准三表模板。模板只提供工作表结构、公式联动、预测驱动和检查机制；其中所有演示数值、公司名和期间都必须替换，不得冒充真实资料。保留三表、营运资金、固定资产、债务、税项、权益及检查表的联动关系；只删去对该公司明显不适用的业务模块。
+先确定公司业务与报告口径，再复用适用的工作表和公式。网页合成模型的总体收入增长率，不代表真实公司的分产品 / 地区量价模型已经接入；说明层也不是可编辑的经营数据。新公司须建立自己的驱动表，替换合成名称、数值和期间，不能只改公司名。保留约定的三表、经营、营运资本、固定资产、融资、税项与权益范围；不因检查失败而删掉本应交付的能力。
 
 【40 分钟执行节奏】
 0–3 分钟｜锁定主体与来源
-- 从官方文件确认法定公司名、ticker、交易所、报告货币、12 月年结日。
-- 定位并保存 2023、2024、2025 年报，以及 2026H1 完整中期报告。若 2026H1 只有业绩公告而无完整报告，按上述规则切换后备公司。
+- 从官方文件确认法定公司名、ticker、交易所、报告货币、单位、年结日和合并口径，先讲清拿到了什么、还缺什么。
+- 目标为 2023–2025A、2026–2028E，另列 2026H1 已披露实际。实际可得期间与目标不符就说明差异并确认范围；中期收入 / 利润锚点不冒充完整 H1 三表。冻结后备的报告范围以来源目录为准。
 
 3–10 分钟｜录入历史数据与来源
-- 录入 2023A、2024A、2025A 三年 P&L / BS / CFS；录入 2026H1A，并读取附注中的分部收入、成本、应收、存货、应付、PPE、债务、税项、股利及少数股东权益。
-- 每个历史录入数都要保存来源文件、发布日期、页码 / 表名、原单位和 URL。若新报告重列比较数，以最新重列数优先，并保留差异说明。
+- 按获确认范围逐行录入历史 P&L / BS / CFS，并读附注中的分部收入、成本、应收、存货、应付、PPE、债务、租赁、税项、股利及少数股东权益。保护实际期、来源表和公式。
+- 每个历史数与已披露经营量保存来源 ID、文件、发布日期、取得时间、SHA-256、页码 / 表格 / 行列、币种、单位、期间和 URL。重列数须有可比桥接；保留冲突，不暗中混用。
 - 打开PDF核对每页列头、单位、负号和括号。董事会决议、业绩摘要不能当成完整报告；单列比较数不得错放到本期。
 - 历史报表逐年核对：税前利润减所得税等于净利润，归母加少数股东损益等于净利润。检查直接对照原报告利润行和现金流附注；空白或漏行不得默认为零。
 - EBITDA 先核对发行人定义和披露值；模型口径不同就明确标成计算代理值，并列出与披露值的差异桥接。
 
 10–17 分钟｜建立预测依据
-- 收入：优先按公司披露的产品、业务或地区拆分；披露不足时才使用整体增长率。2026E–2028E 的每条增长率都要写明依据，包括历史趋势、2026H1 实际、管理层公开指引，以及订单、客户、产能或价格信息。
-- 2026E 必须等于 2026H1A + H2E。H2E 参考历史下半年季节性、公开指引和已披露经营信号；不得无依据地直接用 2×H1。
-- 资料出现断点时可以建立假设，逐项标注 LEAP：缺少什么、采用什么假设、为什么、影响哪些输出、补到什么资料后可替换。估计值不得标为已披露事实。
-- 保留各公司真实业务结构。分部口径变更先做可比桥接；没有销量或ASP披露时，不编造经营量，明确使用收入增长或结构假设。
+- 收入先做“公司 → 业务 → 产品 → 地区 / 渠道”明细，深度以公开披露为限。只选一套互斥叶子节点相加；产品、地区和渠道若只是同一收入的平行口径，仅做交叉核对，不重复相加，不擅自交叉分配。单列分部间交易及抵销。
+- 有销量与价格：每条产品 / 地区收入 = 销量 × 净 ASP × 必要的汇率换算；销量按需求、产能利用率、订单交付等披露驱动。明确销售量与产量不同；净 ASP 是否已经包含折扣、返利、产品组合及不含税口径，避免重复扣减。
+- Mix：可选总销量 × 各产品销量占比 × 各自 ASP；同一层权重合计 = 100%。如果 ASP 已反映组合变化，不再叠加“mix 增长”。地区 / 渠道作为平行披露时，用各自小计核对同一个收入总额。
+- 按业务选择替代路径：订阅 / 经常性收入可用期初客户 + 新增 − 流失的客户滚动、时间加权付费客户 × ARPU；门店可用有效营业店月 × 月店效，并区分同店、新店爬坡与关店；客户交易型业务可用平均活跃客户 × 购买频次 × 净客单价。每条收入只选一条主要生成路径，其余作核对，不重复计入。
+- 没有销量 / ASP / 门店 / 客户披露时，不造经营量。保留已披露分部收入 × 逐期增长假设，清楚标注增长或结构 LEAP；只有收入总额可得时才使用总体增长率。GMV、订单额、开票额、ARR 与收入不能混同；总额法 / 净额法及收入确认时点以披露政策为准。
+- 2026E 收入等于已取得的同口径 2026H1A + H2E；H2 依据季节性、已披露经营信号和公开指引，不直接以 2×H1 替代预测。没有完整中期三表时，只使用已披露锚点，不拼造期初 BS 或中期 CFS。
+- 假设台账逐项记“driver ID | 业务 / 产品 / 地区 | 期间 | 单位 | 来源页码或 LEAP ID | 历史实际 | 预测输入 | 依据 | 允许范围 | 影响表 / 单元格 | 负责人”。已披露事实、工具计算推导、公开指引、建模假设分别标示。
+- LEAP 登记逐项记“缺少什么来源 | 假设与理由 | 影响单元格及期间 | 敏感性 | 负责人 | 补证条件 / 到期日 | 状态”。例如：只披露分部收入、没有销量时，暂用分部增长路径；增长率是教学假设，不标成销量增长或公司指引。没有公司选择前不填公司预测数。
 - 销售成本 / 毛利率、销售费用、管理费用、研发费用和其他经营收支分开预测，不把所有费用合成一个比例。
-- 营运资金：DSO = 平均应收 / 收入 × 天数；DIO = 平均存货 / 销售成本 × 天数；DPO = 平均应付 / 销售成本 × 天数。半年期统一使用 181 / 182 天口径，并写明分母。
-- 资本开支与固定资产：期初固定资产 + 资本开支 − 折旧 − 处置 / 减值 / 汇兑影响 = 期末固定资产；资本开支依据历史强度、产能计划和公司指引。
-- 债务与利息：期初债务 + 新增借款 − 实际偿还 + 其他变动 = 期末债务；偿债金额受现金底线和可用额度约束，利息按平均债务和披露利率测算。
+- 营运资本要分清平均周转与期末余额驱动。历史平均 DSO = 平均应收 / 同期收入 × 实际期间天数；期末余额法预测则为期末应收 = 同期收入 × 期末 DSO / 天数，不能把该输入说成披露的平均 DSO。DIO / DPO 同理，分别注明成本或采购额分母及是否含税；若使用平均余额反推期末，须带入期初余额并检查可行范围。天数由日期工具计算，不固定套半年天数。
+- 资本开支与固定资产：期初固定资产 + 资本开支 − 折旧 − 处置 − 减值 ± 汇兑及其他已识别变动 = 期末固定资产；资本开支依据历史强度、产能计划和公司指引。
+- 债务与利息：期初债务 + 实际提款 − 实际还款 + 已识别其他变动 = 期末债务；申请额、有效额、上限、未满足额、无效额分开。提款受已披露额度、可用期限、币种和契约约束；还款受存量债务及资金约束。流动性缺口必须显示，不假设无限授信或拿现金底线倒填债务。利息与提款 / 还款时点一致；平均债务形成循环时，使用有依据的时序或受控迭代并检验收敛，不硬填利息。
 - 税项与权益：税费、应交税项和现金税款互相联动；净利润、股利、其他综合收益及少数股东权益滚入期末权益。
 
 17–32 分钟｜完成公式联动的 Excel
-- 列至少覆盖 2023A、2024A、2025A、2026H1A、2026E、2027E、2028E。
-- Workbook 至少保留：Cover、Source_Ledger、Assumptions、Revenue、Opex、Working_Capital、PPE、Debt_Interest、Tax_Equity、P&L、BS、CFS、Checks。
+- 各表日期、实际 / 预测标识、币种、单位及合并口径一致；中期比较单列，不与年度列相加。
+- 工作簿保留来源、假设 / LEAP、Revenue / Operating、Opex、Working Capital、Fixed Assets、Funding / Tax / Equity、三表及 Checks。可复用既有同义工作表，不为改名字破坏公式。
 - 历史数据必须有出处；预测输入只放在 Assumptions 或明细表；三张主表的预测数全部引用明细表，不得手工写死。
-- 现金流量表期末现金及现金等价物应与资产负债表对应口径勾稽。受限存款、定期存款等按披露做固定口径桥接，不强行等同于货币资金总额。留存收益、固定资产、债务、应交税项和营运资金逐期滚动，不用现金、其他资产、其他负债或权益作配平项。
+- 每个预测期：资产 − 负债 − 权益 = 0；期初现金 + CFO + CFI + CFF + 汇兑 = 期末现金，并与 BS 同口径现金勾稽。受限资金、定期存款等有独立来源与固定分类桥接，不强行等于全部货币资金。
+- 每个支持表均显示期初 + 新增 + 非现金变动 − 释放 / 结算 = 期末；现金、留存收益、债务、租赁、税项、投资、固定资产及营运资本跨期滚动。非现金 D&A、减值、股份支付、FV、汇兑等在 P&L 与 CFS 对应；现金税款、税费与递延税分开。
+- 禁止硬填现金、债务、其他资产、其他负债、权益或隐藏桥接来配平；Checks 只报告，不得直接或间接回流进业务余额。情景开关不得屏蔽结构错误，缺失来源只能产生 LEAP / UNKNOWN，不能让会计等式例外。
 - 税务表分别列税费、递延税项、应交税项和实际缴税现金。发行费用同时核对现金流、股本溢价和损益分类，防止净差额掩盖两个相反的错误。
 - “其他”项目只有在不重大时才可按历史占比或固定余额预测，并写明依据；绝不能用来填平差额。
 
 32–38 分钟｜完成交付前检查
-- 逐年检查利润表加总、资产 − 负债 − 权益 = 0、现金流量表期末现金 = 资产负债表现金，以及留存收益、营运资金天数、固定资产、债务和税项滚动。
+- 使用已安装且适用的电子表格计算引擎全量重算，记录引擎 / 版本 / 时间；重新打开准确交付文件，同时核对公式与保存后的缓存值。只有设置“打开时重算”不算已完成重算；引擎不可用就明确保留未重算状态。
+- 按每个实际 / 预测期间核对历史来源、利润表加总、收入叶子节点到总额、mix 权重、资产负债表、现金桥接及每项跨期滚动；如有月表，月度加总与年度、现金低点与月度 CFS 一并核对。写明按原单位计算的容差，不用四舍五入遮住差异。
 - 检查无 #REF! / #DIV/0! / #VALUE!、无外部工作簿链接、无预测结果手工写死、无隐藏配平项。
-- 对增长、毛利率、DIO/DSO/DPO、资本开支、债务偿还、税率和股利做独立扰动。检查实际与预期delta、输入年及下一年、固定科目不动。正负、零、边界和组合情景都覆盖；无效请求必须提示，不能静默截断成合理数。
-- 保存测试发现、修复位置和原测试重跑结果，将可复用问题补回建模提示词。作者自检和独立QA分开记录；没有复核结果就如实交付未完成状态。
-- 若 35 分钟仍未闭合，先把不重大明细合并到有来源的类别，再修正公式关系；不得用人为配平项。把尚未解决的问题写进 Checks，不得假装完成。
+- 对实际接入的收入驱动、毛利率、DIO / DSO / DPO、capex、提款 / 还款、税率、股利设计单项正负、零、边界及组合扰动。先记录获授权输入单元格、旧值 / 新值、预期方向或数值，再只改底层假设并重算；明细表 → P&L → CFO / CFI / CFF → Cash / Equity / BS 都检查，覆盖输入期及下一期。
+- 测试日志逐项保存 case ID、输入、单位、基准、预期、实际 delta、容差、支持表影响、保护范围、警告、引擎与恢复结果。保护实际期、来源、公式、无关输入与前期；每个测试后恢复基准并重算，对照原始基准输出及保护单元格，不只把界面数值改回去。
+- 来源忠实度、结构完整性、情景警告、预测经济性与独立审阅分别记录。约 35 分钟仍有差异，查原始映射、符号、期间与支持表关系；不删在范围内的驱动、不塞配平项。保留问题、修复位置和原测试重跑记录，诚实交付进度。
 
 38–40 分钟｜交付
-- 交付两份文件：${outputSlug}_THREE_STATEMENT_MODEL_2028E.xlsx，以及一页来源与假设说明。
-- Excel 打开后应完成公式重算。一页说明只写公司、期间、币种、官方来源、核心预测依据、检查结果和明确限制。
-- 交付时说明三表是否配平、用了哪些核心预测依据、还有哪些问题未解决。`;
+- 交付 ${outputSlug}_THREE_STATEMENT_MODEL_2028E.xlsx 与一页来源 / 核心假设 / LEAP / 限制说明；来源台账、逐期检查和扰动 / 恢复日志放在同一 run，不扩展为长报告。
+- 第一份可读且通过基本自检的草稿即冻结版本与 SHA-256 给我；独立审阅按适用规则在同一版本上并行进行。审阅中不原地改稿，新修改另立修订并保留原意见；作者自检不替代独立审阅或对外使用授权。
+- 说明这是新建、冻结后备提取还是后备修改；逐期三表是否平衡、是否真正重算、恢复是否完成、哪些来源 / LEAP / 问题仍开放。未完成的测试或审阅如实列出，不把时间到点当作完成。`;
   }
 
   function randomCompanyIndex(length) {
@@ -269,7 +278,7 @@
     title.textContent = isAudience ? company.name_cn : `${company.name_cn} · ${company.ticker}`;
     meta.textContent = isAudience ? `${company.market} · 股票代码在 3 分钟预检中确认` : `${company.market} · ${company.sector} · ${company.reporting_currency}`;
     note.textContent = isAudience ? "先看官方资料是否齐全；不适合普通三表，就换用轮盘备选。" : company.driver_hint;
-    state.textContent = isAudience ? "等待 3 分钟预检" : "四期官方报告已预检";
+    state.textContent = isAudience ? "等待 3 分钟预检" : "已有冻结资料 · 开工时核对更新";
     state.className = `roulette-readiness ${isAudience ? "is-live" : "is-ready"}`;
     link.hidden = isAudience;
     if (!isAudience) {
@@ -301,7 +310,7 @@
     const companies = liveChallenge.fallback_companies;
     const initial = rouletteSelection || companies[0];
     const body = `
-      ${stateHeader("LIVE COMPANY CHALLENGE · 40 MINUTES", "你点一家公司，我们现场开建", "A 股或港股都可以。先用公开资料快速确认，再用 40 分钟生成一套真实三表 Excel。", "2023A–2026H1A → 2028E")}
+      ${stateHeader("LIVE COMPANY CHALLENGE · 40 MINUTES", "你点一家公司，我们现场开建", "先确认公开资料，再搭公式驱动三表。过程中的来源、假设、检查结果与未完项都可查看。", "2023–2025A + H1 锚点 → 2028E")}
       <div class="roulette-layout">
         <section class="audience-pick ruled-panel">
           <div class="genesis-panel-head"><span>01 / 你来点名</span><strong>选一家 A 股或港股上市公司</strong></div>
@@ -620,6 +629,127 @@
     return formatNumber(value, 4);
   };
 
+  const driverBasis = (driver) => ({
+    revenue_growth: "对合成上年收入应用逐年增长假设；月度分配沿用合成历史季节性。",
+    gross_margin: "参考 24 个月合成历史设定的毛利率假设。",
+    selling_expense_ratio: "参考合成历史销售费用率设定。",
+    admin_expense_ratio: "参考合成历史管理费用率设定。",
+    rd_expense_ratio: "参考合成历史研发费用率设定。",
+    other_opex_ratio: "参考合成历史其他经营费用率设定。",
+    dso: "参考最近 12 个月合成 DSO 设定，非真实公司披露值。",
+    dio: "参考最近 12 个月合成 DIO 设定，非真实公司披露值。",
+    dpo: "参考最近 12 个月合成 DPO 设定，非真实公司披露值。",
+    annual_capex: "明确列示的维护与增长资本开支假设。",
+    annual_debt_repayment_requested: "这是申请还款额；支持表另列实际执行额和超额申请。",
+    annual_dividends: "单独设定的合成分派假设。",
+    tax_rate: "仅用于教学的税率假设，不代表公司实际税务处理。",
+    interest_rate: "按月初债务计息；不因现金归集形成循环引用。",
+    cash_floor: "明确的流动性底线，仅用于测算已列示授信的提款需求。",
+    facility_limit: "提款受期末债务不超过该额度的上限约束。",
+    ppe_remaining_life_months: "以期初净固定资产加半期资本开支作月度直线折旧简化估算。",
+    tax_payment_lag_months: "当月支付现金税款等于上月应交税项。",
+  }[driver.id] || "参数依据保留在完整结构文件；未补充的来源不视作已确认。");
+
+  const driverAuthorization = (driver) => ({
+    "Banker-confirmed scenario only": "须经负责建模的 Banker 确认，仅用于获授权情景",
+    "Locked synthetic policy assumption": "锁定的合成政策假设",
+    "Locked synthetic facility assumption": "锁定的合成授信假设",
+    "Locked training control": "锁定的教学控制参数",
+    "Locked synthetic facility limit": "锁定的合成授信额度",
+    "Locked simplified accounting assumption": "锁定的简化会计假设",
+  }[driver.authorization] || "保留原授权范围，未确认前不修改");
+
+  // Disclosure-led design examples, deliberately separate from the scalar seed engine.
+  const revenueBuildMethods = [
+    {
+      id: "dimensions", label: "业务 / 产品 / 地区", title: "先确定收入分在哪些互斥明细里",
+      formula: "公司收入 = Σ 互斥叶子节点收入 − 分部间抵销",
+      rows: [
+        ["业务 → 产品", "用已披露业务、产品作主树；叶子节点只能属于一个收入分支。", "财务附注的分部收入、产品收入与会计口径"],
+        ["地区 / 渠道", "有交叉披露才细分到产品 × 地区；平行口径只做核对，不相加。", "分地区 / 渠道表；未披露交叉结构不擅自分配"],
+        ["销量 / ASP / Mix", "在有披露的叶子节点选择量价；同一层 mix 合计为 100%。", "同期间、同单位的销量和净售价；说明折扣与汇率"],
+      ],
+      check: "产品小计、地区小计、渠道小计各自回到同一个总收入。它们不是三份可以相加的收入；未分配及抵销单列。",
+      leap: "未披露产品 × 地区交叉数据：保留产品主树，地区作为平行核对。若确需分配，必须登记分配假设与敏感性。",
+    },
+    {
+      id: "volume", label: "销量 × 净 ASP", title: "把增长拆成卖多少、卖多贵、卖什么",
+      formula: "收入 = Σ（各产品销量 × 各自净 ASP × 适用汇率）",
+      rows: [
+        ["销量", "上期销量 × (1 + 销量增长)；用需求、订单交付、产能利用率作依据。", "销售量 / 交付量；不能直接把产量当销量"],
+        ["净 ASP", "同口径收入 ÷ 销量，或已披露净售价；预测列价格变化。", "不含税、折扣、返利和总额 / 净额口径一致"],
+        ["产品组合 Mix", "可用总销量 × 产品销量权重 × 各自 ASP；权重合计 100%。", "销量权重与收入权重分开；ASP 已含 mix 就不重复加成"],
+      ],
+      check: "先验每个产品的量 × 价，再验产品收入合计。保持币种 / 单位一致；缺少销量时不拿“活动指数”冒充实际件数。",
+      leap: "某产品未披露销量：该产品暂用收入增长假设，其余产品保留已披露量价。假设依据、范围、影响期与补证条件逐项登记。",
+    },
+    {
+      id: "recurring", label: "订阅 / 经常性", title: "先滚动客户，再按服务期间确认收入",
+      formula: "收入 = 时间加权付费客户 × 同期 ARPU + 单独确认的一次性收入",
+      rows: [
+        ["客户滚动", "期初客户 + 新增 − 流失 = 期末客户；分别定义续约与流失。", "付费客户定义、新增、流失及生效时间"],
+        ["ARPU / 套餐", "按付费客户、套餐结构与价格计算；客户数和 ARPU 期间一致。", "披露 ARPU、套餐价格及是否包含一次性收入"],
+        ["收入确认", "预收款和递延收入另作滚动；按服务已提供的期间确认。", "合同期限、收入政策；ARR、开票与现金回款不等于收入"],
+      ],
+      check: "客户期初到期末滚动闭合，时间加权客户不等于期末客户。经常性与一次性收入互斥，递延收入与收款另行勾稽。",
+      leap: "只有收入、没有付费客户 / ARPU：不能造客户台账，改用已披露服务分部增长并标注 LEAP。",
+    },
+    {
+      id: "stores", label: "门店 × 店效", title: "新店开多久，比年末有几家更重要",
+      formula: "收入 = Σ（各类有效营业店月 × 对应月店效）",
+      rows: [
+        ["门店滚动", "期初门店 + 新开 − 关闭 = 期末门店；逐店或分批计算营业店月。", "直营 / 加盟定义，开业及关闭时间"],
+        ["同店 / 新店", "成熟店按同店增长；新店按开业月份与爬坡曲线计算。", "同店口径、历史店效及公开开店计划"],
+        ["净收入", "直营销售与加盟费 / 供货收入按各自确认政策分开。", "GMV 不当收入；总额法 / 净额法先核对"],
+      ],
+      check: "不能用年末店数乘全年店效；同店与新店不能重复包含，关店后的月份不继续产生店效。",
+      leap: "只披露期末店数：开店时间与新店爬坡是独立假设，登记后做敏感性；不声称店月来自披露。",
+    },
+    {
+      id: "customers", label: "客户 × 频次 × 客单", title: "客户增长与单客消费分开讲",
+      formula: "收入 = 同期平均活跃客户 × 购买频次 × 净客单价",
+      rows: [
+        ["活跃客户", "明确去重口径与统计期间；新增、留存和流失有一致定义。", "活跃 / 付费客户定义与公开经营指标"],
+        ["频次 / 客单", "订单数 ÷ 客户数为频次；净交易额 ÷ 订单数为净客单价。", "订单取消、退款、税费和期间保持一致"],
+        ["平台业务", "若以净额法确认佣金，先算适用交易额，再按合同抽佣率与政策确认。", "GMV → 可计佣交易额 → 净收入桥接；非再乘一次客单价"],
+      ],
+      check: "客户、订单和客单价需来自相同人群与期间；一个收入分支只用一条生成路径，渠道汇总不重复计入。",
+      leap: "活跃客户或购买频次未披露时，用分部增长假设保留可解释性；不得倒算出看似实际的客户经营台账。",
+    },
+    {
+      id: "growth", label: "披露不足时的增长", title: "资料有限时，写清分部增长假设及依据",
+      formula: "分部收入_t = 同口径分部收入_(t−1) × (1 + g_t)",
+      rows: [
+        ["已披露基数", "用真实分部收入，先桥接重列、并购或业务口径变更。", "来源文件 / 页码 / 表格 / 期间 / 单位"],
+        ["逐期假设 g_t", "分别写历史趋势、中期信号、公开指引与建模判断。", "每期假设有自己的依据；不冒充销量增长或管理层指引"],
+        ["补证与升级", "拿到同口径销量或客户数据后再换明细路径，并重新勾稽。", "LEAP ID、影响单元格、负责人、补证条件 / 到期日"],
+      ],
+      check: "分部增长先汇总出公司收入和加权增长；不得再给总收入叠加一次总体增长。H1 已披露收入 + H2 假设 = 全年收入。",
+      leap: "示例 LEAP-REV-01：缺少分部销量与净 ASP，因此以已披露分部收入为基数；g_t 待选定公司并给出依据后填写，不预填公司预测数。",
+    },
+  ];
+  let revenueMethodId = "dimensions";
+
+  function renderRevenueDetail(target, driver) {
+    const method = revenueBuildMethods.find((item) => item.id === revenueMethodId) || revenueBuildMethods[0];
+    target.classList.add("is-revenue-design");
+    target.dataset.revenueMethod = method.id;
+    target.innerHTML = `
+      <header><div><span>收入明细设计 · ${escapeHtml(method.label)}</span><h4>${escapeHtml(method.title)}</h4></div><strong>讲解层 · 不改数</strong></header>
+      <div class="revenue-design-body">
+        <p class="revenue-scope-note">这里讲真实公司应如何拆收入；选择左侧路径只切换说明，不会修改模型、工作簿或情景组合。当前合成模型仍只接入总体收入增长率。</p>
+        <div class="revenue-hierarchy" aria-label="收入拆解层级"><span>公司</span><b>→</b><span>业务</span><b>→</b><span>产品</span><b>→</b><span>地区 / 渠道</span><small>仅在披露支持时继续拆分；平行口径不重复相加</small></div>
+        <section class="revenue-formula"><span>拟建支持表的核心公式</span><code>${escapeHtml(method.formula)}</code></section>
+        <div class="revenue-driver-rows">${method.rows.map(([name, logic, source]) => `<article><strong>${escapeHtml(name)}</strong><div><p>${escapeHtml(logic)}</p><small>来源门槛：${escapeHtml(source)}</small></div></article>`).join("")}</div>
+        <div class="revenue-control-pair"><section><span>汇总检查</span><p>${escapeHtml(method.check)}</p></section><section><span>透明 LEAP 示例 · 非公司事实</span><p>${escapeHtml(method.leap)}</p></section></div>
+        <p class="revenue-register-note">每项假设登记：业务 / 产品 / 地区 · 期间 · 单位 · 来源或 LEAP · 数值及依据 · 范围 · 影响单元格 · 负责人。收入明细 → 主表收入 → 成本 / 营运资本 → 现金与权益，重算后逐期验三表。</p>
+        <details class="revenue-scalar-detail"><summary>查看当前合成模型：总体增长率 ${escapeHtml(driver.id)}（非以上明细）</summary>
+          <div class="cell-seed-driver-periods">${Object.keys(driver.values).map((period) => `<article><span>${escapeHtml(period)}</span><strong>${escapeHtml(formatSeedValue(driver.values[period], driver.unit))}</strong><code>${escapeHtml(driver.cells[period])}</code><small>合成输入 · 网页只读展示</small></article>`).join("")}</div>
+          <p>允许范围：${escapeHtml(`${formatSeedValue(driver.min, driver.unit)} — ${formatSeedValue(driver.max, driver.unit)}`)}。依据：${escapeHtml(driverBasis(driver))}授权要求：${escapeHtml(driverAuthorization(driver))}。新公司的细项输入须先建支持表并验证，不能把这里的总体增长率改名当作已接入的销量或 ASP。</p>
+        </details>
+      </div>`;
+  }
+
   function renderSkeleton(target) {
     const contract = cellSeed.workbook_contract;
     const stats = [
@@ -662,28 +792,39 @@
       button.classList.toggle("is-selected", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
+    document.querySelectorAll("[data-revenue-method]").forEach((button) => {
+      if (button.tagName !== "BUTTON") return;
+      const selected = driver.id === "revenue_growth" && button.dataset.revenueMethod === revenueMethodId;
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     const impacts = driverImpact[driver.id] || ["Formula dependency graph"];
     target.dataset.driverId = driver.id;
+    target.classList.remove("is-revenue-design");
+    delete target.dataset.revenueMethod;
+    if (driver.id === "revenue_growth") {
+      renderRevenueDetail(target, driver);
+      return;
+    }
     target.innerHTML = `
-      <header><div><span>假设 ${String(index + 1).padStart(2, "0")} · ${escapeHtml(driver.id)}</span><h4>${escapeHtml(driver.label)}</h4></div><strong>${driver.editable ? "可编辑 · 需授权" : "公式锁定"}</strong></header>
+      <header><div><span>假设 ${String(index + 1).padStart(2, "0")} · ${escapeHtml(driver.id)}</span><h4>${escapeHtml(driver.label)}</h4></div><strong>${driver.editable ? "模型输入 · 页面只读" : "公式锁定"}</strong></header>
       <div class="cell-seed-driver-periods">${Object.keys(driver.values).map((period) => `<article><span>${escapeHtml(period)}</span><strong>${escapeHtml(formatSeedValue(driver.values[period], driver.unit))}</strong><code>${escapeHtml(driver.cells[period])}</code><small>输入值</small></article>`).join("")}</div>
       <dl class="cell-seed-driver-policy">
         <div><dt>允许范围</dt><dd>${escapeHtml(`${formatSeedValue(driver.min, driver.unit)} — ${formatSeedValue(driver.max, driver.unit)}`)}</dd></div>
         <div><dt>输入单位</dt><dd>${escapeHtml(driver.unit)}</dd></div>
-        <div><dt>授权要求</dt><dd>${escapeHtml(driver.authorization)}</dd></div>
-        <div><dt>参数依据</dt><dd>${escapeHtml(driver.basis)}</dd></div>
+        <div><dt>授权要求</dt><dd>${escapeHtml(driverAuthorization(driver))}</dd></div>
+        <div><dt>参数依据</dt><dd>${escapeHtml(driverBasis(driver))}</dd></div>
       </dl>
       <section class="cell-seed-downstream"><span>会影响哪些结果</span><div>${impacts.map((impact) => `<b>${escapeHtml(impact)}</b>`).join("")}</div><p>完整结构文件保留全部公式关系；页面只展示这项假设的主要传导路径。</p></section>`;
   }
 
   function renderBinding(target) {
     const drivers = cellSeed.drivers;
-    const editable = drivers.filter((driver) => driver.editable).length;
     const body = `
-      ${stateHeader("预测假设台账", "位置、数值、边界和授权一并定义", "这里用合成数值填充模型；换成目标公司数据时，只替换获授权的输入值，公式及上下游关系保持锁定。", `${drivers.length} 项假设 · 2027E–2029E`)}
-      <div class="binding-summary cell-seed-binding-summary"><div><span>已定义假设</span><strong>${drivers.length}</strong></div><div><span>可编辑输入</span><strong>${editable * 3}</strong></div><div><span>锁定公式</span><strong>${formatNumber(cellSeed.workbook_contract.formula_cell_count, 0)} 项</strong></div><div><span>授权机制</span><strong>Banker 确认后生效</strong></div></div>
+      ${stateHeader("预测假设台账", "收入先拆业务，再选有依据的驱动", "先看收入明细如何搭，再看合成模型已经接入的输入。讲解路径不改模型；真实公司须另建有来源的支持表并检验三表联动。", `${drivers.length} 项合成假设 · 2027E–2029E`)}
+      <div class="binding-summary cell-seed-binding-summary"><div><span>合成模型假设</span><strong>${drivers.length}</strong></div><div><span>模型可授权输入</span><strong>${drivers.filter((driver) => driver.editable).reduce((sum, driver) => sum + Object.keys(driver.values).length, 0)}</strong></div><div><span>锁定公式</span><strong>${formatNumber(cellSeed.workbook_contract.formula_cell_count, 0)} 项</strong></div><div><span>本页交互</span><strong>只读讲解 · 不改工作簿</strong></div></div>
       <div class="cell-seed-binding-grid">
-        <section class="cell-seed-driver-index ruled-panel"><div class="genesis-panel-head"><span>完整假设索引</span><strong>收入 / 费用 / 营运资金 / 资本开支 / 债务 / 税项</strong></div><div>${drivers.map((driver, index) => `<button type="button" class="cell-seed-driver-button" data-driver-index="${index}" data-driver-id="${escapeHtml(driver.id)}" aria-pressed="false"><b>${String(index + 1).padStart(2, "0")}</b><span>${escapeHtml(driver.label)}</span><small>${escapeHtml(driver.unit)}</small></button>`).join("")}</div></section>
+        <section class="cell-seed-driver-index ruled-panel"><div class="genesis-panel-head"><span>收入明细设计</span><strong>选择讲解路径 · 披露支持才采用</strong></div><div class="revenue-method-index">${revenueBuildMethods.map((method) => `<button type="button" data-revenue-method="${method.id}" aria-pressed="false">${escapeHtml(method.label)}</button>`).join("")}</div><div class="genesis-panel-head"><span>已接入的合成模型输入</span><strong>收入 / 费用 / 营运资本 / 融资 / 税项</strong></div><div>${drivers.map((driver, index) => `<button type="button" class="cell-seed-driver-button" data-driver-index="${index}" data-driver-id="${escapeHtml(driver.id)}" aria-pressed="false"><b>${String(index + 1).padStart(2, "0")}</b><span>${escapeHtml(driver.id === "revenue_growth" ? "总体收入增长（合成）" : driver.label)}</span><small>${escapeHtml(driver.unit)}</small></button>`).join("")}</div></section>
         <section id="cell-seed-driver-detail" class="cell-seed-driver-detail" data-testid="cell-seed-driver-detail"></section>
       </div>`;
     target.innerHTML = shell("seed-binding", body);
@@ -691,7 +832,12 @@
       const index = Number(button.dataset.driverIndex);
       renderDriverDetail(drivers[index], index);
     }));
-    renderDriverDetail(drivers.find((driver) => driver.id === "dso") || drivers[0], Math.max(0, drivers.findIndex((driver) => driver.id === "dso")));
+    const revenueIndex = Math.max(0, drivers.findIndex((driver) => driver.id === "revenue_growth"));
+    document.querySelectorAll("button[data-revenue-method]").forEach((button) => button.addEventListener("click", () => {
+      revenueMethodId = button.dataset.revenueMethod;
+      renderDriverDetail(drivers[revenueIndex], revenueIndex);
+    }));
+    renderDriverDetail(drivers[revenueIndex], revenueIndex);
   }
 
   function renderLineageDetail(lineage, index) {

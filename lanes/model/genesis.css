@@ -1,0 +1,114 @@
+/* R15: disclosure-led revenue design. No input controls or numerical-engine changes. */
+.genesis-state[data-genesis-state-panel="seed-binding"] {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 730px;
+}
+.genesis-state[data-genesis-state-panel="seed-binding"] .genesis-state-header {
+  min-height: 76px;
+  height: auto;
+}
+.genesis-state[data-genesis-state-panel="seed-binding"] .genesis-state-header p {
+  white-space: normal;
+  line-height: 1.45;
+}
+.cell-seed-binding-grid {
+  grid-template-columns: minmax(360px, .78fr) minmax(0, 1.22fr);
+  align-items: stretch;
+}
+.cell-seed-driver-index {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+.cell-seed-driver-index .genesis-panel-head {
+  min-height: 45px;
+  padding: 10px 12px;
+}
+.cell-seed-driver-index > div:last-child {
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  grid-auto-rows: minmax(35px, auto);
+  overflow: auto;
+}
+.cell-seed-driver-button {
+  grid-template-columns: 27px minmax(0, 1fr) 96px;
+  border-right: 0;
+  min-height: 35px;
+  padding: 7px 10px;
+}
+.revenue-method-index {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 12px;
+  background: #dce3d4;
+  border-bottom: 1px solid #b6b998;
+}
+.revenue-method-index button {
+  min-height: 39px;
+  padding: 8px 9px;
+  border: 1px solid #95a98a;
+  background: #f0f2e5;
+  color: #365840;
+  font: 600 12px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.revenue-method-index button:hover { background: #e2ebd9; }
+.revenue-method-index button.is-selected { background: #315f49; color: #fff7df; border-color: #315f49; }
+.revenue-method-index button:focus-visible,
+.revenue-scalar-detail summary:focus-visible { outline: 3px solid #a5733c; outline-offset: 2px; }
+.cell-seed-driver-detail.is-revenue-design { display: flex; flex-direction: column; }
+.is-revenue-design > header { flex: none; gap: 10px; min-height: 75px; }
+.is-revenue-design > header h4 { font-size: 19px; line-height: 1.4; }
+.is-revenue-design > header > strong { white-space: nowrap; }
+.revenue-design-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+  color: #3f4c3d;
+  font: 12px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+}
+.revenue-scope-note { margin: 0 0 13px; padding: 9px 11px; border-left: 3px solid #9c734b; background: #eee1c8; color: #71523c; }
+.revenue-hierarchy { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 12px; }
+.revenue-hierarchy > span { padding: 4px 10px; border: 1px solid #96ab8f; background: #e4ead8; color: #36553d; }
+.revenue-hierarchy > b { color: #8a936e; }
+.revenue-hierarchy small { flex: 1 0 100%; font-size: 11px; color: #788266; }
+.revenue-formula { padding: 11px 13px; border: 1px solid #6b8966; background: #254b38; color: #f5eed8; }
+.revenue-formula > span { display: block; margin-bottom: 6px; font-size: 10px; letter-spacing: .06em; color: #bdcaa8; }
+.revenue-formula code { font: 600 14px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.revenue-driver-rows { margin: 7px 0 12px; }
+.revenue-driver-rows article { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px solid #d2cfb7; }
+.revenue-driver-rows article > strong { color: #376047; }
+.revenue-driver-rows p { margin: 0 0 3px; }
+.revenue-driver-rows small { color: #7c745d; font-size: 11px; line-height: 1.5; }
+.revenue-control-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.revenue-control-pair section { padding: 10px 12px; border: 1px solid #b1ba97; background: #e6ebd8; }
+.revenue-control-pair section:last-child { border-color: #c4ab81; background: #efe4cb; }
+.revenue-control-pair span { font-size: 11px; font-weight: 700; color: #3b6044; }
+.revenue-control-pair section:last-child span { color: #8c613d; }
+.revenue-control-pair p { margin: 5px 0 0; }
+.revenue-register-note { margin: 12px 0; color: #6e735c; font-size: 11px; }
+.revenue-scalar-detail { border: 1px solid #b8a98a; background: #f4ecd8; }
+.revenue-scalar-detail summary { padding: 11px 12px; font-weight: 600; color: #66523c; cursor: pointer; }
+.revenue-scalar-detail > p { padding: 0 12px 12px; margin: 10px 0 0; font-size: 11px; }
+.revenue-scalar-detail .cell-seed-driver-periods { border-top: 1px solid #bba787; }
+.revenue-scalar-detail .cell-seed-driver-periods article { padding: 10px; }
+@media (max-width: 1100px) {
+  .cell-seed-binding-grid { grid-template-columns: minmax(300px, .75fr) minmax(0, 1.25fr); }
+  .revenue-control-pair { grid-template-columns: 1fr; }
+  .is-revenue-design > header { flex-wrap: wrap; padding: 10px 12px; }
+  .revenue-driver-rows article { grid-template-columns: 80px minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .genesis-state[data-genesis-state-panel="seed-binding"] { display: block; height: auto; min-height: 0; }
+  .genesis-state[data-genesis-state-panel="seed-binding"] > * + * { margin-top: 12px; }
+  .cell-seed-binding-grid { display: flex; flex-direction: column; gap: 12px; min-width: 0; width: 100%; }
+  .cell-seed-binding-summary { grid-template-columns: 1fr 1fr; }
+  .cell-seed-binding-summary div { min-height: 55px; }
+  .cell-seed-driver-index { display: block; }
+  .cell-seed-driver-index > div:last-child { max-height: 230px; }
+  .cell-seed-driver-detail { min-height: 510px; grid-template-rows: auto auto auto auto; }
+  .cell-seed-driver-detail.is-revenue-design { min-height: 0; }
+  .revenue-design-body { overflow: visible; }
+  .revenue-driver-rows article { grid-template-columns: 75px minmax(0, 1fr); }
+  .revenue-formula code { font-size: 12px; }
+}

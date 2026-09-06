@@ -10,10 +10,10 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const labels = [
-    "目标已定",
-    "正在看实际",
-    "偏差已找到",
-    "修上游，再跑一遍"
+    "交付要求已明确",
+    "正在核对资料与结果",
+    "正在定位差错原因",
+    "修复后重跑原检查"
   ];
 
   let activeIndex = 0;

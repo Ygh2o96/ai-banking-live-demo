@@ -8,7 +8,7 @@
     hero1: {
       panel: "panel-hero1",
       label: "财务模型已就绪",
-      boundary: "当前：现场建模 · 观众点公司或轮盘抽取 → 40 分钟三表模型",
+      boundary: "当前：现场建模 · 观众选公司 · 拆清假设、联动三表、逐期配平",
     },
     hero2: {
       panel: "panel-hero2",
@@ -18,12 +18,12 @@
     hero3: {
       panel: "panel-hero3",
       label: "先例检索已就绪",
-      boundary: "当前：先例检索 + RAG · 观众点题 → 找全候选 → 深度筛选 → 回到招股书原文",
+      boundary: "当前：先例检索 + RAG · 观众选问题 · 找候选、比较事实、核对原文与页码",
     },
     hero4: {
       panel: "panel-hero4",
       label: "控制论方法页已就绪",
-      boundary: "当前：控制与反馈 · 查资料 / 跑模型 / 持续复核，都要形成可观察、可纠偏的闭环",
+      boundary: "当前：控制与反馈 · 定要求、查结果、找原因、修复后重跑原检查",
     },
     hero5: {
       panel: "panel-hero5",
@@ -37,6 +37,16 @@
   const status = document.getElementById("orchestrator-status");
   const boundary = document.getElementById("orchestrator-boundary");
   let activeScene = "hero1";
+  let cinemaTrigger = null;
+  const cinemaButtons = [...document.querySelectorAll("[data-model-cinema]")];
+  cinemaButtons.forEach((button) => button.addEventListener("click", () => {
+    const frame = document.querySelector('[data-lane-frame="hero1"]');
+    if (activeScene !== "hero1" || !frame?.contentWindow?.ModelCinema) return;
+    const trigger = frame.contentDocument?.querySelector('[data-h1-teach="' + button.dataset.modelCinema + '"]');
+    if (!trigger) { status.textContent = "动画暂未就绪，请重载当前演示"; return; }
+    cinemaTrigger = button;
+    trigger.click();
+  }));
 
   function injectEmbedChrome(frame, scene) {
     let doc;
@@ -91,6 +101,7 @@
       frame.dataset.loadBound = "true";
       frame.addEventListener("load", () => {
         injectEmbedChrome(frame, scene);
+        if (scene === "hero1") cinemaButtons.forEach((button) => { button.disabled = !frame.contentWindow?.ModelCinema; });
         if (scene === "hero1") document.body.classList.remove("model-cinema-open");
         frame.contentWindow?.postMessage({ type: "LANE_VISIBILITY", active: scene === activeScene }, window.location.origin);
         if (scene === activeScene) status.textContent = LANES[scene].label;
@@ -175,6 +186,10 @@
     if (event.origin !== window.location.origin || event.source !== frame?.contentWindow) return;
     if (event.data?.type !== "MODEL_CINEMA_STATE" || typeof event.data.open !== "boolean") return;
     document.body.classList.toggle("model-cinema-open", event.data.open && activeScene === "hero1");
+    if (!event.data.open && activeScene === "hero1" && cinemaTrigger) {
+      cinemaTrigger.focus({ preventScroll: true });
+      cinemaTrigger = null;
+    }
   });
   activateScene(initial.get("scene"), { state: initial.get("state"), replace: true });
 })();
