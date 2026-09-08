@@ -50,7 +50,7 @@ function recordScenario(form){
   versions.push(result);viewVersion=versions.length-1;
   appendTurn('user',changes.join('；')+'。');
   appendTurn('agent',`已按本页计算关系更新情景 ${viewVersion+1}。六个月销售收入为 ${money(result.revenue)}，最低月末现金为 ${money(result.minimumCash)}。可展开收入或现金安排，继续查看明细。`,outputHTML(result,viewVersion));
-  const room=drawer.current();renderRoom(room);notify(`情景 ${viewVersion+1} 已计算；结果保留在对应讨论中。`);
+  drawer.refresh(String(viewVersion));notify(`情景 ${viewVersion+1} 已计算；结果保留在对应讨论中。`);
  }catch(e){const error=form.querySelector('.demo-error');error.textContent=e.message;error.hidden=false;}
 }
 function action(id,{append=true}={}){
