@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+ <meta name="description" content="Model Studio 交互设计演示：以合成资料体验项目对话、收入驱动、现金安排和资料清单。">
+ <title>华泰建模专家 · Model Studio 交互演示</title>
+ <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23277565'/%3E%3Ctext x='8' y='29' font-family='sans-serif' font-size='25' fill='white'%3EM%3C/text%3E%3C/svg%3E">
+ <link rel="stylesheet" href="./ui/styles.css"><link rel="stylesheet" href="./ui/harness.css"><link rel="stylesheet" href="./ui/reporting-desk.css"><link rel="stylesheet" href="./ui/reporting-shell.css"><link rel="stylesheet" href="./ui/financial-presentations.css"><link rel="stylesheet" href="./demo.css">
+ <script type="module" src="./demo.js"></script>
+</head>
+<body class="report-mode preview-mode">
+ <a class="skip-link" href="#workspace">跳至工作区</a>
+ <div class="app-shell">
+  <aside class="sidebar" aria-label="项目与工作间">
+   <a class="brand" href="./" aria-label="Model Studio 演示首页"><span class="brand-symbol" aria-hidden="true">M<span>/</span></span><span>MODEL STUDIO<small>财务建模工作台</small></span></a>
+   <div class="demo-project"><small>当前项目</small><strong>清禾出行</strong><span>城市骑行 · 合成公司</span></div>
+   <nav class="step-nav" aria-label="工作间">
+    <button class="step-button active" data-home><span class="step-number" aria-hidden="true">◌</span>项目对话</button>
+    <span class="room-nav-divider">按需展开</span>
+    <button class="step-button" data-room="drivers"><span class="step-number" aria-hidden="true">↗</span>收入驱动</button>
+    <button class="step-button" data-room="cash"><span class="step-number" aria-hidden="true">≈</span>现金安排</button>
+    <button class="step-button" data-room="sources"><span class="step-number" aria-hidden="true">▤</span>资料清单</button>
+    <button class="step-button" data-room="memo"><span class="step-number" aria-hidden="true">▧</span>备忘录示意</button>
+   </nav>
+   <div class="demo-sidebar-note">从讨论开始<br>将假设、计算和成果放在一起</div>
+   <button type="button" class="button button-quiet demo-reset" data-reset>重置演示</button>
+  </aside>
+  <div class="main-shell">
+   <header class="topbar"><div class="breadcrumb"><strong>清禾出行 <span class="project-separator">/</span> 销售与现金示意</strong></div><div class="topbar-actions"><span class="demo-badge">交互演示 · 合成资料</span><button class="audit-mode-toggle" type="button" aria-pressed="false" data-audit>专业审计模式</button></div></header>
+   <main id="workspace" tabindex="-1"><div id="demo-desk"></div></main>
+  </div>
+ </div>
+ <div class="demo-toast" role="status" aria-live="polite" hidden></div>
+ <noscript><p>请启用 JavaScript，以体验对话示例、可调整假设和交互图表。</p></noscript>
+</body>
+</html>

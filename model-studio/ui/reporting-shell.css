@@ -1,0 +1,46 @@
+/* The audit view retains the complete workbench. The desk uses the same objects. */
+body.report-mode{--paper:#f8fafb;--surface:#fff;--ink:#25343c;--muted:#71808b;--line:#e5ebee;--green:#277565;--green-soft:#edf6f2;--rail:194px;background:var(--paper)}
+.report-mode .sidebar{background:#f3f6f7;padding:25px 16px;border-color:#e9edef}
+.report-mode .brand{font-size:11px;letter-spacing:1px}.report-mode .brand small{letter-spacing:1px}
+.report-mode .brand-symbol{border-radius:11px;background:#327d70}
+.report-mode .project-switcher{margin-top:30px;padding-bottom:16px;border:0}
+.report-mode .project-switcher select{background:#fff;border-color:#e0e7ea}
+.report-mode .step-nav{gap:5px;margin-top:10px}.report-mode .step-button{padding:12px 11px;font-size:13px;color:#64727b}
+.report-mode .step-button.active{background:#e4eeeb;color:#256859}.report-mode .step-button:hover{background:#eaf0f1}
+.report-mode .step-number{font-family:inherit;font-size:15px;color:inherit}
+.report-mode .sidebar-bottom{padding:15px 8px}.report-mode .sidebar-bottom p{display:none}
+.report-mode .topbar{background:#fff;border-color:#edf0f2;min-height:68px;padding:14px 28px}
+.report-mode .breadcrumb>span{display:none}.report-mode .breadcrumb strong{font-size:14px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.report-mode #revision-label,.report-mode #refresh-project,.report-mode .workspace-footer{display:none}
+.report-mode #workspace{padding:20px 28px 24px;flex:1;min-height:0}
+.report-mode .room-nav-divider{margin:12px 9px 5px;color:#99a5ac;font-size:10px}
+.report-mode .report-nav-libraries>summary{padding:13px 12px;font-size:13px;color:#64727b}
+.report-mode .report-nav-libraries[open]>summary{padding-bottom:5px}
+.audit-mode-toggle{border:1px solid #dce5e8;border-radius:20px;background:#fff;color:#657782;font-size:12px;min-height:36px;padding:7px 13px;white-space:nowrap}
+.audit-mode-toggle[aria-pressed=true]{background:#e9f1ee;color:#246759;border-color:#bfd4cc}
+.report-mode .report-workshop-layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:22px;max-width:1320px;margin:0 auto;align-items:start}
+.report-mode .report-workshop-layout>[data-harness]{min-width:0;grid-column:1;grid-row:1}
+.report-mode [data-report-exhibit]{grid-column:2;grid-row:1;min-width:0;padding-top:22px}
+.report-source-shelf{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff}
+.report-source-shelf h2{font-size:14px;margin-bottom:15px}.report-source-shelf .button{margin-top:12px}
+.report-source-file{display:flex;width:100%;gap:12px;background:none;border:0;border-bottom:1px solid #edf0f1;padding:14px 0;text-align:left;color:var(--ink)}
+.report-source-file span:first-child{font-size:10px;color:#678a80;padding:5px;border:1px solid #dce7e3;border-radius:5px;height:30px}
+.report-source-file strong{font-size:12px;line-height:1.6;overflow-wrap:anywhere;font-weight:500}.report-source-file small{display:block;color:var(--muted);font-size:10px}
+.report-source-shelf p{font-size:12px;color:var(--muted)}
+.report-room-drawer{position:fixed;inset:68px 0 0 auto;margin:0;width:min(850px,68vw);height:calc(100dvh - 68px);max-height:none;max-width:none;border:0;border-left:1px solid #dce6e8;padding:0;box-shadow:-12px 12px 60px #243c4214;background:#f8fafb;color:#25343c;z-index:40;overflow:hidden}
+.report-room-drawer[open]{display:flex;flex-direction:column}
+.report-room-head{padding:18px 24px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e4eaed;flex-shrink:0}
+.report-room-head small{color:#8b999f;font-size:10px}.report-room-head h2{font-size:18px;margin:2px 0 0}.report-room-body{padding:24px;overflow:auto;flex:1;overscroll-behavior:contain}
+.report-room-body .harness-with-chat{padding-right:0!important}.report-room-body .supervisor-live-chat{display:none!important}
+.report-room-body .supervisor-heading{display:none}.report-room-body .supervisor-panel{background:#fff}
+.report-room-body .source-has-chat{padding-right:0;margin-right:0}.report-room-body .table-scroll{max-width:100%}
+.report-mode .report-landing{max-width:750px;margin:12vh auto 0;text-align:center}.report-landing .landing-mark{display:grid;place-items:center;background:#e8f2ee;color:#2d7968;width:62px;height:62px;border-radius:20px;margin:0 auto 25px;font-size:26px}
+.report-mode .report-landing h1{font-size:31px;letter-spacing:-.5px}.report-mode .report-landing p{color:#71818a;font-size:15px}.report-mode .report-landing .button-row{justify-content:center;margin-top:26px}.report-mode .report-landing small{display:block;margin-top:30px;color:#98a2a9}
+@media(min-width:1500px){.report-mode #workspace{padding:25px 44px}.report-mode .topbar{padding:14px 44px}}
+@media(max-width:1150px){.report-mode .report-workshop-layout{grid-template-columns:minmax(0,1fr)}.report-mode [data-report-exhibit]{grid-row:2;grid-column:1;padding-top:0}.report-mode .report-source-shelf{padding:15px}.report-room-drawer{width:78vw}}
+@media(max-width:800px){.report-mode .app-shell{display:block}.report-mode .sidebar{display:flex;flex-direction:row;flex-wrap:wrap;padding:13px 18px;gap:12px}.report-mode .sidebar .brand{flex:1}.report-mode .project-switcher{margin:0;padding:0;max-width:55%}.report-mode .step-nav{width:100%;display:flex;align-items:start;margin:0;overflow:auto}.report-mode .step-button{white-space:nowrap;padding:9px}.report-mode .report-nav-libraries{min-width:100px}.report-mode .room-nav-divider{display:none}.report-mode .sidebar-bottom{display:none}.report-mode .topbar{padding:11px 18px;min-height:58px}.report-mode #workspace{padding:12px}.report-mode .breadcrumb strong{max-width:43vw}.report-room-drawer{inset:0;width:100%;height:100dvh}.report-room-head{padding:14px}.report-room-body{padding:14px}.report-mode .report-landing{margin:8vh 18px}.report-mode .report-landing h1{font-size:26px}.audit-mode-toggle{font-size:11px;padding:6px 10px}}
+@media(prefers-reduced-motion:reduce){.report-room-drawer{scroll-behavior:auto}}
+.report-mode .brand-symbol{display:flex;justify-content:center;align-items:center;letter-spacing:-2px;padding-right:2px;flex-shrink:0}.report-mode .brand-symbol span{font-size:19px}
+.report-mode .reporting-desk{height:calc(100dvh - 115px);max-height:none;min-height:500px}.report-mode .reporting-desk .agent-conversation{min-height:70px}.report-mode .reporting-controls{max-height:min(32vh,290px)}
+.report-directory-entry{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;background:#fff;border:1px solid #e2eaed;border-radius:12px;padding:17px 20px;color:#314750;margin-bottom:10px}.report-directory-entry span{font-size:12px;color:#89969d}.report-directory-entry:hover{background:#eef6f3;border-color:#cbded5}
+@media(max-width:800px){.report-mode .reporting-desk{height:auto;min-height:calc(100dvh - 220px)}.report-mode .reporting-controls{max-height:45dvh;flex:0 0 auto}.report-mode .reporting-desk .agent-conversation{flex:1 1 auto;min-height:300px;max-height:65dvh}}
