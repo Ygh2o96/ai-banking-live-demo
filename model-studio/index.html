@@ -1,37 +1,48 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
- <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
- <meta name="description" content="Model Studio 交互设计演示：以合成资料体验项目对话、收入驱动、现金安排和资料清单。">
- <title>华泰建模专家 · Model Studio 交互演示</title>
- <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23277565'/%3E%3Ctext x='8' y='29' font-family='sans-serif' font-size='25' fill='white'%3EM%3C/text%3E%3C/svg%3E">
- <link rel="stylesheet" href="./ui/styles.css"><link rel="stylesheet" href="./ui/harness.css"><link rel="stylesheet" href="./ui/reporting-desk.css"><link rel="stylesheet" href="./ui/reporting-shell.css"><link rel="stylesheet" href="./ui/financial-presentations.css"><link rel="stylesheet" href="./demo.css">
- <script type="module" src="./demo.js"></script>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="从历史试算表和管理层讨论纪要建立、调整与复核财务模型。">
+    <title>华泰建模专家 · 完整工作台体验</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./cash-schedule.css">
+    <link rel="stylesheet" href="./funding.css">
+    <link rel="stylesheet" href="./trace.css">
+    <link rel="stylesheet" href="./operating.css">
+    <link rel="stylesheet" href="./provisional.css">
+  <link rel="stylesheet" href="./liquidity.css">
+  <link rel="stylesheet" href="./harness.css">
+  <link rel="stylesheet" href="./banker-rooms.css">
+  <link rel="stylesheet" href="./reporting-desk.css">
+  <link rel="stylesheet" href="./workshop-showcase.css">
+  <link rel="stylesheet" href="./reporting-shell.css">
+  <link rel="stylesheet" href="./financial-presentations.css">
+    <script type="module" src="./preview-entry.js"></script>
+  <link rel="stylesheet" href="./preview.css">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 </head>
-<body class="report-mode preview-mode">
- <a class="skip-link" href="#workspace">跳至工作区</a>
- <div class="app-shell">
-  <aside class="sidebar" aria-label="项目与工作间">
-   <a class="brand" href="./" aria-label="Model Studio 演示首页"><span class="brand-symbol" aria-hidden="true">M<span>/</span></span><span>MODEL STUDIO<small>财务建模工作台</small></span></a>
-   <div class="demo-project"><small>当前项目</small><strong>清禾出行</strong><span>城市骑行 · 合成公司</span></div>
-   <nav class="step-nav" aria-label="工作间">
-    <button class="step-button active" data-home><span class="step-number" aria-hidden="true">◌</span>项目对话</button>
-    <span class="room-nav-divider">按需展开</span>
-    <button class="step-button" data-room="drivers"><span class="step-number" aria-hidden="true">↗</span>收入驱动</button>
-    <button class="step-button" data-room="cash"><span class="step-number" aria-hidden="true">≈</span>现金安排</button>
-    <button class="step-button" data-room="sources"><span class="step-number" aria-hidden="true">▤</span>资料清单</button>
-    <button class="step-button" data-room="memo"><span class="step-number" aria-hidden="true">▧</span>备忘录示意</button>
-   </nav>
-   <div class="demo-sidebar-note">从讨论开始<br>将假设、计算和成果放在一起</div>
-   <button type="button" class="button button-quiet demo-reset" data-reset>重置演示</button>
-  </aside>
-  <div class="main-shell">
-   <header class="topbar"><div class="breadcrumb"><strong>清禾出行 <span class="project-separator">/</span> 销售与现金示意</strong></div><div class="topbar-actions"><span class="demo-badge">交互演示 · 合成资料</span><button class="audit-mode-toggle" type="button" aria-pressed="false" data-audit>专业审计模式</button></div></header>
-   <main id="workspace" tabindex="-1"><div id="demo-desk"></div></main>
-  </div>
- </div>
- <div class="demo-toast" role="status" aria-live="polite" hidden></div>
- <noscript><p>请启用 JavaScript，以体验对话示例、可调整假设和交互图表。</p></noscript>
-</body>
+  <body class="preview-workspace">
+    <a class="skip-link" href="#workspace">跳至工作区</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="项目与工作间">
+        <a class="brand" href="./" aria-label="Model Studio 首页"><span class="brand-symbol" aria-hidden="true">M<span>/</span></span><span>MODEL STUDIO<small>财务建模工作台</small></span></a>
+        <div class="project-switcher"><label for="project-select">当前项目</label><select id="project-select"><option value="">正在连接…</option></select><button class="button button-quiet" id="new-project">＋ 新建项目</button></div>
+        <nav class="step-nav" aria-label="工作间" id="step-nav"></nav>
+        <div class="sidebar-bottom"><span class="connection-dot" id="connection-dot"></span><span id="connection-label">连接本机工作台</span><p>资料、假设与模型逐版留存。<br>生成结果供团队复核。</p></div>
+      </aside>
+      <div class="main-shell">
+        <header class="topbar"><div class="breadcrumb"><span>工作空间</span><span aria-hidden="true">/</span><strong id="project-title">新建财务模型</strong></div><div class="topbar-actions"><button id="audit-mode-toggle" class="audit-mode-toggle" type="button" aria-pressed="false">专业审计模式</button><span id="save-state" class="save-state"></span><span id="revision-label" class="badge">尚未选定项目</span><button class="icon-button" id="refresh-project" title="刷新项目" aria-label="刷新项目">↻</button></div></header>
+        <div id="job-banner" class="job-banner" hidden aria-live="polite"></div>
+        <div id="global-error" class="global-error" hidden role="alert"></div>
+        <main id="workspace" tabindex="-1"><div class="loading-state"><span class="spinner" aria-hidden="true"></span><h1>正在打开工作台</h1><p>读取本机项目与可用功能。</p></div></main>
+        <footer class="workspace-footer"><span>MODEL STUDIO</span><span id="footer-state">新模型 · 来源可追溯 · Excel 可编辑</span></footer>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <dialog id="project-dialog" class="modal"><form id="project-form"><div class="modal-head"><div><p class="eyebrow">NEW PROJECT</p><h2>建立一个新项目</h2></div><button class="icon-button" type="button" data-close-dialog="project-dialog" aria-label="关闭">×</button></div><label class="field">项目名称<input name="name" required maxlength="120" placeholder="输入公司或项目名称" autocomplete="off"></label><details><summary>初步建模设置（可稍后调整）</summary><div class="form-grid"><label class="field">列报货币<select name="currency"><option value="CNY">人民币 CNY</option><option value="HKD">港元 HKD</option><option value="USD">美元 USD</option></select></label><label class="field">原始金额单位<select name="unit"><option value="1">元</option><option value="1000">千元</option><option value="10000">万元</option><option value="1000000">百万元</option></select></label><label class="field">预测月数<input type="number" name="forecast_months" min="1" max="60" value="12" required></label><label class="field">初步业务类型<select name="business_type" required><option value="other">暂不确定，分析资料后选择</option><option value="product">产品销售</option><option value="service">服务收入</option><option value="project">项目收入</option></select></label></div></details><p class="form-error" id="project-form-error" hidden></p><div class="modal-footer"><button class="button" type="button" data-close-dialog="project-dialog">取消</button><button class="button button-primary" type="submit">创建项目</button></div></form></dialog>
+    <dialog id="evidence-dialog" class="modal evidence-modal"><div class="modal-head"><div><p class="eyebrow">SOURCE EVIDENCE</p><h2 id="evidence-title">来源资料</h2></div><button class="icon-button" type="button" data-close-dialog="evidence-dialog" aria-label="关闭来源资料">×</button></div><div id="evidence-body"></div></dialog>
+  </body>
 </html>

@@ -1,0 +1,11 @@
+/* Deployment framing only. Workroom layouts and business components are shared. */
+.preview-environment{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 24px;background:#eef5f2;border-bottom:1px solid #d7e6de;color:#396457;font-size:11px}
+.preview-environment strong{font-size:12px}.preview-environment button{margin-left:auto;border:0;background:transparent;color:#275c4d;cursor:pointer;font:inherit;font-weight:600;padding:7px}
+.preview-environment button:focus-visible{outline:2px solid #275c4d;outline-offset:2px}
+.preview-workspace .sidebar{overflow-y:auto}.preview-workspace .reporting-desk{height:calc(100dvh - 153px)}
+.preview-workspace .harness-source-consent,.preview-workspace .reporting-runtime .activity-dot{animation:none}
+@media(max-width:800px){.preview-environment{padding:8px 12px;gap:6px 12px}.preview-environment span{font-size:10px}.preview-workspace .sidebar{overflow-y:visible}.preview-workspace .reporting-desk{height:auto;min-height:450px}.preview-environment button{padding:5px;font-size:11px}}
+
+/* Online start controls have no action in the static deployment. */
+.preview-workspace [data-h-kind="start"],.preview-workspace [data-reporting-worker]{display:none!important}
+.preview-workspace [data-reporting-dot]{background:#8b9991;box-shadow:none}

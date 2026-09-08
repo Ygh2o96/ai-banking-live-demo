@@ -1,0 +1,13 @@
+import {configureProjectTransport} from './project-transport.js';
+import {createPreviewTransport,installPreviewPresentation} from './preview-transport.js';
+const response=await fetch(new URL('./preview-data.json',import.meta.url));
+if(!response.ok)throw Error('Synthetic project data could not be loaded.');
+const snapshot=await response.json();
+const transport=createPreviewTransport(snapshot);
+configureProjectTransport(transport);
+const projectId=snapshot.project.id;
+const url=new URL(location.href);
+url.searchParams.set('project',projectId);
+history.replaceState(null,'',url);
+installPreviewPresentation(snapshot,transport);
+await import('./app.js');

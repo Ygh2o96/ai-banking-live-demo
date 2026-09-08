@@ -62,6 +62,12 @@
 .reporting-composer>small{display:block;font-size:11px;color:#9a8153;padding-top:9px}
 .reporting-desk .chat-latest{position:static;align-self:center;flex:none;margin:0 0 2px;padding:3px 11px;border:0;font-size:10px;background:#f5f7f1;color:#91a07f}
 .reporting-outputs,.reporting-attention{margin:22px 0}
+.reporting-desk .conversation-entry.output{padding:12px 0;border-bottom:1px solid #eff2ed}
+.reporting-desk .conversation-entry.output .reporting-inline-board{margin-top:0}
+.reporting-desk .conversation-entry.output .reporting-output-card p{margin:0;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.reporting-desk .conversation-undated{margin:0 0 18px;font-size:12px;color:#76867e}
+.reporting-desk .conversation-undated>summary{cursor:pointer}
+.reporting-worker-summary{padding:9px 0}
 .reporting-outputs h3,.reporting-attention h3{font-size:11px;color:#93a086;letter-spacing:.5px;font-weight:500;margin:0 0 10px}
 .reporting-output-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .reporting-inline-board{grid-column:1 / -1;min-width:0;margin-top:16px}

@@ -5,3 +5,6 @@
 /* Explicit historical TB selections; each draft belongs to one original sheet. */
 .tb-bundle-table{min-width:650px}.tb-bundle-table td{vertical-align:top}.tb-bundle-table td:first-child{max-width:250px;overflow-wrap:anywhere}.tb-bundle-table .button-row{gap:6px}.tb-bundle-table details{min-width:150px}.tb-bundle-table summary{padding:0}.tb-bundle-table details p{font-size:11px;line-height:1.8;margin:10px 0 0}.tb-selected-preview>summary{padding:15px 23px;border-top:1px solid var(--line)}.tb-pending-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px}.tb-pending-row>span{flex:1 1 180px;overflow-wrap:anywhere}.source-row .badge{margin-top:5px;font-size:9px}#normalize-form[inert],#tb-bundle-form[inert]{opacity:.72}.tb-bundle>.panel-body>.notice:last-child{margin-bottom:0}
 @media(max-width:600px){.tb-selected-preview>summary{padding:14px 19px}.tb-bundle-table{min-width:600px}.tb-bundle .panel-head{gap:10px}.tb-bundle .panel-head .badge{flex-shrink:0}}
+
+/* Primary links keep the same readable label as primary buttons. */
+a.button.button-primary, a.button.button-primary:visited, a.button.button-primary:hover, a.button.button-primary:focus-visible { color: #fff; }

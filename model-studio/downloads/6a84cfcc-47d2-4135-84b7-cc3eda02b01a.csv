@@ -1,0 +1,5 @@
+period,item,amount_cny,status
+2026-01,opening_cash,111250.0,synthetic_tb
+2026-03,identified_net_movement,202500.0,partial_synthetic_cashbook
+2026-03,unexplained_difference,20000,unresolved
+2026-03,closing_cash,333750.0,synthetic_tb

@@ -1,0 +1,15 @@
+.provisional-controls {margin-top:14px; padding-top:12px; border-top:1px solid var(--line,#ddd); min-width:250px;}
+.provisional-controls .field {margin:10px 0;}
+.provisional-fields[hidden] {display:none;}
+.provisional-ack {align-items:flex-start; margin-top:12px; line-height:1.6;}
+.provisional-ack input {flex:none; margin-top:5px;}
+.provisional-receipt {overflow-wrap:anywhere;}
+.provisional-governance,.provisional-warning {border:1px solid #d4b574; background:#fff9eb; color:#60491e; border-radius:6px; padding:16px 20px; margin:16px 0; line-height:1.6;}
+.provisional-governance h2 {font-size:17px; margin:0 0 6px;}
+.provisional-governance summary {cursor:pointer;}
+.provisional-governance table {margin-top:12px; min-width:780px; color:var(--ink,#25302e); background:#fff;}
+.provisional-governance td {white-space:normal; vertical-align:top; max-width:330px; overflow-wrap:anywhere;}
+.provisional-governance blockquote {margin:8px 0; padding-left:10px; border-left:2px solid #d4b574;}
+.provisional-governance dl {font-size:12px;}
+.provisional-governance dd {margin:0 0 8px; overflow-wrap:anywhere;}
+.provisional-warning {font-size:13px;}

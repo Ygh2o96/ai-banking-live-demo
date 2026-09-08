@@ -1,7 +1,5 @@
-# Model Studio · 华泰建模专家
+# 华泰建模专家
 
-A static, Chinese-language design preview using a fictional company and synthetic inputs. Open index.html through a static web server.
+本页使用与本机工作台相同的前端代码，展示合成项目的完整工作区与已保存成果。在线 AI、真实资料上传和服务器保存尚待接入。
 
-The preview demonstrates a chat-led workspace, optional detail drawers, editable sales/cash scenarios, versioned inline results and a sample CSV data request. Example replies use local scripts; a live Codex agent is not connected to this page. Changes are held in browser memory and reset on reload.
-
-Presentation modules are reused from Model Studio. Charts use Apache ECharts 6.1.0 (Apache-2.0) and tables use Tabulator 6.5.2 (MIT). Their licence and notice files, including bundled dependency notices, are retained under ui/vendor/.
+资料清单、模型及文稿下载均为合成示例。

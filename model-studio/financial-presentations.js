@@ -10,6 +10,14 @@ const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const label=v=>typeof v==='string'&&v.length>0&&v.length<=300;
 const keysAre=(v,keys)=>object(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const fieldText=v=>v==null?'未取得':typeof v==='boolean'?(v?'是':'否'):String(v);
+const numberDisplay=new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2});
+// Format presentation only. Source objects, sorting and the inspector retain exact values.
+export const financialDisplayText=v=>typeof v==='number'&&Number.isFinite(v)?numberDisplay.format(v).replace(/^-0$/, '0'):fieldText(v);
+function displayPoint(value){
+  if(Array.isArray(value))return value.map(displayPoint).join(' · ');
+  if(object(value))return Object.entries(value).map(([k,v])=>`${k}：${displayPoint(v)}`).join('\n');
+  return financialDisplayText(value);
+}
 
 export function financialValueText(value,depth=0){
   if(depth>6)return '数据层级过深';
@@ -98,11 +106,11 @@ function inspectRow(state,index,point){
 }
 
 function textNode(value){const node=document.createElement('span');node.textContent=fieldText(value);return node;}
-function valueButton(value,state,rowIndex,point){const b=document.createElement('button');b.type='button';b.className='fp-value-button';b.textContent=fieldText(value);b.addEventListener('click',event=>{event.stopPropagation();inspectRow(state,rowIndex,point);});return b;}
+function valueButton(value,state,rowIndex,point){const b=document.createElement('button');b.type='button';b.className='fp-value-button';b.textContent=financialDisplayText(value);b.title=fieldText(value);b.addEventListener('click',event=>{event.stopPropagation();inspectRow(state,rowIndex,point);});return b;}
 
 function mountKpis(state){
   state.surface.classList.add('fp-kpis');
-  state.surface.innerHTML=state.section.rows.map((r,i)=>`<button type="button" class="fp-kpi" data-fp-row="${i}"><span>${escapeHTML(r.label)}</span><strong class="${r.value==null?'fp-missing':''}">${escapeHTML(fieldText(r.value))}</strong><small>${escapeHTML(r.unit||'未注明单位')} · ${escapeHTML(r.period||'')}</small><small>${escapeHTML(basisNames[r.basis])}</small></button>`).join('');
+  state.surface.innerHTML=state.section.rows.map((r,i)=>`<button type="button" class="fp-kpi" data-fp-row="${i}"><span>${escapeHTML(r.label)}</span><strong class="${r.value==null?'fp-missing':''}">${escapeHTML(financialDisplayText(r.value))}</strong><small>${escapeHTML(r.unit||'未注明单位')} · ${escapeHTML(r.period||'')}</small><small>${escapeHTML(basisNames[r.basis])}</small></button>`).join('');
 }
 
 async function mountGrid(state){
@@ -126,7 +134,7 @@ async function mountGrid(state){
 
 function chartOptions(section){
   const rows=section.rows,type=section.type,unit=rows[0].unit||'未注明单位';
-  const options={animation:false,color:['#26765b','#d19535','#587cc1','#9a6198','#5d9496','#ae6550'],aria:{enabled:true},tooltip:{trigger:'item',renderMode:'richText',confine:true,formatter:p=>`${rows[p.data?.fpRow]?.label||p.seriesName}\n${financialValueText(p.data?.fpPoint??p.value)}\n${unit}`},legend:{type:'scroll',top:0},grid:{left:60,right:28,top:52,bottom:62,containLabel:true},xAxis:{type:'category',axisLabel:{hideOverlap:true}},yAxis:{type:'value',name:unit,axisLabel:{hideOverlap:true}},dataZoom:[{type:'inside',xAxisIndex:0,filterMode:'none'},{type:'slider',xAxisIndex:0,bottom:5,height:20,filterMode:'none'}]};
+  const options={animation:false,color:['#26765b','#d19535','#587cc1','#9a6198','#5d9496','#ae6550'],aria:{enabled:true},tooltip:{trigger:'item',renderMode:'richText',confine:true,formatter:p=>`${rows[p.data?.fpRow]?.label||p.seriesName}\n${displayPoint(p.data?.fpPoint??p.value)}\n${unit}`},legend:{type:'scroll',top:0},grid:{left:60,right:28,top:52,bottom:62,containLabel:true},xAxis:{type:'category',axisLabel:{hideOverlap:true}},yAxis:{type:'value',name:unit,axisLabel:{hideOverlap:true}},dataZoom:[{type:'inside',xAxisIndex:0,filterMode:'none'},{type:'slider',xAxisIndex:0,bottom:5,height:20,filterMode:'none'}]};
   const datum=(value,fpRow,fpPoint)=>({value,fpRow,fpPoint});
   if(type==='time_series'){
     const periods=[];
@@ -150,7 +158,7 @@ function chartOptions(section){
     const xs=[...new Set(rows.map(r=>r.value.x))],ys=[...new Set(rows.map(r=>r.value.y))],values=rows.map(r=>r.value.value).filter(v=>v!==null);
     options.xAxis.data=xs;options.yAxis={type:'category',data:ys,axisLabel:{hideOverlap:true}};options.legend.show=false;options.grid.right=78;
     if(values.length)options.visualMap={min:Math.min(...values),max:Math.max(...values),calculable:false,orient:'vertical',right:0,top:'center',inRange:{color:['#f0e6b5','#7eb79a','#1a6950']}};
-    options.series=[{name:unit,type:'heatmap',data:rows.map((r,i)=>datum([xs.indexOf(r.value.x),ys.indexOf(r.value.y),r.value.value],i,r.value)),label:{show:true,formatter:p=>fieldText(p.data.fpPoint.value)},emphasis:{itemStyle:{borderWidth:2,borderColor:'#2d5472'}}}];
+    options.series=[{name:unit,type:'heatmap',data:rows.map((r,i)=>datum([xs.indexOf(r.value.x),ys.indexOf(r.value.y),r.value.value],i,r.value)),label:{show:true,formatter:p=>financialDisplayText(p.data.fpPoint.value)},emphasis:{itemStyle:{borderWidth:2,borderColor:'#2d5472'}}}];
   }else if(type==='scatter'){
     options.xAxis={type:'value',name:'X'};options.yAxis.name='Y';
     options.dataZoom.push({type:'inside',yAxisIndex:0,filterMode:'none'});

@@ -1,0 +1,1 @@
+{"title": "清禾出行单体三表适用性说明 · 合成示例", "synthetic": true, "company": "清禾出行", "module": "aggregate_three_statement_v1", "fit": ["单体产品销售", "同币种月度TB", "量价及周转驱动"], "not_covered": ["租赁与外币", "合并抵销", "逐项资产投产"], "sources": ["合成TB", "合成MDD"], "recipe": "收入→采购及费用→周转→现金与三表", "independent_review": "not_run"}

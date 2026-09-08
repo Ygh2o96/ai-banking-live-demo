@@ -1,0 +1,9 @@
+/* A user-recorded completed submission archives the exact linked artifacts. */
+export function submissionHTML(run,esc){
+ if(!run)return '';
+ const packages=(run.documents||[]).filter(d=>d.kind==='profit_forecast_memo').flatMap(d=>{
+  const model=(run.models||[]).find(m=>m.id===d.model_id);if(!model)return [];
+  return (run.calls||[]).filter(c=>c.tool==='model_export'&&c.status==='succeeded'&&c.result?.report?.model_hash===d.model_hash).map(c=>({memo:d,model,call:c}));
+ });
+ return `<section class="supervisor-panel"><h2>递交版本与先例归档</h2><p>登记实际递交的同版模型和 memo，自动留存到先例工坊及 PFM Memo 工坊。</p>${packages.map(p=>`<details data-h-detail="submission-${esc(p.memo.id)}"><summary>${esc(p.memo.title_zh)} · 模型 ${esc(p.model.id.slice(0,8))}</summary><form data-h-form="submission:${esc(p.memo.id)}" data-h-kind="record_submission"><input type="hidden" name="model_id" value="${esc(p.model.id)}"><input type="hidden" name="memo_id" value="${esc(p.memo.id)}"><input type="hidden" name="export_call_id" value="${esc(p.call.id)}"><label>实际递交日期<input type="date" name="submitted_at" required></label><label>递交用途与记录<textarea name="submission_reference" required rows="2" placeholder="如递交对象、轮次及对应文件记录"></textarea></label><label class="check-label"><input type="checkbox" name="confirmed_submitted" required>确认上述版本已实际递交</label><button class="button button-primary">登记递交并自动归档</button><p data-role-result role="status"></p></form></details>`).join('')||'<p class="field-hint">同版模型 Excel 与 PFM memo 生成后，会在这里列出可登记的组合。</p>'}${(run.submission_records||[]).map(r=>`<article><strong>${esc(r.submitted_at)} · ${esc(r.submission_reference)}</strong><p>模型与 memo 已归档，可在对应知识工坊继续整理意见和答复。</p><button class="button" data-step="precedents">查看模型先例</button> <button class="button" data-step="memo-library">查看 Memo 先例</button></article>`).join('')}</section>`;
+}

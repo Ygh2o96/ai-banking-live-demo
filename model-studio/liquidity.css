@@ -1,0 +1,30 @@
+.liquidity-panel{margin-bottom:22px;scroll-margin-top:20px;min-width:0}
+.liquidity-panel:focus{outline:2px solid var(--green);outline-offset:3px}
+.liquidity-version{font-size:11px!important;color:var(--muted);overflow-wrap:anywhere}
+.liquidity-headline{font-size:16px;font-weight:600;margin:0 0 12px;line-height:1.6}
+.liquidity-headline.negative,.liquidity-error{color:var(--danger)}
+.liquidity-facets{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.liquidity-table{min-width:760px;font-variant-numeric:tabular-nums}
+.liquidity-table th,.liquidity-table td{vertical-align:top;white-space:normal}
+.liquidity-table>tbody>tr>th{min-width:100px;text-align:left;background:var(--surface);position:sticky;left:0;z-index:1}
+.liquidity-table .numeric{min-width:130px}
+.liquidity-cell,.liquidity-unavailable{display:block;font-size:10px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.liquidity-unavailable{max-width:180px;white-space:normal}
+.liquidity-unknown small{font-size:10px;font-weight:400;display:block;color:var(--muted)}
+.liquidity-missing{font-size:11px;line-height:1.6;margin-bottom:0;min-width:160px}
+.liquidity-detail-row>td{background:#fafbf7;padding-top:0!important;padding-bottom:0!important}
+.liquidity-detail-row summary{padding:10px 0;font-size:11px}
+.liquidity-detail-row table{min-width:620px}
+.liquidity-action-intro{border-bottom:1px solid var(--line);padding-bottom:14px}
+.liquidity-action-intro p,.liquidity-issue p{font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+.liquidity-action-group{padding:18px 0;border-bottom:1px solid var(--line)}
+.liquidity-action-group>h3{font-size:15px;margin:0 0 10px}
+.liquidity-issue{padding:16px;border:1px solid var(--line);border-radius:6px;margin-top:12px;background:var(--surface)}
+.liquidity-issue-heading{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.liquidity-issue h4{font-size:13px;margin:0;line-height:1.7}
+.liquidity-evidence-links{flex-wrap:wrap;margin:12px 0}
+.liquidity-evidence-links>.field-hint{display:block;width:100%}
+.liquidity-hash{font-size:11px;overflow-wrap:anywhere}
+.liquidity-followup{margin-bottom:16px;scroll-margin-top:20px}
+.liquidity-target{outline:2px solid var(--green);outline-offset:-2px;scroll-margin-top:24px}
+@media(max-width:800px){.liquidity-panel .panel-head{display:block}.liquidity-issue{padding:12px}.liquidity-headline{font-size:15px}.liquidity-evidence-links{align-items:flex-start}.liquidity-evidence-links .button{white-space:normal;text-align:left}.liquidity-table-scroll{max-width:100%;overflow-x:auto}.liquidity-panel .panel-body{min-width:0;overflow-wrap:anywhere}}

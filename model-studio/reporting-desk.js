@@ -1,6 +1,8 @@
 import {presentationTypes,renderFinancialSection} from './financial-presentations.js';
 /* Reporting is a presentation of saved runs and public messages, never a new agent. */
 import {conversationHTML, agentTitle} from './runtime-ui.js';
+import {workerStatusHTML} from './worker-status.js';
+import {roomTitle} from './workrooms.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ownRooms={source_librarian:'intake',intake_librarian:'intake',data_librarian:'data-room',precedent_librarian:'precedents',accounting_librarian:'accounting-library',memo_librarian:'memo-library',audit_reviewer:'audit-lab'};
@@ -43,6 +45,59 @@ export function reportingStatus(run){
  return run.agent_state?.status==='stopped'?'可以接续工作':'目标已保存';
 }
 function roomButton(room,label,extra=''){return `<button type="button" class="reporting-room-link" data-reporting-open-room="${esc(room)}" ${extra}>${esc(label)}<span aria-hidden="true">↗</span></button>`;}
+const savedTime=value=>typeof value==='string'&&Number.isFinite(Date.parse(value))?value:null;
+const rows=value=>Array.isArray(value)?value:[];
+function nativeCard(run,item){
+ const title=typeof item.title==='string'&&item.title.trim()?item.title:typeof item.filename==='string'&&item.filename.trim()?item.filename:'下载成果文件';
+ return `<article class="reporting-output-card" data-native-artifact="${item.id}"><span>${nativeArtifactCurrent(run,item)?'本版':'前版'}${nativeArtifactLabel(item)}</span><a href="/api/harness/${item.run_id}/native-artifacts/${item.id}">${esc(title)} <span aria-hidden="true">↓</span></a>${typeof item.filename==='string'&&item.filename!==title?`<small>${esc(item.filename)}</small>`:''}</article>`;
+}
+// Attach only saved records. A repeated display ID is not a saved version ID.
+export function reportingTimelineEntries(run,roleId='modelling'){
+ if(!run)return [];
+ const entries=[],ordinals=new Map(),events=rows(run.events),ownRoom=ownRooms[roleId]||'alchemy';
+ const add=(kind,item,html,{eventKind,eventField='id',identity=item.id,owner=run.id,at=item.at,label='已保存成果',prior=false}={})=>{
+  const ordinal=ordinals.get(kind)||0;ordinals.set(kind,ordinal+1);
+  const matches=identity==null?[]:events.filter(e=>e.kind===eventKind&&(!e.run_id||e.run_id===owner)&&e.payload?.[eventField]===identity&&(item.epoch==null||e.epoch==null||e.epoch===item.epoch));
+  const event=matches.length===1?matches[0]:null;
+  const stable=item.record_id||item.id||`version:${item.version??ordinal}`;
+  const version=kind==='board'&&!item.record_id?`:${item.epoch??''}:${item.at??ordinal}`:'';
+  entries.push({id:`output:${kind}:${owner}:${stable}${version}`,type:'attachment',recordKind:kind,recordId:stable,
+   at:savedTime(at)||savedTime(event?.at),seq:event?.seq,label,
+   status:run.source_current===false?'来源已更新':prior?'前版记录':'',html});
+ };
+ for(const item of nativeArtifacts(run)){
+  const card=nativeCard(run,item),html=nativeArtifactPrimary(item)?card:`<details class="reporting-record" data-h-detail="artifact-${esc(item.run_id)}-${esc(item.id)}"><summary>计算底稿 · ${esc(item.filename||'成果文件')}</summary>${card}</details>`;
+  add('native',item,html,{eventKind:'native_artifact_saved',owner:item.run_id,at:item.created_at,label:'成果文件已保存'});
+ }
+ for(const paper of rows(run.workpapers)){
+  const html=`<article class="reporting-output-card"><span>工作底稿${paper.version!=null?' · V'+esc(paper.version):''}</span><p>${esc(paper.summary||'已保存底稿')}</p>${paper.current?roomButton(ownRoom,'查看当前工作间'):''}</article>`;
+  add('workpaper',paper,html,{eventKind:'workpaper_saved',eventField:'workpaper_id',label:'工作底稿已保存',prior:paper.current===false});
+ }
+ const boards=rows(run.business_boards||run.banker?.boards),latest=new Map(boards.map(b=>[b.id,b]));
+ for(const board of boards){
+  const sections=rows(board.sections).filter(s=>presentationTypes.includes(s.type)).map(s=>renderFinancialSection(s,esc)).join('');
+  const prior=latest.get(board.id)!==board||board.current===false||(board.epoch!=null&&board.epoch!==run.epoch);
+  const destination=board.room_id||ownRoom;
+  const body=`<section class="reporting-inline-board"><h3>${esc(board.title)}</h3><p>${esc(board.summary)}</p>${sections}${roomButton(destination,'查看'+roomTitle(destination))}</section>`;
+  const html=['inline','both'].includes(board.placement)?body:`<details class="reporting-record" data-h-detail="board-${esc(board.record_id||board.id)}-${esc(board.at||'')}"><summary>${esc(board.title)}</summary>${body}</details>`;
+  // Display IDs may repeat. Match a metadata-only event only when unambiguous;
+  // otherwise the record's own timestamp carries this exact stored payload.
+  add('board',board,html,{eventKind:'business_board_saved',identity:board.id,label:'业务看板已保存',prior});
+ }
+ for(const call of rows(run.calls).filter(c=>c.tool==='model_export'&&c.status==='succeeded')){
+  add('export',call,`<article class="reporting-output-card"><span>${call.current?'本版工作簿':'前版工作簿'}</span><a href="/api/harness/${encodeURIComponent(run.id)}/artifacts/${encodeURIComponent(call.id)}">下载公式 Excel <span aria-hidden="true">↓</span></a></article>`,{eventKind:'tool_finished',eventField:'call_id',at:call.completed_at,label:'工作簿已生成'});
+ }
+ for(const doc of rows(run.documents)){
+  add('document',doc,`<article class="reporting-output-card"><span>${doc.current?'本版文稿':'前版文稿'}</span><a target="_blank" rel="noopener" href="/api/harness/${encodeURIComponent(run.id)}/documents/${encodeURIComponent(doc.id)}">${esc(doc.title_zh||doc.title||'查看文稿')} <span aria-hidden="true">↗</span></a></article>`,{eventKind:'business_document_saved',label:'文稿已保存'});
+ }
+ for(const request of rows(run.request_lists)){
+  add('request',request,`<article class="reporting-output-card"><span>已审批资料清单</span><a href="/api/harness/${encodeURIComponent(run.id)}/request-lists/${encodeURIComponent(request.id)}">${request.format==='xlsx'?'下载可填写 Excel':'下载资料清单'} <span aria-hidden="true">↓</span></a></article>`,{eventKind:'request_list_approved',at:request.approved_at,label:'资料清单已审批',prior:request.epoch!=null&&request.epoch!==run.epoch});
+ }
+ for(const draft of rows(run.request_drafts)){
+  add('request-draft',draft,`<article class="reporting-output-card"><span>资料需求草稿</span><p>${esc(draft.purpose||'已保存资料需求')}</p><p>${esc(draft.explanation)}</p>${draft.epoch===run.epoch?roomButton('dispatch','审阅当前资料需求'):''}</article>`,{eventKind:'request_pack_proposed',label:'资料需求草稿已保存',prior:draft.epoch!=null&&draft.epoch!==run.epoch});
+ }
+ return entries;
+}
 function pickerHTML(runs,run){return `<label class="run-picker">工作记录<select data-h-run><option value="">＋ 新工作目标</option>${runs.map(r=>`<option value="${esc(r.id)}" ${r.id===run?.id?'selected':''}>${esc(r.goal)}</option>`).join('')}</select></label>`;}
 export function reportingControlsHTML({run,runs=[],cap,scope,hasConsent,scopeHTML='',pending=false}){
  runs=runs.filter(r=>r?.role_id!=='model_worker');
@@ -51,7 +106,7 @@ export function reportingControlsHTML({run,runs=[],cap,scope,hasConsent,scopeHTM
  const current=reportingIsCurrent(run),operating=['starting','running','waiting'].includes(run.agent_state?.status),disabled=pending?'disabled':'';
  let action='';
  if(!current){
-  action=`<form class="reporting-continuation" data-h-form="continue" data-h-kind="continue"><p>${run.control==='cancelled'?'这次工作已结束。':'资料或工作方法已有更新。'}已有讨论和底稿可以接回。</p><label>接下来做什么<textarea name="text" rows="2" required>${esc(run.goal)}</textarea></label><button class="button button-primary" type="submit" ${disabled}>按当前资料接续</button><p data-role-result role="status"></p></form>`;
+  action=`<form class="reporting-continuation" data-h-form="continue" data-h-kind="continue"><p>${run.control==='cancelled'?'这次工作已结束。':run.source_current===false?'资料已有更新。':'工作台已更新。'}已有讨论和文件可以接着使用。</p><button class="button button-small button-primary" type="submit" ${disabled}>按当前资料接续</button><details class="reporting-record" data-h-detail="continuation-goal"><summary>查看或调整本次目标</summary><label>接下来做什么<textarea name="text" rows="2" required>${esc(run.goal)}</textarea></label></details><p data-role-result role="status"></p></form>`;
  }else if(!hasConsent){
   action=`<form class="reporting-consent" data-h-form="start" data-h-kind="start"><p class="reporting-service">${esc(cap?.agent?.label||'正在读取服务信息')}</p><details data-h-detail="reporting-consent"><summary>本次使用 ${(run.source_index||[]).length} 份资料 · 查看范围</summary><ul>${(run.source_index||[]).map(s=>`<li>${esc(s.name)}</li>`).join('')||'<li>本次未选择项目来源文件。</li>'}</ul>${scopeHTML}<p>包括本次目标、后续指令及已固定的工作方法。${run.continued_from?'同时接回前次工作记录。':''}</p><details data-h-detail="reporting-scope-identifiers"><summary>资料与版本校验依据</summary><pre>${esc(JSON.stringify({scope,sources:(run.source_index||[]).map(s=>({name:s.name,sha256:s.sha256}))},null,2))}</pre></details></details><div class="reporting-consent-footer"><label class="check-label"><input name="consent" type="checkbox" required>同意按上述资料和服务范围处理本次任务</label><button class="button button-primary" type="submit" ${pending||!cap?.agent?.available?'disabled':''}>确认并开始</button></div>${!cap?.agent?.available?'<p class="field-hint">服务暂不可用，工作目标已保存。</p>':''}<p data-role-result role="status"></p></form>`;
  }else if(run.control==='paused'){
@@ -79,16 +134,15 @@ export function reportingOutputsHTML(run,roleId='modelling'){
  if(!run)return '';
  const cards=[],supportingFiles=[],paper=run.workpapers?.at(-1),ownRoom=ownRooms[roleId]||'alchemy';
  for(const item of nativeArtifacts(run)){
-  const title=typeof item.title==='string'&&item.title.trim()?item.title:typeof item.filename==='string'&&item.filename.trim()?item.filename:'下载成果文件';
   const current=nativeArtifactCurrent(run,item),target=current&&nativeArtifactPrimary(item)?cards:supportingFiles;
-  target.push(`<article class="reporting-output-card" data-native-artifact="${item.id}"><span>${current?'本版':'前版'}${nativeArtifactLabel(item)}</span><a href="#preview-file-${item.run_id}/native-artifacts/${item.id}">${esc(title)} <span aria-hidden="true">↓</span></a>${typeof item.filename==='string'&&item.filename!==title?`<small>${esc(item.filename)}</small>`:''}</article>`);
+  target.push(nativeCard(run,item));
  }
  if(paper)cards.push(`<article class="reporting-output-card"><span>工作底稿${paper.version!=null?' · V'+esc(paper.version):''}</span>${roomButton(ownRoom,paper.summary||'查看已保存底稿')}<small>${paper.current?'本版底稿':'前版底稿'}</small></article>`);
  const boards=new Map();for(const board of run.business_boards||run.banker?.boards||[])boards.set(board.id,board);
  for(const board of [...boards.values()].slice(-3)){if(['inline','both'].includes(board.placement)){cards.push(`<section class="reporting-inline-board"><h3>${esc(board.title)}</h3><p>${esc(board.summary)}</p>${(board.sections||[]).filter(s=>presentationTypes.includes(s.type)).map(s=>renderFinancialSection(s,esc)).join('')}</section>`);if(board.placement==='inline')continue;}cards.push(`<article class="reporting-output-card"><span>工作间成果</span>${roomButton(board.room_id||ownRoom,board.title)}<small>${esc(board.summary)}</small></article>`);}
- for(const c of (run.calls||[]).filter(c=>c.tool==='model_export'&&c.status==='succeeded').slice(-2))cards.push(`<article class="reporting-output-card"><span>${c.current?'本版工作簿':'前版工作簿'}</span><a href="#preview-file-${encodeURIComponent(run.id)}/artifacts/${encodeURIComponent(c.id)}">下载公式 Excel <span aria-hidden="true">↓</span></a></article>`);
- for(const d of (run.documents||[]).slice(-3))cards.push(`<article class="reporting-output-card"><span>${d.current?'本版文稿':'前版文稿'}</span><a target="_blank" rel="noopener" href="#preview-file-${encodeURIComponent(run.id)}/documents/${encodeURIComponent(d.id)}">${esc(d.title_zh||d.title||'查看文稿')} <span aria-hidden="true">↗</span></a></article>`);
- for(const request of (run.request_lists||[]).slice(-2))cards.push(`<article class="reporting-output-card"><span>已审批资料清单</span><a href="#preview-file-${encodeURIComponent(run.id)}/request-lists/${encodeURIComponent(request.id)}">${request.format==='xlsx'?'下载可填写 Excel':'下载资料清单'} <span aria-hidden="true">↓</span></a></article>`);
+ for(const c of (run.calls||[]).filter(c=>c.tool==='model_export'&&c.status==='succeeded').slice(-2))cards.push(`<article class="reporting-output-card"><span>${c.current?'本版工作簿':'前版工作簿'}</span><a href="/api/harness/${encodeURIComponent(run.id)}/artifacts/${encodeURIComponent(c.id)}">下载公式 Excel <span aria-hidden="true">↓</span></a></article>`);
+ for(const d of (run.documents||[]).slice(-3))cards.push(`<article class="reporting-output-card"><span>${d.current?'本版文稿':'前版文稿'}</span><a target="_blank" rel="noopener" href="/api/harness/${encodeURIComponent(run.id)}/documents/${encodeURIComponent(d.id)}">${esc(d.title_zh||d.title||'查看文稿')} <span aria-hidden="true">↗</span></a></article>`);
+ for(const request of (run.request_lists||[]).slice(-2))cards.push(`<article class="reporting-output-card"><span>已审批资料清单</span><a href="/api/harness/${encodeURIComponent(run.id)}/request-lists/${encodeURIComponent(request.id)}">${request.format==='xlsx'?'下载可填写 Excel':'下载资料清单'} <span aria-hidden="true">↓</span></a></article>`);
  if((run.request_drafts||[]).some(d=>d.epoch===run.epoch))cards.push(`<article class="reporting-output-card"><span>资料需求草稿</span>${roomButton('dispatch','审阅资料需求')}</article>`);
  const history=supportingFiles.length?`<details class="reporting-record reporting-artifact-history" data-h-detail="native-artifact-history" style="margin-top:12px"><summary>计算底稿与历史版本</summary><div class="reporting-output-grid">${supportingFiles.join('')}</div></details>`:'';
  return cards.length||history?`<section class="reporting-outputs"><h3>已保存的成果</h3>${cards.length?`<div class="reporting-output-grid">${cards.join('')}</div>`:''}${history}</section>`:'';
@@ -99,6 +153,6 @@ export function reportingComposerHTML({run,roleId='modelling',steerId,hasConsent
 }
 export function reportingDeskHTML(options){
  const {run,roleId='modelling',receipt=()=>''}=options,title=roleId==='modelling'?'华泰建模专家':agentTitle(run||{role_id:roleId});
- const conversation=run?conversationHTML(run,esc,receipt).replace('<details class="conversation-actions"',`<div data-reporting-outputs>${reportingOutputsHTML(run,roleId)}</div><div data-reporting-attention>${reportingAttentionHTML(run)}</div><details class="conversation-actions"`):`<div class="agent-conversation reporting-welcome"><span class="reporting-welcome-symbol" aria-hidden="true">↗</span><h2>${roleId==='modelling'?'这次，我们要完成什么？':'把这次需要整理的事情交给我'}</h2><p>${roleId==='modelling'?'从资料和你的目标开始。讨论、底稿和需要你判断的事项都会留在这里。':'说明需要解决的问题，选择相关资料，然后继续讨论。'}</p></div>`;
- return `<section class="reporting-desk" data-live-chat data-run-id="${esc(run?.id||'')}" data-role-id="${esc(roleId)}"><header class="reporting-desk-head"><div><span class="reporting-eyebrow">${roleId==='modelling'?'项目汇报桌':'工作间对话'}</span><h2>${esc(title)}</h2></div><div class="reporting-runtime" role="status"><span class="activity-dot" data-reporting-dot></span><span data-reporting-status>${esc(reportingStatus(run))}</span></div></header><div class="reporting-controls" data-reporting-controls>${reportingControlsHTML(options)}</div>${conversation}<button type="button" class="button button-small chat-latest" data-chat-latest ${run?'':'hidden'}>最新进展 ↓</button><div data-reporting-composer>${reportingComposerHTML(options)}</div></section>`;
+ const conversation=run?conversationHTML(run,esc,receipt,{attachments:reportingTimelineEntries(run,roleId)}).replace('<details class="conversation-actions"',`<div data-reporting-attention>${reportingAttentionHTML(run)}</div><details class="conversation-actions"`):`<div class="agent-conversation reporting-welcome"><span class="reporting-welcome-symbol" aria-hidden="true">↗</span><h2>${roleId==='modelling'?'这次，我们要完成什么？':'把这次需要整理的事情交给我'}</h2><p>${roleId==='modelling'?'从资料和你的目标开始。讨论、底稿和需要你判断的事项都会留在这里。':'说明需要解决的问题，选择相关资料，然后继续讨论。'}</p></div>`;
+ return `<section class="reporting-desk" data-live-chat data-run-id="${esc(run?.id||'')}" data-role-id="${esc(roleId)}"><header class="reporting-desk-head"><div><span class="reporting-eyebrow">${roleId==='modelling'?'项目汇报桌':'工作间对话'}</span><h2>${esc(title)}</h2></div><div class="reporting-runtime" role="status"><span class="activity-dot" data-reporting-dot></span><span data-reporting-status>${esc(reportingStatus(run))}</span></div></header><div class="reporting-controls"><div data-reporting-worker>${workerStatusHTML(run)}</div><div data-reporting-controls>${reportingControlsHTML(options)}</div></div>${conversation}<button type="button" class="button button-small chat-latest" data-chat-latest ${run?'':'hidden'}>最新进展 ↓</button><div data-reporting-composer>${reportingComposerHTML(options)}</div></section>`;
 }

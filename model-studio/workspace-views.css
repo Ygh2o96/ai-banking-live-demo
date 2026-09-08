@@ -1,0 +1,11 @@
+/* Business views compose existing source-aware cards inside a fixed shell. */
+.adaptive-view h3 { margin-top: 1.5rem; }
+.adaptive-assumption_cards { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px; }
+.adaptive-record_table { display:grid;gap:6px; }
+.adaptive-record_table .assumption-card { border-radius:4px; }
+.adaptive-milestone_timeline { display:grid;gap:12px;border-left:2px solid #aab8af;margin-left:8px;padding-left:22px; }
+.adaptive-milestone_timeline > div { position:relative; }
+.adaptive-milestone_timeline > div::before { content:"";position:absolute;left:-28px;top:24px;width:10px;height:10px;border-radius:50%;background:#486552; }
+.adaptive-stage_flow { display:flex;gap:16px;overflow:auto;padding:4px 0 12px; }
+.adaptive-stage_flow > div { min-width:260px;flex:1; }
+@media(max-width:700px) { .adaptive-stage_flow { display:grid; }.adaptive-assumption_cards { grid-template-columns:1fr; } }

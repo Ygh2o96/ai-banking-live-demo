@@ -41,12 +41,25 @@ export const technicalDetailsHTML=(value,{escape=escapeHTML,label='原始字段�
 export const agentTitle=run=>(!run?.role_id||run.role_id==='modelling')?'华泰建模专家':run.role_title||({source_librarian:'资料管理员',precedent_librarian:'先例图书管理员',accounting_librarian:'会计知识管理员',memo_librarian:'Memo 知识管理员',audit_reviewer:'项目审阅员'}[run.role_id]||'资料管理员');
 const toolStatus={succeeded:'已产出结果',failed:'调用失败',running:'运行中',interrupted:'已中断，未取得完成回执',superseded:'已被新指令替代'};
 function entryHTML(e,run,esc,receipt){
+ if(e.type==='attachment')return `<article class="conversation-entry output" data-event-id="${esc(e.id)}" data-output-kind="${esc(e.recordKind)}" data-output-record="${esc(e.recordId)}"><div class="conversation-meta"><strong>${esc(e.label||'已保存成果')}</strong><time>${e.at?esc(timeHK(e.at)):'保存时间未记录'}</time>${e.status?`<span>${esc(e.status)}</span>`:''}</div><div data-output-body>${e.html}</div></article>`;
  return `<article class="conversation-entry ${e.type}" data-event-id="${esc(e.id)}"><div class="conversation-meta"><strong>${e.type==='user'?'你':e.type==='tool'?'工具':e.type==='note'?'工作记录':esc(agentTitle(run))}</strong><time>${esc(timeHK(e.at))}</time>${e.payload?.epoch!==undefined&&e.payload.epoch!==run.epoch?'<span>前轮记录</span>':''}</div>${e.type==='tool'?`<p><span class="tool-light ${esc(e.status)}"></span>${esc(e.text)} · ${esc(toolStatus[e.status]||e.status)}</p><small>${esc(e.summary)}</small>`:`<div class="harness-verbatim" data-message-text>${esc(e.text)}</div>`}<small data-message-interruption ${e.payload?.partial?'':'hidden'}>中断前已输出的片段</small>${e.input?receipt(e.input,esc):''}</article>`;
 }
 const splitEvents=run=>{const all=chatEvents(run);return {messages:all.filter(e=>['user','agent'].includes(e.type)),actions:all.filter(e=>!['user','agent'].includes(e.type))};};
-export function conversationHTML(run,esc=escapeHTML,receipt=()=> ''){
+const dated=e=>typeof e.at==='string'&&Number.isFinite(Date.parse(e.at));
+function chronological(a,b){
+ const delta=(dated(a)?Date.parse(a.at):Infinity)-(dated(b)?Date.parse(b.at):Infinity);
+ if(delta)return delta;
+ // Preserve server sub-millisecond timestamps before using the same-run sequence.
+ const fraction=e=>(typeof e.at==='string'?e.at.match(/\.(\d+)(?:Z|[+-]\d\d:\d\d)$/)?.[1]||'':'').padEnd(9,'0').slice(3,9);
+ return fraction(a).localeCompare(fraction(b))||(Number.isInteger(a.seq)&&Number.isInteger(b.seq)?a.seq-b.seq:0);
+}
+export function conversationEntries(run,attachments=[]){
  const {messages,actions}=splitEvents(run);
- return `<div class="agent-conversation" data-live-scroll="chat:${esc(run.id)}" role="log" aria-label="与${esc(agentTitle(run))}的对话" aria-live="off"><div data-conversation-messages>${messages.map(e=>entryHTML(e,run,esc,receipt)).join('')}</div><p class="muted" data-conversation-empty ${messages.length||run.live_message?'hidden':''}>可以直接讨论本间工作，或告诉我需要调整的地方。</p><article class="conversation-entry agent" data-live-message ${run.live_message?.text?'':'hidden'}><div class="conversation-meta"><strong>${esc(agentTitle(run))}</strong><span>正在回复</span></div><div class="harness-verbatim" data-message-text>${esc(run.live_message?.text||'')}</div></article><details class="conversation-actions" data-h-detail="chat-actions-${esc(run.id)}" ${actions.length?'':'hidden'}><summary>查看工作动作 <span data-action-count>${actions.length}</span></summary><div data-conversation-actions>${actions.map(e=>entryHTML(e,run,esc,receipt)).join('')}</div></details></div>`;
+ return {messages:[...messages,...attachments.filter(dated)].sort(chronological),actions,undated:attachments.filter(e=>!dated(e))};
+}
+export function conversationHTML(run,esc=escapeHTML,receipt=()=> '',{attachments=[]}={}){
+ const {messages,actions,undated}=conversationEntries(run,attachments);
+ return `<div class="agent-conversation" data-live-scroll="chat:${esc(run.id)}" role="log" aria-label="与${esc(agentTitle(run))}的对话" aria-live="off"><details class="conversation-undated" data-conversation-undated data-h-detail="undated-outputs-${esc(run.id)}" ${undated.length?'':'hidden'}><summary>保存时间未记录的成果</summary><div data-conversation-undated-entries>${undated.map(e=>entryHTML(e,run,esc,receipt)).join('')}</div></details><div data-conversation-messages>${messages.map(e=>entryHTML(e,run,esc,receipt)).join('')}</div><p class="muted" data-conversation-empty ${messages.length||undated.length||run.live_message?'hidden':''}>可以直接讨论本间工作，或告诉我需要调整的地方。</p><article class="conversation-entry agent" data-live-message ${run.live_message?.text?'':'hidden'}><div class="conversation-meta"><strong>${esc(agentTitle(run))}</strong><span>正在回复</span></div><div class="harness-verbatim" data-message-text>${esc(run.live_message?.text||'')}</div></article><details class="conversation-actions" data-h-detail="chat-actions-${esc(run.id)}" ${actions.length?'':'hidden'}><summary>查看工作动作 <span data-action-count>${actions.length}</span></summary><div data-conversation-actions>${actions.map(e=>entryHTML(e,run,esc,receipt)).join('')}</div></details></div>`;
 }
 function appendText(element,text){
  const next=String(text??''),prior=element.textContent;
@@ -54,25 +67,36 @@ function appendText(element,text){
  if(next.startsWith(prior)&&element.childNodes.length===1&&element.firstChild.nodeType===3)element.firstChild.appendData(next.slice(prior.length));
  else element.textContent=next;
 }
-function patchEntries(container,events,run,esc,receipt){
+function patchEntries(container,events,run,esc,receipt,beforeRemove=()=>{}){
  const existing=new Map([...container.children].map(node=>[node.dataset.eventId,node]));
+ let cursor=container.firstElementChild;
  for(const event of events){
   let node=existing.get(String(event.id));const signature=JSON.stringify([event,run.epoch,agentTitle(run)]);
-  if(!node){const template=container.ownerDocument.createElement('template');template.innerHTML=entryHTML(event,run,esc,receipt);node=template.content.firstElementChild;container.append(node);}
+  if(!node){const template=container.ownerDocument.createElement('template');template.innerHTML=entryHTML(event,run,esc,receipt);node=template.content.firstElementChild;}
+  else if(event.type==='attachment'){
+   // Metadata changes must not destroy an interactive board or its filter state.
+   if(node._outputHTML!==event.html){const body=node.querySelector('[data-output-body]');beforeRemove(body);body.innerHTML=event.html;}
+   if(node._eventSignature!==signature){const template=container.ownerDocument.createElement('template');template.innerHTML=entryHTML(event,run,esc,receipt);node.querySelector('.conversation-meta').replaceWith(template.content.querySelector('.conversation-meta'));}
+  }
   else if(node._eventSignature!==signature){const text=node.querySelector('[data-message-text]');if(event.type==='agent'&&text){appendText(text,event.text);const metaKey=JSON.stringify([event.at,event.payload?.epoch,run.epoch,agentTitle(run)]);if(node._metaKey!==metaKey){const template=container.ownerDocument.createElement('template');template.innerHTML=entryHTML(event,run,esc,receipt);node.querySelector('.conversation-meta').replaceWith(template.content.querySelector('.conversation-meta'));node._metaKey=metaKey;}node.querySelector('[data-message-interruption]').hidden=!event.payload?.partial;}else {const template=container.ownerDocument.createElement('template');template.innerHTML=entryHTML(event,run,esc,receipt);const next=template.content.firstElementChild;node.replaceWith(next);node=next;}}
+  if(cursor&&!cursor.isConnected)cursor=node.parentElement===container?node:container.firstElementChild;
+  if(node!==cursor)container.insertBefore(node,cursor);cursor=node.nextElementSibling;
+  if(event.type==='attachment')node._outputHTML=event.html;
   node._eventSignature=signature;existing.delete(String(event.id));
  }
- for(const node of existing.values())node.remove();
+ for(const node of existing.values()){beforeRemove(node);node.remove();}
 }
 // Polling changes only new message text or changed receipts; the composer and scroll host survive.
-export function syncConversation(root,run,esc=escapeHTML,receipt=()=> ''){
+export function syncConversation(root,run,esc=escapeHTML,receipt=()=> '',{attachments=[],beforeRemove=()=>{}}={}){
  const host=root?.matches?.('.agent-conversation')?root:root?.querySelector('.agent-conversation');
  if(!host||host.dataset.liveScroll!==`chat:${run?.id}`)return false;
- const states=captureScroll(root===host?host.parentElement:root),{messages,actions}=splitEvents(run);
- patchEntries(host.querySelector('[data-conversation-messages]'),messages,run,esc,receipt);
- patchEntries(host.querySelector('[data-conversation-actions]'),actions,run,esc,receipt);
+ const states=captureScroll(root===host?host.parentElement:root),{messages,actions,undated}=conversationEntries(run,attachments);
+ patchEntries(host.querySelector('[data-conversation-messages]'),messages,run,esc,receipt,beforeRemove);
+ patchEntries(host.querySelector('[data-conversation-actions]'),actions,run,esc,receipt,beforeRemove);
+ patchEntries(host.querySelector('[data-conversation-undated-entries]'),undated,run,esc,receipt,beforeRemove);
+ host.querySelector('[data-conversation-undated]').hidden=!undated.length;
  host.setAttribute('aria-label',`与${agentTitle(run)}的对话`);const live=host.querySelector('[data-live-message]');appendText(live.querySelector('strong'),agentTitle(run));live.hidden=!run.live_message?.text;appendText(live.querySelector('[data-message-text]'),run.live_message?.text||'');
- host.querySelector('[data-conversation-empty]').hidden=!!(messages.length||run.live_message?.text);
+ host.querySelector('[data-conversation-empty]').hidden=!!(messages.length||undated.length||run.live_message?.text);
  const detail=host.querySelector('.conversation-actions');detail.hidden=!actions.length;appendText(detail.querySelector('[data-action-count]'),actions.length);
  restoreScroll(root===host?host.parentElement:root,states);return true;
 }

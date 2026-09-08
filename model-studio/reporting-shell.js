@@ -12,12 +12,6 @@ export function createRoomDrawer({mount,unmount,onDiscuss}) {
   document.body.classList.remove('report-room-open');
   if(focus&&returnFocus?.isConnected)returnFocus.focus({preventScroll:true});
  }
- // Refresh displayed content and its identity together, retaining the caller's focus anchor.
- function refresh(key='') {
-  if(!current||!dialog.open)return;
-  unmount();currentKey=key;
-  mount(dialog.querySelector('[data-room-body]'),current);
- }
  function open(id,title,key='') {
   if(current===id&&currentKey===key&&dialog.open){dialog.querySelector('[data-drawer-close]').focus();return;}
   if(current)close({focus:false});
@@ -32,5 +26,5 @@ export function createRoomDrawer({mount,unmount,onDiscuss}) {
  dialog.querySelector('[data-drawer-discuss]').addEventListener('click',()=>{const id=current;close({focus:false});onDiscuss(id);});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&current&&!document.querySelector('dialog:modal')){event.preventDefault();close();}});
  dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
- return {open,close,refresh,current:()=>current,element:dialog};
+ return {open,close,current:()=>current,element:dialog};
 }
