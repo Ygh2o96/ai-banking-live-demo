@@ -10,7 +10,8 @@ import {ROOMS} from './workrooms.js';
 import {createSourceRoom} from './source-room.js';
 import {createPrecedentWorkshop} from './precedents.js';
 import {createKnowledgeWorkshop} from './knowledge-workshops.js';
-import {createRoomDrawer} from './reporting-shell.js';
+import {createRoomDrawer,initWorkspaceNavigation} from './reporting-shell.js';
+initWorkspaceNavigation();
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -32,15 +33,16 @@ function updateRoomNavigation(detail){
  for(const d of roomUpdates.values()){
  if(d.projectId!==state.project?.id&&!['precedent_librarian','accounting_librarian','memo_librarian'].includes(d.run?.role_id))continue;
  for(const r of d.run?.workrooms?.rooms||[]){
-  const button=document.querySelector(`#step-nav [data-step="${r.id}"]`);
+  const buttons=document.querySelectorAll(`#step-nav [data-step="${r.id}"], .report-room-directory [data-step="${r.id}"]`);
   const key=`${d.projectId}:${d.run.id}:${r.id}`;
   if(state.step===r.id||roomDrawer.current()===r.id)rememberRoom(key,r.output_revision);
-  if(!button)continue;
+  for(const button of buttons){
   let badge=button.querySelector('.room-nav-status');if(!badge){badge=document.createElement('span');badge.className='room-nav-status';button.append(badge);}
   const fresh=!!r.output_revision&&r.output_revision!==roomSeen.get(key);
   const next=r.activity?['working','处理中']:r.attention_count?['attention',String(r.attention_count)]:fresh?['new','新']:['',''];
   badge.className='room-nav-status '+next[0];badge.textContent=next[1];badge.hidden=!next[1];
   button.title=r.activity?.title|| (r.attention_count?`${r.attention_count} 项待处理`:'');
+  }
  }
  }
 }
@@ -418,12 +420,12 @@ function renderChrome() {
   const activeRoom=ROOM_ALIAS[state.step]||state.step;
   document.body.classList.toggle('report-mode',!auditMode);
   $('#audit-mode-toggle').setAttribute('aria-pressed',String(auditMode));
-  $('#audit-mode-toggle').textContent=auditMode?'返回简洁对话':'专业审计模式';
+  $('#audit-mode-toggle').textContent=auditMode?'返回对话':'专业模式';
   if(auditMode)$('#step-nav').innerHTML=STEPS.map(([key,label],index)=>`${key==='audit-lab'?'<div class="room-nav-divider">项目复核</div>':''}<button class="step-button ${activeRoom===key?'active':''}" data-step="${key}" ${activeRoom===key?'aria-current="page"':''}><span class="step-number">${String(index+1).padStart(2,'0')}</span><span>${label}</span>${completed[key]?'<span class="step-check" aria-label="已有保存内容"></span>':''}</button>`).join('')+`<div class="room-nav-divider">共享知识</div><button class="step-button ${state.step==='precedents'?'active':''}" data-step="precedents"><span class="step-number">▦</span><span>先例工坊</span></button><button class="step-button ${state.step==='accounting-library'?'active':''}" data-step="accounting-library"><span class="step-number">▤</span><span>会计与配平工坊</span></button><button class="step-button ${state.step==='memo-library'?'active':''}" data-step="memo-library"><span class="step-number">▧</span><span>PFM Memo 工坊</span></button>`;
   else {
-   const simple=[['harness','项目对话','◇'],['intake','资料管理员','▤']];
+   const simple=[['harness','项目对话','◇'],['intake','项目资料','▤'],['todos','待我处理','○']];
    const nav=(key,label,icon)=>`<button class="step-button ${state.step===key?'active':''}" data-step="${key}" ${state.step===key?'aria-current="page"':''}><span class="step-number" aria-hidden="true">${icon}</span><span>${label}</span></button>`;
-   $('#step-nav').innerHTML=simple.map(r=>nav(...r)).join('')+`<button class="step-button" data-open-room="room-list"><span class="step-number" aria-hidden="true">▦</span><span>展开工作间</span></button><details class="report-nav-libraries" ${['precedents','accounting-library','memo-library','audit-lab'].includes(state.step)?'open':''}><summary>工坊与审阅</summary>${[['precedents','先例工坊','▦'],['accounting-library','会计与配平','▤'],['memo-library','Memo 工坊','▧'],['audit-lab','独立审阅','⌕']].map(r=>nav(...r)).join('')}</details>`;
+   $('#step-nav').innerHTML=simple.map(r=>nav(...r)).join('')+`<button class="step-button" data-open-room="room-list"><span class="step-number" aria-hidden="true">▦</span><span>全部工作间</span></button><details class="report-nav-libraries" ${['precedents','accounting-library','memo-library','audit-lab'].includes(state.step)?'open':''}><summary>知识与审阅</summary>${[['precedents','先例工坊','▦'],['accounting-library','会计与配平','▤'],['memo-library','Memo 工坊','▧'],['audit-lab','独立审阅','⌕']].map(r=>nav(...r)).join('')}</details>`;
   }
   $('#footer-state').textContent=state.project?`${unitLabel()} · ${state.project.forecast_months || '—'} 个月预测 · 复核用工作版本`:'新模型 · 来源可追溯 · Excel 可编辑';
   updateRoomNavigation();
