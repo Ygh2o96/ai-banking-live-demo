@@ -186,3 +186,24 @@ details.supervisor-mission:not([open])>summary,details.supervisor-panel:not([ope
 .financial-presentation .fp-value-button{color:#34343b;text-decoration-color:#c8c8cf}
 .financial-presentation .fp-value-button:hover{color:var(--accent);text-decoration-color:var(--accent)}
 .financial-presentation .fp-value-button.fp-missing{color:#876e43}
+
+/* Files attach where the banker is discussing the question. */
+.attachment-target{margin:10px 0;color:var(--muted);min-width:0;border-radius:4px;transition:background-color .12s,border-color .12s}
+.attachment-drop{display:flex;align-items:center;gap:7px;flex-wrap:wrap;border:1px dashed var(--line);border-radius:4px;padding:10px 12px;font-size:13px;background:transparent}
+.attachment-choose{background:transparent!important;border:0!important;color:var(--accent)!important;font-size:13px;padding:3px 2px!important;cursor:pointer;text-decoration:underline;text-underline-offset:3px;box-shadow:none!important}
+.attachment-choose:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.attachment-target.is-dragging{background:var(--accent-soft,#fbf0f1);outline:2px dashed var(--accent);outline-offset:2px}
+.attachment-target.is-dragging .attachment-drop{border-color:transparent}
+.attachment-files{list-style:none;padding:0!important;margin:0!important;max-height:160px;overflow:auto;scrollbar-gutter:stable}
+.attachment-file{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
+.attachment-file-name{min-width:0;overflow-wrap:anywhere;color:var(--ink)}
+.attachment-file-name a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.attachment-file small{font-size:12px;color:var(--muted)}
+.attachment-file.failed small{color:var(--accent)}
+.attachment-file.uploading::before{content:'';width:10px;height:10px;flex:0 0 10px;border:1px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:attachment-spin .8s linear infinite}
+.attachment-compact{margin:0}.attachment-compact .attachment-drop{display:none}.attachment-compact.is-dragging .attachment-drop{display:flex}
+.reporting-composer:has(.attachment-target.is-dragging){border-color:var(--accent);background:#fffcfc}
+.reporting-output-card:has(.attachment-target){max-width:680px}.reporting-output-card .attachment-target{width:100%;font-weight:400}
+@keyframes attachment-spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){.attachment-choose{min-height:36px}.attachment-drop{padding:8px}.attachment-file{gap:4px 8px}.attachment-files{max-height:110px}}
+@media(prefers-reduced-motion:reduce){.attachment-target{transition:none}.attachment-file.uploading::before{animation:none}}

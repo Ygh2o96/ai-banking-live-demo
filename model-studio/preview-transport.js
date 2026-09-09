@@ -1,8 +1,11 @@
 /* Static deployment adapter for the real workstation UI. Only synthetic,
  * allowlisted records are loaded. No request falls through to a live API. */
+import {ROOMS} from './workrooms.js';
 const copy=value=>structuredClone(value);
 export function createPreviewTransport(snapshot) {
-  const responses=copy(snapshot.responses),downloads=snapshot.downloads||{};
+  const responses=copy(snapshot.responses),downloads=copy(snapshot.downloads||{});
+  // Original bytes and object URLs belong only to this page's transport.
+  const localFiles=new Map(),localDownloadURLs=new Set();
   const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
   const fail=message=>reply({ok:false,error:{message}},409);
   const normalize=path=>{const url=new URL(path,'https://preview.invalid');url.searchParams.sort();return url.pathname+(url.searchParams.size?'?'+url.searchParams:'');};
@@ -129,13 +132,100 @@ export function createPreviewTransport(snapshot) {
     run.events.push({id:crypto.randomUUID(),seq:run.events.length+1,kind:'progress_saved',created_at:at,at,payload:{text:'意见已保留在本页体验记录。在线 AI 接入后，可继续分析和修改模型。'}});
     run.updated_at=at;
   }
+  function attachmentContext(project,raw,requestReturn) {
+    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).some(k=>!['kind','run_id','target_id','signature','room_id'].includes(k)))throw Error('附件关联信息无效，请重新选择。');
+    if(!Object.keys(raw).length&&!requestReturn)return {};
+    if(!(requestReturn?['request_return']:['todo','question','chat']).includes(raw.kind))throw Error('请选择附件对应的待办、问题或对话。');
+    for(const field of ['run_id','target_id','signature','room_id'])if(field in raw&&(typeof raw[field]!=='string'||!raw[field].trim()))throw Error('附件关联信息不完整，请重新选择。');
+    if(!raw.run_id)throw Error('请先打开附件所属的工作记录。');
+    const run=lookup('GET',`/api/harness/${encodeURIComponent(raw.run_id)}`)?.run;
+    if(!run||run.id!==raw.run_id||run.project_id!==project.id)throw Error('附件所属工作记录与当前项目不一致。');
+    const role=run.role_id||'modelling',roleRooms={modelling:['overview','harness',...ROOMS.map(room=>room[0])],source_librarian:['intake','data-room'],intake_librarian:['intake'],data_librarian:['data-room'],audit_reviewer:['audit-lab']};
+    if(!roleRooms[role])throw Error('请在公司项目工作间附上文件；共享工坊须使用其资料入口。');
+    if(run.source_current===false||(run.source_revision!==undefined&&run.source_revision!==project.revision))throw Error('这份工作记录对应旧资料，请打开当前版本后再附上文件。');
+    if(raw.room_id&&!roleRooms[role].includes(raw.room_id))throw Error('附件所属工作间已变化，请重新打开。');
+    const context={kind:raw.kind,run_id:run.id};
+    if(raw.kind==='todo') {
+      const todo=run.banker?.todos?.find(item=>item.id===raw.target_id);
+      if(!todo||typeof todo.signature!=='string'||raw.signature!==todo.signature)throw Error('待办已有更新，请核对后再附上文件。');
+      Object.assign(context,{target_id:todo.id,signature:todo.signature,title:todo.title||todo.text||'',text:todo.text||''});
+    }else if(raw.kind==='question') {
+      const question=run.questions?.find(item=>item.id===raw.target_id);
+      if(!question||typeof question.text!=='string'||raw.signature!==question.text)throw Error('问题已有更新，请核对后再附上文件。');
+      Object.assign(context,{target_id:question.id,signature:question.text,title:question.text,text:question.text});
+    }else if(raw.kind==='request_return') {
+      const list=run.request_lists?.find(item=>item.id===raw.target_id&&item.format==='xlsx');
+      if(!list)throw Error('没有找到本工作记录的 Excel 资料清单。');
+      Object.assign(context,{target_id:list.id,title:list.title||list.name||'回传资料清单'});
+    }else if(raw.target_id||raw.signature)throw Error('对话附件的关联信息无效，请重新附上文件。');
+    if(raw.room_id)context.room_id=raw.room_id;
+    return context;
+  }
+  async function stageAttachment(projectId,form,requestReturn=null) {
+    try {
+      if(!(form instanceof FormData)||[...form.keys()].some(k=>!['file','revision',...(requestReturn?[]:['context'])].includes(k))||form.getAll('file').length!==1||form.getAll('revision').length!==1||form.getAll('context').length>1)throw Error('请选择一个附件，再重新提交。');
+      const file=form.get('file'),revision=form.get('revision');
+      if(!(file instanceof Blob)||typeof file.name!=='string'||!file.name.trim()||/[\\/\u0000]/.test(file.name)||file.webkitRelativePath)throw Error('请附上文件；文件夹不能直接添加。');
+      if(!Number.isSafeInteger(file.size)||file.size<1||file.size>20*1024*1024)throw Error('附件须有内容，且单个文件不超过 20 MB。');
+      if(requestReturn&&!/\.xlsx$/i.test(file.name))throw Error('请附上填回的 .xlsx 文件。');
+      if(typeof revision!=='string'||!/^\d+$/.test(revision)||!Number.isSafeInteger(Number(revision)))throw Error('资料版本无效，请刷新项目后再附上文件。');
+      let raw={};
+      if(requestReturn)raw={kind:'request_return',...requestReturn};
+      else if(form.has('context')) {
+        const value=form.get('context');
+        if(typeof value!=='string'||value.length>16000)throw Error('附件关联信息无效，请重新选择。');
+        try{raw=JSON.parse(value);}catch{throw Error('附件关联信息未能读取，请重新选择。');}
+      }
+      const validate=()=>{
+        const entry=lookup('GET',`/api/projects/${encodeURIComponent(projectId)}`),project=entry?.project;
+        if(!project||project.id!==projectId)throw Error('没有找到附件所属的项目，请重新打开。');
+        if(project.internal_workspace)throw Error('请在公司项目工作间附上文件；共享工坊须使用其资料入口。');
+        if(project.revision!==Number(revision))throw Error('资料版本已改变，请刷新后再附上文件。');
+        return {entry,project,context:attachmentContext(project,raw,requestReturn)};
+      };
+      validate();
+      const sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await file.arrayBuffer())),byte=>byte.toString(16).padStart(2,'0')).join('');
+      // Hashing yields to the page: recheck revision/context before any mutation.
+      const {entry,project:before,context}=validate();
+      const project=copy(before),byHash=localFiles.get(projectId)||new Map(),existing=byHash.get(sha256);
+      const existingSource=project.sources?.find(source=>source.sha256===sha256);
+      const sameContext=receipt=>['kind','run_id','target_id','signature','room_id'].every(field=>receipt.context?.[field]===context[field]);
+      const previous=existing&&(project.attachment_receipts||[]).find(receipt=>receipt.sha256===sha256&&receipt.source_id===existing.source_id&&receipt.local_only===true&&sameContext(receipt));
+      if(previous)return reply({ok:true,project,source_id:previous.source_id,duplicate:true,attachment_receipt:previous,local_only:true,model_applied:false,message:'这份附件已暂存在本页的同一事项下；刷新页面后需重新添加。'});
+      const sourceId=existing?.source_id||existingSource?.id||crypto.randomUUID(),id=crypto.randomUUID(),at=new Date().toISOString();
+      let staged=existing;
+      if(!staged) {
+        const url=URL.createObjectURL(file);
+        if(!url.startsWith('blob:')){URL.revokeObjectURL(url);throw Error('无法在本页暂存附件，请重试。');}
+        staged={file,source_id:sourceId,url};
+        byHash.set(sha256,staged);localFiles.set(projectId,byHash);localDownloadURLs.add(url);
+        const original=`/api/projects/${encodeURIComponent(projectId)}/data-room/${encodeURIComponent(sourceId)}/original`;
+        // Retain the frozen demo's existing download if this file matches it.
+        downloads[original]||={path:url,filename:file.name,local_only:true};
+      }
+      const receipt={id,source_id:sourceId,sha256,name:file.name,filename:file.name,context,at,status:'local_only',local_only:true,model_applied:false,download_url:staged.url};
+      project.attachment_receipts=[...(project.attachment_receipts||[]),receipt];
+      save('GET',`/api/projects/${encodeURIComponent(projectId)}`,{...copy(entry),project});
+      return reply({ok:true,project,source_id:sourceId,duplicate:!!(existing||existingSource),attachment_receipt:receipt,local_only:true,model_applied:false,message:requestReturn?'回传文件已暂存在本页；尚未读取或导入工作表，刷新页面后需重新添加。':'附件已暂存在本页；尚未提取内容或交给 AI，刷新页面后需重新添加。'});
+    }catch(error){return fail(error instanceof Error?error.message:'附件未能暂存，请重新选择。');}
+  }
   const transport={
     downloads,
+    isLocalDownload:url=>localDownloadURLs.has(url),
+    dispose(){for(const url of localDownloadURLs)URL.revokeObjectURL(url);localDownloadURLs.clear();localFiles.clear();},
     async request(path,options={}) {
       const method=(options.method||'GET').toUpperCase();
       let body=options.body;
       if(typeof body==='string'){try{body=JSON.parse(body);}catch{return fail('这项输入未能读取，请重新填写。');}}
       const parsed=new URL(path,'https://preview.invalid');
+      const intake=parsed.pathname.match(/^\/api\/projects\/([^/]+)\/intake$/);
+      if(method==='POST'&&intake)return stageAttachment(decodeURIComponent(intake[1]),body);
+      const requestReturn=parsed.pathname.match(/^\/api\/harness\/([^/]+)\/request-lists\/([^/]+)\/return$/);
+      if(method==='POST'&&requestReturn) {
+        const runId=decodeURIComponent(requestReturn[1]),run=lookup('GET',`/api/harness/${encodeURIComponent(runId)}`)?.run;
+        if(!run)return fail('没有找到这份工作记录，请重新打开项目。');
+        return stageAttachment(run.project_id,body,{run_id:runId,target_id:decodeURIComponent(requestReturn[2])});
+      }
       const relation=parsed.pathname.match(/^\/api\/projects\/([^/]+)\/data-room\/resolve$/);
       if(method==='POST'&&relation)return resolveSources(relation[1],body);
       if(method==='GET'&&sourceEndpoint.test(parsed.pathname)&&!['resolve','original'].includes(parsed.pathname.split('/').at(-1)))return previewResponse(parsed);
@@ -185,7 +275,7 @@ export function installPreviewPresentation(snapshot,transport) {
     if(!raw?.startsWith('/api/'))continue;
     a.dataset.previewOriginalHref=raw;
     const target=transport.downloads[raw];
-    if(target){const local=new URL(typeof target==='string'?target:target.path,base);if(local.origin!==location.origin||!local.href.startsWith(base.href))throw Error('Invalid preview download');a.href=local.href;a.setAttribute('download',typeof target==='object'&&target.filename?target.filename:local.pathname.split('/').at(-1));}
+    if(target){const local=new URL(typeof target==='string'?target:target.path,base);if(!transport.isLocalDownload(local.href)&&(local.origin!==location.origin||!local.href.startsWith(base.href)))throw Error('Invalid preview download');a.href=local.href;a.setAttribute('download',typeof target==='object'&&target.filename?target.filename:local.pathname.split('/').at(-1));}
   }};
   const paint=()=>{
     mapLinks(document);
@@ -196,5 +286,5 @@ export function installPreviewPresentation(snapshot,transport) {
   const observer=new MutationObserver(()=>{if(!queued){queued=true;queueMicrotask(()=>{queued=false;paint();});}});
   observer.observe(document.body,{childList:true,subtree:true});paint();
   document.addEventListener('click',event=>{const a=event.target.closest('a[data-preview-original-href]');if(a&&!transport.downloads[a.dataset.previewOriginalHref]){event.preventDefault();const box=document.querySelector('#toast');box.textContent='这项文件尚未加入公开示例；可查看当前工作区的内容和依据。';box.hidden=false;setTimeout(()=>box.hidden=true,5000);}},true);
-  window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+  window.addEventListener('pagehide',event=>{if(!event.persisted){observer.disconnect();transport.dispose();}});
 }

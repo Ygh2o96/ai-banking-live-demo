@@ -103,11 +103,11 @@ function receiveSourceProject(data,repaint) {
  const i=state.projects.findIndex(p=>p.id===data.project.id);if(i>=0)state.projects[i]=data.project;
  renderChrome();harness.updateProject(data.project);drawerHarness.updateProject(data.project);
  const shelf=$('[data-source-exhibit]');if(shelf)shelf.innerHTML=sourceExhibitHTML();
- if(repaint&&auditMode)render();else toast('资料已保存。');
+ if(repaint&&auditMode)render();else toast(data.local_only?'文件暂存在本页；尚未发送，刷新后需重新添加。':'资料已保存。');
 }
 const sourceRoom=createSourceRoom({api,onError:showError,onProject:receiveSourceProject});
-const harness=createHarnessController({api,onError:showError,onProject:data=>adoptProject(data,'客户回传已读入新资料版本。'),onOpenRoom:openRoom});
-const drawerHarness=createHarnessController({api,onError:showError,onProject:data=>adoptProject(data,'修改已保存。'),onOpenRoom:openRoom});
+const harness=createHarnessController({api,onError:showError,onSources:data=>receiveSourceProject(data,false),onProject:data=>adoptProject(data,'客户回传已读入新资料版本。'),onOpenRoom:openRoom});
+const drawerHarness=createHarnessController({api,onError:showError,onSources:data=>receiveSourceProject(data,false),onProject:data=>adoptProject(data,'修改已保存。'),onOpenRoom:openRoom});
 const drawerSources=createSourceRoom({api,onError:showError,onProject:receiveSourceProject});
 const knowledgeWorkshop=createKnowledgeWorkshop({api,onError:showError,onWorkspace:mountLibraryChat});
 const roomDrawer=createRoomDrawer({mount:(el,id)=>{
